@@ -10,7 +10,8 @@
     "astro": "astro",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx,astro}\"",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "api:types": "openapi-typescript http://127.0.0.1:8000/openapi.json -o src/lib/api/schema.d.ts"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.5",
@@ -18,7 +19,9 @@
     "@types/react-dom": "^19",
     "@workspace/ui": "workspace:*",
     "astro": "^7.3.2",
+    "cn": "^0.3.0",
     "lucide-react": "^1.46.0",
+    "openapi-fetch": "^0.17.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
@@ -31,6 +34,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17",
+    "openapi-typescript": "^7.13.0",
     "typescript": "~6",
     "typescript-eslint": "^8"
   }
