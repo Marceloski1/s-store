@@ -1,0 +1,62 @@
+from uuid import UUID
+
+from fastapi import APIRouter, status
+from shared.presentation.http.dependencies import PageParamsDep, UnitOfWorkDep
+from shared.presentation.http.schemas import PageResponse
+
+from saury_backend.catalog.application.dtos.category import CreateCategoryCommand, UpdateCategoryCommand
+from saury_backend.catalog.application.use_cases.category import (
+    CreateCategory,
+    DeleteCategory,
+    GetCategory,
+    ListCategories,
+    UpdateCategory,
+)
+from saury_backend.catalog.presentation.http.dependencies import CategoryRepositoryDep
+from saury_backend.catalog.presentation.http.schemas import CategoryRequest, CategoryResponse
+
+router = APIRouter(prefix="/categories", tags=["categories"])
+
+
+@router.post("", status_code=status.HTTP_201_CREATED)
+async def create_category(
+    body: CategoryRequest,
+    repository: CategoryRepositoryDep,
+    unit_of_work: UnitOfWorkDep,
+) -> CategoryResponse:
+    command = CreateCategoryCommand(name=body.name, slug=body.slug)
+    return CategoryResponse.model_validate(await CreateCategory(repository, unit_of_work).execute(command))
+
+
+@router.get("")
+async def list_categories(
+    repository: CategoryRepositoryDep,
+    page_params: PageParamsDep,
+) -> PageResponse[CategoryResponse]:
+    page = await ListCategories(repository).execute(page_params)
+    return PageResponse[CategoryResponse].from_page(page.map(CategoryResponse.model_validate))
+
+
+@router.get("/{category_id}")
+async def get_category(category_id: UUID, repository: CategoryRepositoryDep) -> CategoryResponse:
+    return CategoryResponse.model_validate(await GetCategory(repository).execute(category_id))
+
+
+@router.put("/{category_id}")
+async def update_category(
+    category_id: UUID,
+    body: CategoryRequest,
+    repository: CategoryRepositoryDep,
+    unit_of_work: UnitOfWorkDep,
+) -> CategoryResponse:
+    command = UpdateCategoryCommand(category_id=category_id, name=body.name, slug=body.slug)
+    return CategoryResponse.model_validate(await UpdateCategory(repository, unit_of_work).execute(command))
+
+
+@router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_category(
+    category_id: UUID,
+    repository: CategoryRepositoryDep,
+    unit_of_work: UnitOfWorkDep,
+) -> None:
+    await DeleteCategory(repository, unit_of_work).execute(category_id)
