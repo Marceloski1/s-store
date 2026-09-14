@@ -5,7 +5,7 @@ This is a monorepo template for Astro with React, TypeScript, and shadcn/ui.
 ## Structure
 
 - `apps/web` - Astro application
-- `packages/ui` - Shared UI components (shadcn/ui)
+- `packages/node/ui` - Shared UI components (shadcn/ui)
 
 ## Adding components
 

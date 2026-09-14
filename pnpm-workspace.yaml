@@ -1,6 +1,9 @@
 packages:
   - "apps/*"
-  - "packages/*"
+  - "packages/node/*"
+
+overrides:
+  "@vitejs/plugin-react": "^6.1.1"
 
 allowBuilds:
   esbuild: true
