@@ -5,6 +5,10 @@ packages:
 overrides:
   "@vitejs/plugin-react": "^6.1.1"
 
+peerDependencyRules:
+  allowedVersions:
+    "openapi-typescript>typescript": "6"
+
 allowBuilds:
   esbuild: true
   sharp: true

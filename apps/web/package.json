@@ -10,7 +10,7 @@
     "astro": "astro",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx,astro}\"",
-    "typecheck": "astro check",
+    "typecheck": "astro check && tsc --noEmit",
     "api:types": "openapi-typescript http://127.0.0.1:8000/openapi.json -o src/lib/api/schema.d.ts"
   },
   "dependencies": {
@@ -30,12 +30,13 @@
     "@eslint/js": "^10",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "eslint": "^10",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17",
     "openapi-typescript": "^7.13.0",
-    "typescript": "~6",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
     "typescript-eslint": "^8"
   }
 }
