@@ -1,3 +1,5 @@
+import os
+from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
 
@@ -10,11 +12,18 @@ _ASYNC_POSTGRES_DRIVER = "postgresql+asyncpg"
 _POSTGRES_DRIVERS = {"postgres", "postgresql"}
 
 
-class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=BACKEND_DIR / ".env", extra="ignore")
+class Environment(StrEnum):
+    DEVELOPMENT = "development"
+    PRODUCTION = "production"
 
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(extra="ignore")
+
+    app_env: Environment = Environment.DEVELOPMENT
     database_url: str
     database_echo: bool = False
+    cors_origins: list[str] = []
 
     @property
     def async_database_url(self) -> str:
@@ -33,6 +42,11 @@ def to_async_database_url(database_url: str) -> str:
     return url.set(drivername=_ASYNC_POSTGRES_DRIVER, query=query).render_as_string(hide_password=False)
 
 
+def env_files_for(app_env: Environment) -> tuple[Path, ...]:
+    return (BACKEND_DIR / ".env", BACKEND_DIR / f".env.{app_env}")
+
+
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    app_env = Environment(os.environ.get("APP_ENV", Environment.DEVELOPMENT))
+    return Settings(_env_file=env_files_for(app_env))
