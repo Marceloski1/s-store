@@ -8,6 +8,7 @@
 | Repositorio | Un único `SneakerRepository` (carga/guarda el agregado completo) + consultas de listado con filtros | Menos puertos; consistencia transaccional |
 | Money | Value object `Money(amount: Decimal, currency: str)` en `shared.domain`; persistido como `NUMERIC(10,2)` + `CHAR(3)`. Operaciones y comparaciones solo entre la misma moneda | Evitar `float`; multi-moneda (PA-01) |
 | Tallas | `size` como `Decimal` EU persistido en `NUMERIC(3,1)` | PA-02; admite medias tallas |
+| Imagen principal | La primera imagen subida es principal; al borrar la principal se promueve la primera restante | Mantiene RN-01/RN-02 sin pasos manuales |
 | Unicidad `slug`/`sku` | Comprobación en caso de uso + `UNIQUE` en BD (mapeado a 409 por `SqlAlchemyUnitOfWork`) | Mismo patrón que `Brand` |
 | Imágenes | Puerto `ImageStorage` en `catalog/application/ports` (ver 002) | El dominio no conoce Cloudinary |
 | Borrado de marcas/categorías en uso | FK `ON DELETE RESTRICT` + error de dominio `BrandInUse` / `CategoryInUse` | RN-06 con mensaje claro |
@@ -19,7 +20,7 @@
 catalog/
 ├── domain/
 │   ├── entities/            sneaker.py, colorway.py, size_variant.py, image.py
-│   ├── value_objects/       gender.py, sneaker_status.py
+│   ├── value_objects/       gender.py, sneaker_status.py, shoe_size.py
 │   ├── repositories/        sneaker_repository.py (+ SneakerFilters)
 │   └── errors.py            SneakerNotFound, SkuAlreadyExists, SneakerNotPublishable, BrandInUse, …
 ├── application/

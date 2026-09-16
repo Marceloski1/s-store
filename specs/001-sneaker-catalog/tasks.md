@@ -9,12 +9,12 @@
 
 ## Fase 1 · Dominio
 
-- [ ] T010 Value objects `Gender` y `SneakerStatus`
-- [ ] T011 Entidades `SizeVariant`, `Colorway` (precio efectivo RF-08) e `Image`
-- [ ] T012 Agregado `Sneaker`: creación, actualización, gestión de colorways/tallas/imágenes y transiciones de estado
-- [ ] T013 Errores de dominio (`SneakerNotFound`, `SneakerSlugAlreadyExists`, `SkuAlreadyExists`, `SneakerNotPublishable`, `BrandInUse`, `CategoryInUse`, …)
-- [ ] T014 Puerto `SneakerRepository` y `SneakerFilters`
-- [ ] T015 Tests unitarios del agregado para RN-01…RN-04 y RF-07
+- [x] T010 Value objects `Gender` y `SneakerStatus`
+- [x] T011 Entidades `SizeVariant`, `Colorway` (precio efectivo RF-08) e `Image`
+- [x] T012 Agregado `Sneaker`: creación, actualización, gestión de colorways/tallas/imágenes y transiciones de estado
+- [x] T013 Errores de dominio (`SneakerNotFound`, `SneakerSlugAlreadyExists`, `SkuAlreadyExists`, `SneakerNotPublishable`, `BrandInUse`, `CategoryInUse`, …)
+- [x] T014 Puerto `SneakerRepository` y `SneakerFilters`
+- [x] T015 Tests unitarios del agregado para RN-01…RN-04 y RF-07
 
 ## Fase 2 · Aplicación
 
