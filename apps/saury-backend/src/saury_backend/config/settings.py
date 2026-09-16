@@ -3,6 +3,7 @@ from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import make_url
 
@@ -24,6 +25,10 @@ class Settings(BaseSettings):
     database_url: str
     database_echo: bool = False
     cors_origins: list[str] = []
+    cloudinary_cloud_name: str | None = None
+    cloudinary_api_key: str | None = None
+    cloudinary_api_secret: SecretStr | None = None
+    cloudinary_folder: str = "sauri-store"
 
     @property
     def async_database_url(self) -> str:
