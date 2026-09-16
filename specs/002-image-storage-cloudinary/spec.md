@@ -1,6 +1,6 @@
 # 002 · Almacenamiento de imágenes con Cloudinary
 
-- **Estado:** Borrador
+- **Estado:** En progreso
 - **Prioridad:** P1
 - **Bloqueante para:** [001](../001-sneaker-catalog/spec.md) (RF-06, RN-05, RN-07)
 

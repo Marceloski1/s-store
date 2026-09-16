@@ -6,7 +6,8 @@
 |---|---|---|
 | Agregado | `Sneaker` es raíz de agregado con `images`, `colorways` y sus `size_variants` | Las reglas RN-01…RN-04 cruzan esas entidades; se garantizan dentro del agregado |
 | Repositorio | Un único `SneakerRepository` (carga/guarda el agregado completo) + consultas de listado con filtros | Menos puertos; consistencia transaccional |
-| Money | Value object `Money(amount: Decimal, currency: str)` en `shared.domain`; persistido como `NUMERIC(10,2)` + `CHAR(3)` | Evitar `float`; pendiente PA-01 |
+| Money | Value object `Money(amount: Decimal, currency: str)` en `shared.domain`; persistido como `NUMERIC(10,2)` + `CHAR(3)`. Operaciones y comparaciones solo entre la misma moneda | Evitar `float`; multi-moneda (PA-01) |
+| Tallas | `size` como `Decimal` EU persistido en `NUMERIC(3,1)` | PA-02; admite medias tallas |
 | Unicidad `slug`/`sku` | Comprobación en caso de uso + `UNIQUE` en BD (mapeado a 409 por `SqlAlchemyUnitOfWork`) | Mismo patrón que `Brand` |
 | Imágenes | Puerto `ImageStorage` en `catalog/application/ports` (ver 002) | El dominio no conoce Cloudinary |
 | Borrado de marcas/categorías en uso | FK `ON DELETE RESTRICT` + error de dominio `BrandInUse` / `CategoryInUse` | RN-06 con mensaje claro |
@@ -61,7 +62,8 @@ Las respuestas 404/409 se declaran en OpenAPI para tipar errores en el frontend 
 - Tablas `sneakers`, `sneaker_images`, `colorways`, `size_variants`.
 - FKs: `sneakers.brand_id` / `category_id` → `RESTRICT`; hijos del agregado → `CASCADE`.
 - Índices: `sneakers(slug)` único, `colorways(sku)` único, `size_variants(colorway_id, size)` único, `sneakers(brand_id)`, `sneakers(category_id)`, `sneakers(status)`.
-- `CHECK (stock >= 0)` y `CHECK (base_price >= 0)`.
+- `CHECK (stock >= 0)`, `CHECK (base_price >= 0)`, `CHECK (price_override >= 0)` y `CHECK (size > 0)`.
+- `sneakers(currency, base_price)` para ordenación y filtros de precio (RF-09).
 - Una migración Alembic autogenerada y revisada, validada con `upgrade`/`downgrade` en Postgres local.
 
 ## Estrategia de tests
@@ -75,4 +77,4 @@ Las respuestas 404/409 se declaran en OpenAPI para tipar errores en el frontend 
 ## Riesgos
 
 - Filtros por talla/stock pueden generar N+1 → usar `selectinload` y subconsultas `EXISTS`.
-- Subidas grandes → límite de tamaño en la capa HTTP (PA-03).
+- Subidas grandes → límite de 5 MB en la capa HTTP (002-T014).

@@ -1,6 +1,6 @@
 # 001 · Catálogo de sneakers
 
-- **Estado:** Borrador
+- **Estado:** En progreso
 - **Prioridad:** P1
 - **Depende de:** [002 · Cloudinary](../002-image-storage-cloudinary/spec.md) para las imágenes
 
@@ -33,13 +33,14 @@ Brand 1───* Sneaker *───1 Category
 | **Sneaker** | `id`, `name`, `slug`, `description`, `brand_id`, `category_id`, `gender` (`men`/`women`/`unisex`/`kids`), `base_price` (Money), `status` (`draft`/`active`/`archived`), `release_date?`, `created_at`, `updated_at` |
 | **Image** | `id`, `sneaker_id`, `public_id` (Cloudinary), `url`, `alt`, `position`, `is_primary` |
 | **Colorway** | `id`, `sneaker_id`, `name`, `color_code`, `sku`, `price_override?` |
-| **SizeVariant** | `id`, `colorway_id`, `size`, `stock` |
+| **SizeVariant** | `id`, `colorway_id`, `size` (talla EU, p. ej. `42` o `42.5`), `stock` |
 
 ## Requisitos funcionales
 
 - **RF-01** CRUD de sneakers con validación de nombre, slug, descripción, precio y referencias a `Brand` y `Category` existentes.
 - **RF-02** El slug se genera a partir del nombre si no se envía y es único.
-- **RF-03** Listado paginado con filtros combinables: `brand`, `category`, `gender`, `status`, `size`, `min_price`, `max_price`, `in_stock`, búsqueda por texto (`q`) y ordenación (`name`, `price`, `release_date`, `created_at`).
+- **RF-03** Listado paginado con filtros combinables: `brand`, `category`, `gender`, `status`, `size`, `min_price`, `max_price`, `currency`, `in_stock`, búsqueda por texto (`q`) y ordenación (`name`, `price`, `release_date`, `created_at`). El listado de gestión incluye los sneakers `archived`; se excluyen solo filtrando por `status`.
+- **RF-09** Multi-moneda: cada sneaker define la moneda de su `base_price` (código ISO 4217 de 3 letras mayúsculas). `min_price`/`max_price` filtran sobre `base_price` y exigen `currency`; solo devuelven sneakers en esa moneda. Ordenar por `price` agrupa por moneda y después por importe.
 - **RF-04** CRUD de colorways dentro de un sneaker; el `sku` es único globalmente.
 - **RF-05** Alta, baja y ajuste de stock de tallas por colorway; talla única por colorway.
 - **RF-06** Gestión de imágenes del sneaker: subir (multipart), reordenar, marcar principal y borrar.
@@ -55,6 +56,10 @@ Brand 1───* Sneaker *───1 Category
 - **RN-05** Borrar una imagen la elimina también de Cloudinary.
 - **RN-06** No se puede borrar una `Brand` o `Category` con sneakers asociados (409).
 - **RN-07** Borrar un sneaker elimina sus colorways, tallas e imágenes (incluidas las de Cloudinary).
+- **RN-08** El `price_override` de un colorway usa la misma moneda que el `base_price` del sneaker; cambiar la moneda del sneaker no se permite mientras existan overrides en otra moneda.
+- **RN-09** Los importes son no negativos, con como máximo 2 decimales.
+- **RN-10** Las tallas usan el sistema EU, positivas y en múltiplos de 0.5.
+- **RN-11** Como máximo 8 imágenes por sneaker.
 
 ## Criterios de aceptación
 
@@ -65,6 +70,7 @@ Brand 1───* Sneaker *───1 Category
 - **CA-05** Borrar una marca con sneakers responde 409.
 - **CA-06** La UI de pruebas permite ejecutar el CRUD completo de sneakers, colorways, tallas e imágenes.
 - **CA-07** Tests unitarios, de integración y la migración Alembic en verde; migración validada contra Postgres local.
+- **CA-08** `GET /sneakers?min_price=100` sin `currency` responde 422.
 
 ## Fuera de alcance
 
@@ -75,7 +81,7 @@ Brand 1───* Sneaker *───1 Category
 
 ## Preguntas abiertas
 
-- **PA-01** ¿Moneda única (EUR/USD) o multi-moneda? Afecta al value object `Money`.
-- **PA-02** ¿Sistema de tallas: EU, US, UK o varios con conversión?
+- ~~**PA-01**~~ Resuelta: multi-moneda por sneaker (RF-09, RN-08).
+- ~~**PA-02**~~ Resuelta: solo tallas EU, sin conversión (RN-10).
 - ~~**PA-03**~~ Resuelta en 002-PA-02: máximo 8 imágenes por sneaker, 5 MB por imagen, formatos JPEG, PNG y WebP.
-- **PA-04** ¿`archived` oculta el sneaker también en la UI de gestión o solo en el catálogo público?
+- ~~**PA-04**~~ Resuelta: `archived` sigue visible en gestión y solo se oculta en el catálogo público (003).

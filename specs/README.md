@@ -15,8 +15,8 @@ Estados: `Borrador` → `Aprobada` → `En progreso` → `Hecha` · `Diferida`.
 
 | ID | Spec | Estado | Prioridad | Depende de |
 |---|---|---|---|---|
-| 001 | [Catálogo de sneakers](./001-sneaker-catalog/spec.md) | Borrador | P1 | 002 (imágenes) |
-| 002 | [Almacenamiento de imágenes con Cloudinary](./002-image-storage-cloudinary/spec.md) | Borrador | P1 | — |
+| 001 | [Catálogo de sneakers](./001-sneaker-catalog/spec.md) | En progreso | P1 | 002 (imágenes) |
+| 002 | [Almacenamiento de imágenes con Cloudinary](./002-image-storage-cloudinary/spec.md) | En progreso | P1 | — |
 | 003 | [Catálogo público interactivo](./003-public-interactive-catalog/spec.md) | Borrador | P2 | 001 |
 | 004 | [Preparación para producción](./004-production-readiness/spec.md) | Borrador | P2 | 007 |
 | 005 | [Calidad y tooling](./005-quality-tooling/spec.md) | Borrador | P2 | — |

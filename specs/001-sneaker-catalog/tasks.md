@@ -4,7 +4,7 @@
 
 ## Fase 0 · Preparación
 
-- [ ] T001 Resolver preguntas abiertas de la spec y actualizar `spec.md` / `plan.md`
+- [x] T001 Resolver preguntas abiertas de la spec y actualizar `spec.md` / `plan.md`
 - [ ] T002 Añadir `Money` a `shared.domain` con tests (suma, comparación, validación de negativos y moneda)
 
 ## Fase 1 · Dominio
