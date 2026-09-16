@@ -77,5 +77,5 @@ Brand 1───* Sneaker *───1 Category
 
 - **PA-01** ¿Moneda única (EUR/USD) o multi-moneda? Afecta al value object `Money`.
 - **PA-02** ¿Sistema de tallas: EU, US, UK o varios con conversión?
-- **PA-03** ¿Límites de imágenes por sneaker (cantidad, tamaño, formatos)?
+- ~~**PA-03**~~ Resuelta en 002-PA-02: máximo 8 imágenes por sneaker, 5 MB por imagen, formatos JPEG, PNG y WebP.
 - **PA-04** ¿`archived` oculta el sneaker también en la UI de gestión o solo en el catálogo público?

@@ -40,5 +40,5 @@ Las imágenes de los sneakers se guardan en Cloudinary. El backend debe subirlas
 ## Preguntas abiertas
 
 - **PA-01** Credenciales de Cloudinary para desarrollo y producción (¿cuentas o carpetas separadas?).
-- **PA-02** Tamaño máximo por imagen y número máximo por sneaker (compartida con 001-PA-03).
-- **PA-03** ¿Mecanismo de reintento para borrados fallidos (tabla de pendientes, job periódico o solo log)?
+- ~~**PA-02**~~ Resuelta: máximo 5 MB por imagen y 8 imágenes por sneaker (compartida con 001-PA-03).
+- ~~**PA-03**~~ Resuelta: por ahora solo se registra en log el `public_id` de los borrados fallidos; sin tabla ni job de reintento.
