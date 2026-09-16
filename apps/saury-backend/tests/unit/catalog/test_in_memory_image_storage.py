@@ -1,8 +1,8 @@
 import pytest
 
-from saury_backend.catalog.application.ports.image_storage import ImageStorage
+from saury_backend.catalog.application.ports.image_storage import ImageStorage, ImageStorageError
 
-from .conftest import ImageStorageError, InMemoryImageStorage
+from .conftest import InMemoryImageStorage
 
 
 def as_port(storage: InMemoryImageStorage) -> ImageStorage:

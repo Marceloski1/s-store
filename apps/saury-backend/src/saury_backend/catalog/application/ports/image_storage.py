@@ -2,6 +2,10 @@ from dataclasses import dataclass
 from typing import Protocol
 
 
+class ImageStorageError(Exception):
+    pass
+
+
 @dataclass(frozen=True, slots=True)
 class StoredImage:
     public_id: str

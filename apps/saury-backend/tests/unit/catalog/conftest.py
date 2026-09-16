@@ -5,7 +5,7 @@ import pytest
 from shared.domain.pagination import Page, PageParams
 from shared.domain.slug import Slug
 
-from saury_backend.catalog.application.ports.image_storage import StoredImage
+from saury_backend.catalog.application.ports.image_storage import ImageStorageError, StoredImage
 from saury_backend.catalog.domain.entities.brand import Brand
 from saury_backend.catalog.domain.entities.category import Category
 
@@ -46,10 +46,6 @@ class FakeUnitOfWork:
 
     async def rollback(self) -> None:
         pass
-
-
-class ImageStorageError(Exception):
-    pass
 
 
 class InMemoryImageStorage:
