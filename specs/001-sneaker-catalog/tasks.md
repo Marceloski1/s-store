@@ -18,13 +18,13 @@
 
 ## Fase 2 · Aplicación
 
-- [ ] T020 DTOs y comandos de sneaker, colorway, talla e imagen
-- [ ] T021 Casos de uso CRUD de sneaker (valida existencia de `Brand` y `Category`)
-- [ ] T022 Casos de uso de colorways y tallas (unicidad de `sku`, stock ≥ 0)
-- [ ] T023 Casos de uso de publicación (`Publish`, `Archive`, `Unarchive`)
-- [ ] T024 Casos de uso de imágenes usando el puerto `ImageStorage` (depende de 002-T010)
-- [ ] T025 Impedir borrar `Brand`/`Category` en uso (RN-06) actualizando sus casos de uso
-- [ ] T026 Fakes en memoria y tests unitarios de todos los casos de uso
+- [x] T020 DTOs y comandos de sneaker, colorway, talla e imagen
+- [x] T021 Casos de uso CRUD de sneaker (valida existencia de `Brand` y `Category`)
+- [x] T022 Casos de uso de colorways y tallas (unicidad de `sku`, stock ≥ 0)
+- [x] T023 Casos de uso de publicación (`Publish`, `Archive`, `Unarchive`)
+- [x] T024 Casos de uso de imágenes usando el puerto `ImageStorage` (depende de 002-T010)
+- [ ] T025 Impedir borrar `Brand`/`Category` en uso (RN-06) actualizando sus casos de uso (se hace tras T031: requiere `SqlAlchemySneakerRepository` para no romper los routers)
+- [x] T026 Fakes en memoria y tests unitarios de todos los casos de uso
 
 ## Fase 3 · Infraestructura
 
