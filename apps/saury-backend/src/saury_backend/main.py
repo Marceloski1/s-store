@@ -23,6 +23,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         await engine.dispose()
 
     app = FastAPI(title="Saury Backend", lifespan=lifespan)
+    app.state.settings = resolved_settings
     # TODO(cors): restrict allowed methods and headers before production
     app.add_middleware(
         CORSMiddleware,
