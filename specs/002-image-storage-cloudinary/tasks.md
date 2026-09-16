@@ -1,8 +1,8 @@
 # 002 · Tareas · Cloudinary
 
 - [ ] T001 Obtener credenciales de Cloudinary para desarrollo y producción (PA-01)
-- [ ] T002 Añadir variables `CLOUDINARY_*` a settings, `.env.development`, `.env.production` y `.env.example`
-- [ ] T010 Definir puerto `ImageStorage` y `StoredImage`
+- [x] T002 Añadir variables `CLOUDINARY_*` a settings, `.env.development`, `.env.production` y `.env.example`
+- [x] T010 Definir puerto `ImageStorage` y `StoredImage`
 - [ ] T011 Fake `InMemoryImageStorage` para tests
 - [x] T012 Añadir dependencia `cloudinary` al backend con `uv add`
 - [ ] T013 Implementar `CloudinaryImageStorage` (subida, borrado, transformaciones de entrega, ejecución en hilo)

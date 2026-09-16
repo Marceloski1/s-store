@@ -14,7 +14,8 @@
 ## Contrato del puerto
 
 ```python
-class StoredImage(Protocol):
+@dataclass(frozen=True, slots=True)
+class StoredImage:
     public_id: str
     url: str
 
