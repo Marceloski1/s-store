@@ -1,13 +1,13 @@
 from dataclasses import replace
-from uuid import UUID, uuid7
+from uuid import UUID
 
 import pytest
 from shared.domain.pagination import Page, PageParams
 from shared.domain.slug import Slug
 
-from saury_backend.catalog.application.ports.image_storage import ImageStorageError, StoredImage
 from saury_backend.catalog.domain.entities.brand import Brand
 from saury_backend.catalog.domain.entities.category import Category
+from support.image_storage import InMemoryImageStorage
 
 
 class InMemoryRepository[E: (Brand, Category)]:
@@ -46,30 +46,6 @@ class FakeUnitOfWork:
 
     async def rollback(self) -> None:
         pass
-
-
-class InMemoryImageStorage:
-    def __init__(self) -> None:
-        self.images: dict[str, bytes] = {}
-        self.uploaded: list[StoredImage] = []
-        self.deleted: list[str] = []
-        self.fail_on_upload = False
-        self.fail_on_delete = False
-
-    async def upload(self, content: bytes, filename: str, folder: str) -> StoredImage:
-        if self.fail_on_upload:
-            raise ImageStorageError(f"upload failed for {filename}")
-        public_id = f"{folder}/{uuid7().hex}"
-        image = StoredImage(public_id=public_id, url=f"https://images.test/{public_id}")
-        self.images[public_id] = content
-        self.uploaded.append(image)
-        return image
-
-    async def delete(self, public_id: str) -> None:
-        if self.fail_on_delete:
-            raise ImageStorageError(f"delete failed for {public_id}")
-        self.images.pop(public_id, None)
-        self.deleted.append(public_id)
 
 
 @pytest.fixture

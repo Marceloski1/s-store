@@ -19,6 +19,7 @@ members = [
 
 [tool.pytest.ini_options]
 testpaths = ["apps/saury-backend/tests", "packages/python/shared/tests"]
+pythonpath = ["apps/saury-backend/tests"]
 addopts = ["--import-mode=importlib"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
