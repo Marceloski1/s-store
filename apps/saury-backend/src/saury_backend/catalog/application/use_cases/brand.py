@@ -6,8 +6,9 @@ from shared.domain.slug import Slug
 
 from saury_backend.catalog.application.dtos.brand import BrandDTO, CreateBrandCommand, UpdateBrandCommand
 from saury_backend.catalog.domain.entities.brand import Brand
-from saury_backend.catalog.domain.errors import BrandNotFound, BrandSlugAlreadyExists
+from saury_backend.catalog.domain.errors import BrandInUse, BrandNotFound, BrandSlugAlreadyExists
 from saury_backend.catalog.domain.repositories.brand_repository import BrandRepository
+from saury_backend.catalog.domain.repositories.sneaker_repository import SneakerRepository
 
 
 async def _get_brand(repository: BrandRepository, brand_id: UUID) -> Brand:
@@ -68,11 +69,16 @@ class UpdateBrand:
 
 
 class DeleteBrand:
-    def __init__(self, repository: BrandRepository, unit_of_work: UnitOfWork) -> None:
+    def __init__(
+        self, repository: BrandRepository, sneaker_repository: SneakerRepository, unit_of_work: UnitOfWork
+    ) -> None:
         self._repository = repository
+        self._sneaker_repository = sneaker_repository
         self._unit_of_work = unit_of_work
 
     async def execute(self, brand_id: UUID) -> None:
         brand = await _get_brand(self._repository, brand_id)
+        if await self._sneaker_repository.exists_for_brand(brand.id):
+            raise BrandInUse(brand.id)
         await self._repository.delete(brand)
         await self._unit_of_work.commit()

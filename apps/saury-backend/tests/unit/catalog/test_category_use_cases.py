@@ -1,6 +1,7 @@
 from uuid import uuid7
 
 import pytest
+from shared.domain.money import Money
 from shared.domain.pagination import PageParams
 
 from saury_backend.catalog.application.dtos.category import CreateCategoryCommand, UpdateCategoryCommand
@@ -11,7 +12,9 @@ from saury_backend.catalog.application.use_cases.category import (
     ListCategories,
     UpdateCategory,
 )
-from saury_backend.catalog.domain.errors import CategoryNotFound, CategorySlugAlreadyExists
+from saury_backend.catalog.domain.entities.sneaker import Sneaker
+from saury_backend.catalog.domain.errors import CategoryInUse, CategoryNotFound, CategorySlugAlreadyExists
+from saury_backend.catalog.domain.value_objects.gender import Gender
 
 
 async def test_create_category_generates_slug_from_name(category_repository, unit_of_work) -> None:
@@ -53,10 +56,10 @@ async def test_update_category_rejects_slug_of_another_category(category_reposit
         )
 
 
-async def test_delete_category_removes_it(category_repository, unit_of_work) -> None:
+async def test_delete_category_removes_it(category_repository, sneaker_repository, unit_of_work) -> None:
     created = await CreateCategory(category_repository, unit_of_work).execute(CreateCategoryCommand(name="Running"))
 
-    await DeleteCategory(category_repository, unit_of_work).execute(created.id)
+    await DeleteCategory(category_repository, sneaker_repository, unit_of_work).execute(created.id)
 
     with pytest.raises(CategoryNotFound):
         await GetCategory(category_repository).execute(created.id)
@@ -65,3 +68,14 @@ async def test_delete_category_removes_it(category_repository, unit_of_work) -> 
 async def test_get_category_raises_when_missing(category_repository) -> None:
     with pytest.raises(CategoryNotFound):
         await GetCategory(category_repository).execute(uuid7())
+
+
+async def test_delete_category_with_sneakers_is_rejected(category_repository, sneaker_repository, unit_of_work, category) -> None:
+    sneaker = Sneaker.create("Air Max 90", "", uuid7(), category.id, Gender.UNISEX, Money.of("130", "USD"))
+    await sneaker_repository.save(sneaker)
+
+    with pytest.raises(CategoryInUse):
+        await DeleteCategory(category_repository, sneaker_repository, unit_of_work).execute(category.id)
+
+    assert await category_repository.get(category.id) is not None
+    assert unit_of_work.commits == 0

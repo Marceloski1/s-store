@@ -10,8 +10,9 @@ from saury_backend.catalog.application.dtos.category import (
     UpdateCategoryCommand,
 )
 from saury_backend.catalog.domain.entities.category import Category
-from saury_backend.catalog.domain.errors import CategoryNotFound, CategorySlugAlreadyExists
+from saury_backend.catalog.domain.errors import CategoryInUse, CategoryNotFound, CategorySlugAlreadyExists
 from saury_backend.catalog.domain.repositories.category_repository import CategoryRepository
+from saury_backend.catalog.domain.repositories.sneaker_repository import SneakerRepository
 
 
 async def _get_category(repository: CategoryRepository, category_id: UUID) -> Category:
@@ -72,11 +73,16 @@ class UpdateCategory:
 
 
 class DeleteCategory:
-    def __init__(self, repository: CategoryRepository, unit_of_work: UnitOfWork) -> None:
+    def __init__(
+        self, repository: CategoryRepository, sneaker_repository: SneakerRepository, unit_of_work: UnitOfWork
+    ) -> None:
         self._repository = repository
+        self._sneaker_repository = sneaker_repository
         self._unit_of_work = unit_of_work
 
     async def execute(self, category_id: UUID) -> None:
         category = await _get_category(self._repository, category_id)
+        if await self._sneaker_repository.exists_for_category(category.id):
+            raise CategoryInUse(category.id)
         await self._repository.delete(category)
         await self._unit_of_work.commit()

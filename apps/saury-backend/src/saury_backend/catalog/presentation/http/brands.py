@@ -12,7 +12,7 @@ from saury_backend.catalog.application.use_cases.brand import (
     ListBrands,
     UpdateBrand,
 )
-from saury_backend.catalog.presentation.http.dependencies import BrandRepositoryDep
+from saury_backend.catalog.presentation.http.dependencies import BrandRepositoryDep, SneakerRepositoryDep
 from saury_backend.catalog.presentation.http.schemas import BrandRequest, BrandResponse
 
 router = APIRouter(prefix="/brands", tags=["brands"])
@@ -51,5 +51,10 @@ async def update_brand(
 
 
 @router.delete("/{brand_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_brand(brand_id: UUID, repository: BrandRepositoryDep, unit_of_work: UnitOfWorkDep) -> None:
-    await DeleteBrand(repository, unit_of_work).execute(brand_id)
+async def delete_brand(
+    brand_id: UUID,
+    repository: BrandRepositoryDep,
+    sneaker_repository: SneakerRepositoryDep,
+    unit_of_work: UnitOfWorkDep,
+) -> None:
+    await DeleteBrand(repository, sneaker_repository, unit_of_work).execute(brand_id)

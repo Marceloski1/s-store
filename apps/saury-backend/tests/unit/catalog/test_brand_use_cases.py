@@ -1,6 +1,7 @@
 from uuid import uuid7
 
 import pytest
+from shared.domain.money import Money
 from shared.domain.errors import ValidationError
 from shared.domain.pagination import PageParams
 
@@ -12,7 +13,9 @@ from saury_backend.catalog.application.use_cases.brand import (
     ListBrands,
     UpdateBrand,
 )
-from saury_backend.catalog.domain.errors import BrandNotFound, BrandSlugAlreadyExists
+from saury_backend.catalog.domain.entities.sneaker import Sneaker
+from saury_backend.catalog.domain.errors import BrandInUse, BrandNotFound, BrandSlugAlreadyExists
+from saury_backend.catalog.domain.value_objects.gender import Gender
 
 
 async def test_create_brand_generates_slug_from_name(brand_repository, unit_of_work) -> None:
@@ -100,16 +103,27 @@ async def test_update_brand_raises_when_missing(brand_repository, unit_of_work) 
         await UpdateBrand(brand_repository, unit_of_work).execute(UpdateBrandCommand(brand_id=uuid7(), name="Nike"))
 
 
-async def test_delete_brand_removes_it(brand_repository, unit_of_work) -> None:
+async def test_delete_brand_removes_it(brand_repository, sneaker_repository, unit_of_work) -> None:
     created = await CreateBrand(brand_repository, unit_of_work).execute(CreateBrandCommand(name="Nike"))
 
-    await DeleteBrand(brand_repository, unit_of_work).execute(created.id)
+    await DeleteBrand(brand_repository, sneaker_repository, unit_of_work).execute(created.id)
 
     with pytest.raises(BrandNotFound):
         await GetBrand(brand_repository).execute(created.id)
     assert unit_of_work.commits == 2
 
 
-async def test_delete_brand_raises_when_missing(brand_repository, unit_of_work) -> None:
+async def test_delete_brand_raises_when_missing(brand_repository, sneaker_repository, unit_of_work) -> None:
     with pytest.raises(BrandNotFound):
-        await DeleteBrand(brand_repository, unit_of_work).execute(uuid7())
+        await DeleteBrand(brand_repository, sneaker_repository, unit_of_work).execute(uuid7())
+
+
+async def test_delete_brand_with_sneakers_is_rejected(brand_repository, sneaker_repository, unit_of_work, brand) -> None:
+    sneaker = Sneaker.create("Air Max 90", "", brand.id, uuid7(), Gender.UNISEX, Money.of("130", "USD"))
+    await sneaker_repository.save(sneaker)
+
+    with pytest.raises(BrandInUse):
+        await DeleteBrand(brand_repository, sneaker_repository, unit_of_work).execute(brand.id)
+
+    assert await brand_repository.get(brand.id) is not None
+    assert unit_of_work.commits == 0

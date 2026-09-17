@@ -12,7 +12,7 @@ from saury_backend.catalog.application.use_cases.category import (
     ListCategories,
     UpdateCategory,
 )
-from saury_backend.catalog.presentation.http.dependencies import CategoryRepositoryDep
+from saury_backend.catalog.presentation.http.dependencies import CategoryRepositoryDep, SneakerRepositoryDep
 from saury_backend.catalog.presentation.http.schemas import CategoryRequest, CategoryResponse
 
 router = APIRouter(prefix="/categories", tags=["categories"])
@@ -57,6 +57,7 @@ async def update_category(
 async def delete_category(
     category_id: UUID,
     repository: CategoryRepositoryDep,
+    sneaker_repository: SneakerRepositoryDep,
     unit_of_work: UnitOfWorkDep,
 ) -> None:
-    await DeleteCategory(repository, unit_of_work).execute(category_id)
+    await DeleteCategory(repository, sneaker_repository, unit_of_work).execute(category_id)

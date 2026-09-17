@@ -6,8 +6,10 @@ from shared.presentation.http.dependencies import SessionDep
 from saury_backend.catalog.application.ports.image_storage import ImageStorage
 from saury_backend.catalog.domain.repositories.brand_repository import BrandRepository
 from saury_backend.catalog.domain.repositories.category_repository import CategoryRepository
+from saury_backend.catalog.domain.repositories.sneaker_repository import SneakerRepository
 from saury_backend.catalog.infrastructure.persistence.brand_repository import SqlAlchemyBrandRepository
 from saury_backend.catalog.infrastructure.persistence.category_repository import SqlAlchemyCategoryRepository
+from saury_backend.catalog.infrastructure.persistence.sneaker_repository import SqlAlchemySneakerRepository
 from saury_backend.catalog.infrastructure.storage.cloudinary_image_storage import CloudinaryImageStorage
 from saury_backend.config.settings import Settings
 
@@ -18,6 +20,10 @@ def get_brand_repository(session: SessionDep) -> BrandRepository:
 
 def get_category_repository(session: SessionDep) -> CategoryRepository:
     return SqlAlchemyCategoryRepository(session)
+
+
+def get_sneaker_repository(session: SessionDep) -> SneakerRepository:
+    return SqlAlchemySneakerRepository(session)
 
 
 def get_image_storage(request: Request) -> ImageStorage:
@@ -32,4 +38,5 @@ def get_image_storage(request: Request) -> ImageStorage:
 
 BrandRepositoryDep = Annotated[BrandRepository, Depends(get_brand_repository)]
 CategoryRepositoryDep = Annotated[CategoryRepository, Depends(get_category_repository)]
+SneakerRepositoryDep = Annotated[SneakerRepository, Depends(get_sneaker_repository)]
 ImageStorageDep = Annotated[ImageStorage, Depends(get_image_storage)]
