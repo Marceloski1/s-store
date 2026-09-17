@@ -9,5 +9,5 @@
 - [x] T014 Validación de tipo y tamaño en la capa HTTP (RF-04)
 - [x] T015 Dependencia `get_image_storage` y override en tests de integración
 - [x] T016 Tests de compensación (RF-06) y borrado tolerante (RF-07)
-- [ ] T017 Prueba manual de subida y borrado reales en desarrollo (CA-02, CA-03)
+- [x] T017 Prueba manual de subida y borrado reales en desarrollo (CA-02, CA-03)
 - [ ] T018 Commits (solo asunto) y marcar la spec como `Hecha`
