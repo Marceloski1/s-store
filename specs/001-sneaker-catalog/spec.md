@@ -39,7 +39,7 @@ Brand 1───* Sneaker *───1 Category
 
 - **RF-01** CRUD de sneakers con validación de nombre, slug, descripción, precio y referencias a `Brand` y `Category` existentes.
 - **RF-02** El slug se genera a partir del nombre si no se envía y es único.
-- **RF-03** Listado paginado con filtros combinables: `brand`, `category`, `gender`, `status`, `size`, `min_price`, `max_price`, `currency`, `in_stock`, búsqueda por texto (`q`) y ordenación (`name`, `price`, `release_date`, `created_at`). El listado de gestión incluye los sneakers `archived`; se excluyen solo filtrando por `status`.
+- **RF-03** Listado paginado con filtros combinables: `brand`, `category`, `gender`, `status`, `shoe_size`, `min_price`, `max_price`, `currency`, `in_stock`, búsqueda por texto (`q`) y ordenación (`name`, `price`, `release_date`, `created_at`). El listado de gestión incluye los sneakers `archived`; se excluyen solo filtrando por `status`.
 - **RF-09** Multi-moneda: cada sneaker define la moneda de su `base_price` (código ISO 4217 de 3 letras mayúsculas). `min_price`/`max_price` filtran sobre `base_price` y exigen `currency`; solo devuelven sneakers en esa moneda. Ordenar por `price` agrupa por moneda y después por importe.
 - **RF-04** CRUD de colorways dentro de un sneaker; el `sku` es único globalmente.
 - **RF-05** Alta, baja y ajuste de stock de tallas por colorway; talla única por colorway.
@@ -65,7 +65,7 @@ Brand 1───* Sneaker *───1 Category
 
 - **CA-01** `POST /sneakers` con marca inexistente responde 404; con slug duplicado, 409; con precio negativo, 422.
 - **CA-02** `POST /sneakers/{id}/publish` sin imagen principal responde 409 con un mensaje que explica la regla incumplida.
-- **CA-03** `GET /sneakers?brand=nike&size=42&in_stock=true` devuelve solo sneakers de esa marca con stock en talla 42.
+- **CA-03** `GET /sneakers?brand=nike&shoe_size=42&in_stock=true` devuelve solo sneakers de esa marca con stock en talla 42. El filtro se llama `shoe_size` porque `size` ya es el tamaño de página.
 - **CA-04** Ajustar stock por debajo de 0 responde 422 y no modifica datos.
 - **CA-05** Borrar una marca con sneakers responde 409.
 - **CA-06** La UI de pruebas permite ejecutar el CRUD completo de sneakers, colorways, tallas e imágenes.

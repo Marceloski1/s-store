@@ -35,10 +35,10 @@
 
 ## Fase 4 · Presentación
 
-- [ ] T040 Schemas Pydantic de request/response
-- [ ] T041 Routers `sneakers`, `colorways`, `images` y dependencias
-- [ ] T042 Declarar respuestas 404/409 en OpenAPI
-- [ ] T043 Tests de integración de API (CRUD, filtros, publicación, errores CA-01…CA-05)
+- [x] T040 Schemas Pydantic de request/response
+- [x] T041 Routers `sneakers`, `colorways`, `images` y dependencias
+- [x] T042 Declarar respuestas 404/409 en OpenAPI
+- [x] T043 Tests de integración de API (CRUD, filtros, publicación, errores CA-01…CA-05)
 
 ## Fase 5 · UI de pruebas
 
