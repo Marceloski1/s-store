@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from uuid import UUID
 
 from shared.domain.money import Money
@@ -181,6 +182,10 @@ def _apply_image(model: SneakerImageModel, image: Image) -> SneakerImageModel:
     return model
 
 
+def _as_utc(value: datetime) -> datetime:
+    return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
+
+
 def _to_sneaker(model: SneakerModel) -> Sneaker:
     return Sneaker(
         id=model.id,
@@ -193,8 +198,8 @@ def _to_sneaker(model: SneakerModel) -> Sneaker:
         base_price=Money(model.base_price, model.currency),
         status=model.status,
         release_date=model.release_date,
-        created_at=model.created_at,
-        updated_at=model.updated_at,
+        created_at=_as_utc(model.created_at),
+        updated_at=_as_utc(model.updated_at),
         colorways=[_to_colorway(colorway, model.currency) for colorway in model.colorways],
         images=[_to_image(image) for image in model.images],
     )
