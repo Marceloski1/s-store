@@ -26,6 +26,11 @@ def get_sneaker_repository(session: SessionDep) -> SneakerRepository:
     return SqlAlchemySneakerRepository(session)
 
 
+def get_image_folder(request: Request) -> str:
+    settings: Settings = request.app.state.settings
+    return settings.cloudinary_folder
+
+
 def get_image_storage(request: Request) -> ImageStorage:
     settings: Settings = request.app.state.settings
     api_secret = settings.cloudinary_api_secret
@@ -40,3 +45,4 @@ BrandRepositoryDep = Annotated[BrandRepository, Depends(get_brand_repository)]
 CategoryRepositoryDep = Annotated[CategoryRepository, Depends(get_category_repository)]
 SneakerRepositoryDep = Annotated[SneakerRepository, Depends(get_sneaker_repository)]
 ImageStorageDep = Annotated[ImageStorage, Depends(get_image_storage)]
+ImageFolderDep = Annotated[str, Depends(get_image_folder)]
