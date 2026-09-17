@@ -23,15 +23,15 @@
 - [x] T022 Casos de uso de colorways y tallas (unicidad de `sku`, stock ≥ 0)
 - [x] T023 Casos de uso de publicación (`Publish`, `Archive`, `Unarchive`)
 - [x] T024 Casos de uso de imágenes usando el puerto `ImageStorage` (depende de 002-T010)
-- [ ] T025 Impedir borrar `Brand`/`Category` en uso (RN-06) actualizando sus casos de uso (se hace tras T031: requiere `SqlAlchemySneakerRepository` para no romper los routers)
+- [x] T025 Impedir borrar `Brand`/`Category` en uso (RN-06) actualizando sus casos de uso
 - [x] T026 Fakes en memoria y tests unitarios de todos los casos de uso
 
 ## Fase 3 · Infraestructura
 
-- [ ] T030 Modelos SQLAlchemy y mappers entidad ↔ modelo
-- [ ] T031 `SqlAlchemySneakerRepository` con carga del agregado (`selectinload`) y filtros RF-03
-- [ ] T032 Migración Alembic (tablas, FKs, índices, CHECKs); quitar comentarios autogenerados
-- [ ] T033 Validar `upgrade`/`downgrade` en Postgres local (Docker Compose)
+- [x] T030 Modelos SQLAlchemy y mappers entidad ↔ modelo
+- [x] T031 `SqlAlchemySneakerRepository` con carga del agregado (`selectinload`) y filtros RF-03
+- [x] T032 Migración Alembic (tablas, FKs, índices, CHECKs); quitar comentarios autogenerados
+- [x] T033 Validar `upgrade`/`downgrade` en Postgres local (Docker Compose)
 
 ## Fase 4 · Presentación
 

@@ -72,7 +72,7 @@ Las respuestas 404/409 se declaran en OpenAPI para tipar errores en el frontend 
 - **Unit (dominio):** invariantes del agregado (RN-01…RN-04, RF-07, RF-08).
 - **Unit (casos de uso):** fakes en memoria para `SneakerRepository`, `ImageStorage` y `UnitOfWork`.
 - **Integración API:** `TestClient` con fake de `ImageStorage` inyectado vía `dependency_overrides`.
-- **Filtros:** tests de integración del repositorio. Los filtros con `ILIKE` y `NUMERIC` requieren Postgres real → depende de la tarea de 005 (tests contra Postgres).
+- **Filtros:** tests de integración del repositorio en SQLite por defecto; con `TEST_DATABASE_URL` apuntando a una BD de test (p. ej. `postgresql://sauri:sauri@localhost:5434/sauri_store_test`) se ejecutan contra Postgres real. La automatización en CI queda en 005.
 - **UI:** validación manual en navegador con Playwright.
 
 ## Riesgos
