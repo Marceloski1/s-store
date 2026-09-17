@@ -11,6 +11,7 @@ Principios no negociables. Toda spec, plan y tarea debe cumplirlos; cualquier ex
 5. **Transacciones explícitas.** Los casos de uso confirman cambios mediante el puerto `UnitOfWork`; nunca en dependencias de FastAPI.
 6. **Pydantic solo en los bordes**: `presentation` (schemas HTTP) y `config` (pydantic-settings).
 7. **Lo genérico vive en `packages/`**: `packages/python/shared` y `packages/node/ui`. Nada específico de una feature entra ahí.
+8. **Configuración compartida de tooling** en `packages/node/{eslint-config,prettier-config,typescript-config}`. Todo proyecto Node del repo extiende de ahí; no se duplican reglas ni opciones de compilador localmente (salvo `paths` y ajustes propios del framework).
 
 ## II. Monorepo y stack
 
