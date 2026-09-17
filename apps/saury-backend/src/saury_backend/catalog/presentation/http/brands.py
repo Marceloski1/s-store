@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, status
 from shared.presentation.http.dependencies import PageParamsDep, UnitOfWorkDep
-from shared.presentation.http.schemas import PageResponse
+from shared.presentation.http.schemas import CONFLICT_RESPONSE, NOT_FOUND_RESPONSE, PageResponse
 
 from saury_backend.catalog.application.dtos.brand import CreateBrandCommand, UpdateBrandCommand
 from saury_backend.catalog.application.use_cases.brand import (
@@ -18,7 +18,7 @@ from saury_backend.catalog.presentation.http.schemas import BrandRequest, BrandR
 router = APIRouter(prefix="/brands", tags=["brands"])
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED, responses=CONFLICT_RESPONSE)
 async def create_brand(
     body: BrandRequest,
     repository: BrandRepositoryDep,
@@ -34,12 +34,12 @@ async def list_brands(repository: BrandRepositoryDep, page_params: PageParamsDep
     return PageResponse[BrandResponse].from_page(page.map(BrandResponse.model_validate))
 
 
-@router.get("/{brand_id}")
+@router.get("/{brand_id}", responses=NOT_FOUND_RESPONSE)
 async def get_brand(brand_id: UUID, repository: BrandRepositoryDep) -> BrandResponse:
     return BrandResponse.model_validate(await GetBrand(repository).execute(brand_id))
 
 
-@router.put("/{brand_id}")
+@router.put("/{brand_id}", responses=NOT_FOUND_RESPONSE | CONFLICT_RESPONSE)
 async def update_brand(
     brand_id: UUID,
     body: BrandRequest,
@@ -50,7 +50,7 @@ async def update_brand(
     return BrandResponse.model_validate(await UpdateBrand(repository, unit_of_work).execute(command))
 
 
-@router.delete("/{brand_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{brand_id}", status_code=status.HTTP_204_NO_CONTENT, responses=NOT_FOUND_RESPONSE | CONFLICT_RESPONSE)
 async def delete_brand(
     brand_id: UUID,
     repository: BrandRepositoryDep,

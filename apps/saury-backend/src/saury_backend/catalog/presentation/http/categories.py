@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, status
 from shared.presentation.http.dependencies import PageParamsDep, UnitOfWorkDep
-from shared.presentation.http.schemas import PageResponse
+from shared.presentation.http.schemas import CONFLICT_RESPONSE, NOT_FOUND_RESPONSE, PageResponse
 
 from saury_backend.catalog.application.dtos.category import CreateCategoryCommand, UpdateCategoryCommand
 from saury_backend.catalog.application.use_cases.category import (
@@ -18,7 +18,7 @@ from saury_backend.catalog.presentation.http.schemas import CategoryRequest, Cat
 router = APIRouter(prefix="/categories", tags=["categories"])
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED, responses=CONFLICT_RESPONSE)
 async def create_category(
     body: CategoryRequest,
     repository: CategoryRepositoryDep,
@@ -37,12 +37,12 @@ async def list_categories(
     return PageResponse[CategoryResponse].from_page(page.map(CategoryResponse.model_validate))
 
 
-@router.get("/{category_id}")
+@router.get("/{category_id}", responses=NOT_FOUND_RESPONSE)
 async def get_category(category_id: UUID, repository: CategoryRepositoryDep) -> CategoryResponse:
     return CategoryResponse.model_validate(await GetCategory(repository).execute(category_id))
 
 
-@router.put("/{category_id}")
+@router.put("/{category_id}", responses=NOT_FOUND_RESPONSE | CONFLICT_RESPONSE)
 async def update_category(
     category_id: UUID,
     body: CategoryRequest,
@@ -53,7 +53,7 @@ async def update_category(
     return CategoryResponse.model_validate(await UpdateCategory(repository, unit_of_work).execute(command))
 
 
-@router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT, responses=NOT_FOUND_RESPONSE | CONFLICT_RESPONSE)
 async def delete_category(
     category_id: UUID,
     repository: CategoryRepositoryDep,
