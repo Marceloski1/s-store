@@ -78,6 +78,283 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  "/sneakers": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** List Sneakers */
+    get: operations["list_sneakers_sneakers_get"]
+    put?: never
+    /** Create Sneaker */
+    post: operations["create_sneaker_sneakers_post"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/sneakers/by-slug/{slug}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get Sneaker By Slug */
+    get: operations["get_sneaker_by_slug_sneakers_by_slug__slug__get"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/sneakers/{sneaker_id}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get Sneaker */
+    get: operations["get_sneaker_sneakers__sneaker_id__get"]
+    /** Update Sneaker */
+    put: operations["update_sneaker_sneakers__sneaker_id__put"]
+    post?: never
+    /** Delete Sneaker */
+    delete: operations["delete_sneaker_sneakers__sneaker_id__delete"]
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/sneakers/{sneaker_id}/publish": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Publish Sneaker */
+    post: operations["publish_sneaker_sneakers__sneaker_id__publish_post"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/sneakers/{sneaker_id}/archive": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Archive Sneaker */
+    post: operations["archive_sneaker_sneakers__sneaker_id__archive_post"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/sneakers/{sneaker_id}/unarchive": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Unarchive Sneaker */
+    post: operations["unarchive_sneaker_sneakers__sneaker_id__unarchive_post"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/sneakers/{sneaker_id}/colorways": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Create Colorway */
+    post: operations["create_colorway_sneakers__sneaker_id__colorways_post"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/sneakers/{sneaker_id}/colorways/{colorway_id}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /** Update Colorway */
+    put: operations["update_colorway_sneakers__sneaker_id__colorways__colorway_id__put"]
+    post?: never
+    /** Delete Colorway */
+    delete: operations["delete_colorway_sneakers__sneaker_id__colorways__colorway_id__delete"]
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/sneakers/{sneaker_id}/colorways/{colorway_id}/sizes/{size}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /** Set Size Stock */
+    put: operations["set_size_stock_sneakers__sneaker_id__colorways__colorway_id__sizes__size__put"]
+    post?: never
+    /** Remove Size */
+    delete: operations["remove_size_sneakers__sneaker_id__colorways__colorway_id__sizes__size__delete"]
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/sneakers/{sneaker_id}/images": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Upload Sneaker Image */
+    post: operations["upload_sneaker_image_sneakers__sneaker_id__images_post"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/sneakers/{sneaker_id}/images/order": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /** Reorder Sneaker Images */
+    put: operations["reorder_sneaker_images_sneakers__sneaker_id__images_order_put"]
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/sneakers/{sneaker_id}/images/{image_id}/primary": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Mark Primary Sneaker Image */
+    post: operations["mark_primary_sneaker_image_sneakers__sneaker_id__images__image_id__primary_post"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/sneakers/{sneaker_id}/images/{image_id}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    /** Delete Sneaker Image */
+    delete: operations["delete_sneaker_image_sneakers__sneaker_id__images__image_id__delete"]
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/catalog/sneakers": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** List Published Sneakers */
+    get: operations["list_published_sneakers_catalog_sneakers_get"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/catalog/sneakers/{slug}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get Published Sneaker */
+    get: operations["get_published_sneaker_catalog_sneakers__slug__get"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/catalog/facets": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get Catalog Facets */
+    get: operations["get_catalog_facets_catalog_facets_get"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   "/": {
     parameters: {
       query?: never
@@ -99,6 +376,16 @@ export interface paths {
 export type webhooks = Record<string, never>
 export interface components {
   schemas: {
+    /** Body_upload_sneaker_image_sneakers__sneaker_id__images_post */
+    Body_upload_sneaker_image_sneakers__sneaker_id__images_post: {
+      /**
+       * Alt
+       * @default
+       */
+      alt: string
+      /** File */
+      file: string
+    }
     /** BrandRequest */
     BrandRequest: {
       /** Name */
@@ -117,6 +404,21 @@ export interface components {
       name: string
       /** Slug */
       slug: string
+    }
+    /** CatalogFacetsResponse */
+    CatalogFacetsResponse: {
+      /** Brands */
+      brands: components["schemas"]["FacetCountResponse"][]
+      /** Categories */
+      categories: components["schemas"]["FacetCountResponse"][]
+      /** Genders */
+      genders: components["schemas"]["FacetCountResponse"][]
+      /** Sizes */
+      sizes: components["schemas"]["FacetCountResponse"][]
+      /** Colors */
+      colors: components["schemas"]["FacetCountResponse"][]
+      /** Currencies */
+      currencies: string[]
     }
     /** CategoryRequest */
     CategoryRequest: {
@@ -137,10 +439,88 @@ export interface components {
       /** Slug */
       slug: string
     }
+    /** ColorwayRequest */
+    ColorwayRequest: {
+      /** Name */
+      name: string
+      /** Color Code */
+      color_code: string
+      /** Sku */
+      sku: string
+      /** Price Override */
+      price_override?: number | string | null
+    }
+    /** ColorwayResponse */
+    ColorwayResponse: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string
+      /** Name */
+      name: string
+      /** Color Code */
+      color_code: string
+      /** Sku */
+      sku: string
+      price_override: components["schemas"]["MoneyResponse"] | null
+      effective_price: components["schemas"]["MoneyResponse"]
+      /** Sizes */
+      sizes: components["schemas"]["SizeVariantResponse"][]
+    }
+    /** ErrorResponse */
+    ErrorResponse: {
+      /** Detail */
+      detail: string
+    }
+    /** FacetCountResponse */
+    FacetCountResponse: {
+      /** Value */
+      value: string
+      /** Label */
+      label: string
+      /** Count */
+      count: number
+    }
+    /**
+     * Gender
+     * @enum {string}
+     */
+    Gender: "men" | "women" | "unisex" | "kids"
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
       detail?: components["schemas"]["ValidationError"][]
+    }
+    /** ImageOrderRequest */
+    ImageOrderRequest: {
+      /** Image Ids */
+      image_ids: string[]
+    }
+    /** ImageResponse */
+    ImageResponse: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string
+      /** Public Id */
+      public_id: string
+      /** Url */
+      url: string
+      /** Alt */
+      alt: string
+      /** Position */
+      position: number
+      /** Is Primary */
+      is_primary: boolean
+    }
+    /** MoneyResponse */
+    MoneyResponse: {
+      /** Amount */
+      amount: string
+      /** Currency */
+      currency: string
     }
     /** PageResponse[BrandResponse] */
     PageResponse_BrandResponse_: {
@@ -167,6 +547,158 @@ export interface components {
       size: number
       /** Pages */
       pages: number
+    }
+    /** PageResponse[SneakerResponse] */
+    PageResponse_SneakerResponse_: {
+      /** Items */
+      items: components["schemas"]["SneakerResponse"][]
+      /** Total */
+      total: number
+      /** Page */
+      page: number
+      /** Size */
+      size: number
+      /** Pages */
+      pages: number
+    }
+    /** SizeStockRequest */
+    SizeStockRequest: {
+      /** Stock */
+      stock: number
+    }
+    /** SizeVariantResponse */
+    SizeVariantResponse: {
+      /** Size */
+      size: string
+      /** Stock */
+      stock: number
+    }
+    /** SneakerRequest */
+    SneakerRequest: {
+      /** Name */
+      name: string
+      /**
+       * Description
+       * @default
+       */
+      description: string
+      /**
+       * Brand Id
+       * Format: uuid
+       */
+      brand_id: string
+      /**
+       * Category Id
+       * Format: uuid
+       */
+      category_id: string
+      gender: components["schemas"]["Gender"]
+      /** Price */
+      price: number | string
+      /** Currency */
+      currency: string
+      /** Release Date */
+      release_date?: string | null
+      /** Slug */
+      slug?: string | null
+      /** Reference */
+      reference?: string | null
+      specs?: components["schemas"]["SpecSheetSchema"]
+      /**
+       * Usage
+       * @default
+       */
+      usage: string
+      testimonial?: components["schemas"]["TestimonialSchema"] | null
+    }
+    /** SneakerResponse */
+    SneakerResponse: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string
+      /** Name */
+      name: string
+      /** Slug */
+      slug: string
+      /** Description */
+      description: string
+      /**
+       * Brand Id
+       * Format: uuid
+       */
+      brand_id: string
+      /**
+       * Category Id
+       * Format: uuid
+       */
+      category_id: string
+      gender: components["schemas"]["Gender"]
+      base_price: components["schemas"]["MoneyResponse"]
+      status: components["schemas"]["SneakerStatus"]
+      /** Release Date */
+      release_date: string | null
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string
+      /**
+       * Updated At
+       * Format: date-time
+       */
+      updated_at: string
+      /** Reference */
+      reference: string | null
+      specs: components["schemas"]["SpecSheetSchema"]
+      /** Usage */
+      usage: string
+      testimonial: components["schemas"]["TestimonialSchema"] | null
+      /** Colorways */
+      colorways: components["schemas"]["ColorwayResponse"][]
+      /** Images */
+      images: components["schemas"]["ImageResponse"][]
+    }
+    /**
+     * SneakerSort
+     * @enum {string}
+     */
+    SneakerSort: "name" | "price" | "release_date" | "created_at"
+    /**
+     * SneakerStatus
+     * @enum {string}
+     */
+    SneakerStatus: "draft" | "active" | "archived"
+    /** SpecSheetSchema */
+    SpecSheetSchema: {
+      /**
+       * Material
+       * @default
+       */
+      material: string
+      /**
+       * Technology
+       * @default
+       */
+      technology: string
+      /**
+       * Weight
+       * @default
+       */
+      weight: string
+      /**
+       * Cushioning
+       * @default
+       */
+      cushioning: string
+    }
+    /** TestimonialSchema */
+    TestimonialSchema: {
+      /** Quote */
+      quote: string
+      /** Author */
+      author: string
     }
     /** ValidationError */
     ValidationError: {
@@ -244,6 +776,15 @@ export interface operations {
           "application/json": components["schemas"]["BrandResponse"]
         }
       }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Validation Error */
       422: {
         headers: {
@@ -273,6 +814,15 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["BrandResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
         }
       }
       /** @description Validation Error */
@@ -310,6 +860,24 @@ export interface operations {
           "application/json": components["schemas"]["BrandResponse"]
         }
       }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Validation Error */
       422: {
         headers: {
@@ -338,6 +906,24 @@ export interface operations {
           [name: string]: unknown
         }
         content?: never
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
       }
       /** @description Validation Error */
       422: {
@@ -404,6 +990,15 @@ export interface operations {
           "application/json": components["schemas"]["CategoryResponse"]
         }
       }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Validation Error */
       422: {
         headers: {
@@ -433,6 +1028,15 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["CategoryResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
         }
       }
       /** @description Validation Error */
@@ -470,6 +1074,24 @@ export interface operations {
           "application/json": components["schemas"]["CategoryResponse"]
         }
       }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Validation Error */
       422: {
         headers: {
@@ -499,6 +1121,24 @@ export interface operations {
         }
         content?: never
       }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Validation Error */
       422: {
         headers: {
@@ -506,6 +1146,939 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  list_sneakers_sneakers_get: {
+    parameters: {
+      query?: {
+        status?: components["schemas"]["SneakerStatus"] | null
+        page?: number
+        size?: number
+        brand?: string[]
+        category?: string[]
+        gender?: components["schemas"]["Gender"][]
+        shoe_size?: (number | string)[]
+        color?: string[]
+        min_price?: number | string | null
+        max_price?: number | string | null
+        currency?: string | null
+        in_stock?: boolean
+        q?: string | null
+        sort?: components["schemas"]["SneakerSort"]
+        descending?: boolean
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["PageResponse_SneakerResponse_"]
+        }
+      }
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+    }
+  }
+  create_sneaker_sneakers_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SneakerRequest"]
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  get_sneaker_by_slug_sneakers_by_slug__slug__get: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  get_sneaker_sneakers__sneaker_id__get: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  update_sneaker_sneakers__sneaker_id__put: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SneakerRequest"]
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  delete_sneaker_sneakers__sneaker_id__delete: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  publish_sneaker_sneakers__sneaker_id__publish_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  archive_sneaker_sneakers__sneaker_id__archive_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  unarchive_sneaker_sneakers__sneaker_id__unarchive_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  create_colorway_sneakers__sneaker_id__colorways_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ColorwayRequest"]
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  update_colorway_sneakers__sneaker_id__colorways__colorway_id__put: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+        colorway_id: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ColorwayRequest"]
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  delete_colorway_sneakers__sneaker_id__colorways__colorway_id__delete: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+        colorway_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  set_size_stock_sneakers__sneaker_id__colorways__colorway_id__sizes__size__put: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+        colorway_id: string
+        size: number | string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SizeStockRequest"]
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  remove_size_sneakers__sneaker_id__colorways__colorway_id__sizes__size__delete: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+        colorway_id: string
+        size: number | string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  upload_sneaker_image_sneakers__sneaker_id__images_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["Body_upload_sneaker_image_sneakers__sneaker_id__images_post"]
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+    }
+  }
+  reorder_sneaker_images_sneakers__sneaker_id__images_order_put: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ImageOrderRequest"]
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+    }
+  }
+  mark_primary_sneaker_image_sneakers__sneaker_id__images__image_id__primary_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+        image_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  delete_sneaker_image_sneakers__sneaker_id__images__image_id__delete: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sneaker_id: string
+        image_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  list_published_sneakers_catalog_sneakers_get: {
+    parameters: {
+      query?: {
+        page?: number
+        size?: number
+        brand?: string[]
+        category?: string[]
+        gender?: components["schemas"]["Gender"][]
+        shoe_size?: (number | string)[]
+        color?: string[]
+        min_price?: number | string | null
+        max_price?: number | string | null
+        currency?: string | null
+        in_stock?: boolean
+        q?: string | null
+        sort?: components["schemas"]["SneakerSort"]
+        descending?: boolean
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["PageResponse_SneakerResponse_"]
+        }
+      }
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+    }
+  }
+  get_published_sneaker_catalog_sneakers__slug__get: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  get_catalog_facets_catalog_facets_get: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["CatalogFacetsResponse"]
         }
       }
     }
