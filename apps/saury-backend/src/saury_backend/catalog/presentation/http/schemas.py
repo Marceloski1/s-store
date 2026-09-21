@@ -16,9 +16,19 @@ from saury_backend.catalog.domain.entities.colorway import (
     SKU_MAX_LENGTH,
 )
 from saury_backend.catalog.domain.entities.image import IMAGE_ALT_MAX_LENGTH
-from saury_backend.catalog.domain.entities.sneaker import SNEAKER_DESCRIPTION_MAX_LENGTH, SNEAKER_NAME_MAX_LENGTH
+from saury_backend.catalog.domain.entities.sneaker import (
+    SNEAKER_DESCRIPTION_MAX_LENGTH,
+    SNEAKER_NAME_MAX_LENGTH,
+    SNEAKER_REFERENCE_MAX_LENGTH,
+    SNEAKER_USAGE_MAX_LENGTH,
+)
 from saury_backend.catalog.domain.value_objects.gender import Gender
 from saury_backend.catalog.domain.value_objects.sneaker_status import SneakerStatus
+from saury_backend.catalog.domain.value_objects.spec_sheet import SPEC_FIELD_MAX_LENGTH
+from saury_backend.catalog.domain.value_objects.testimonial import (
+    TESTIMONIAL_AUTHOR_MAX_LENGTH,
+    TESTIMONIAL_QUOTE_MAX_LENGTH,
+)
 
 CurrencyStr = Annotated[str, StringConstraints(pattern=CURRENCY_PATTERN)]
 ColorCodeStr = Annotated[str, StringConstraints(strip_whitespace=True, to_upper=True, pattern=CASE_INSENSITIVE_COLOR_CODE_PATTERN)]
@@ -29,6 +39,16 @@ SkuStr = Annotated[
     ),
 ]
 AltStr = Annotated[str, StringConstraints(strip_whitespace=True, max_length=IMAGE_ALT_MAX_LENGTH)]
+ReferenceStr = Annotated[
+    str,
+    StringConstraints(
+        strip_whitespace=True,
+        to_upper=True,
+        pattern=CASE_INSENSITIVE_SKU_PATTERN,
+        max_length=SNEAKER_REFERENCE_MAX_LENGTH,
+    ),
+]
+SpecStr = Annotated[str, StringConstraints(strip_whitespace=True, max_length=SPEC_FIELD_MAX_LENGTH)]
 
 
 class BrandRequest(BaseModel):
@@ -57,6 +77,26 @@ class CategoryResponse(BaseModel):
     slug: str
 
 
+class SpecSheetSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    material: SpecStr = ""
+    technology: SpecStr = ""
+    weight: SpecStr = ""
+    cushioning: SpecStr = ""
+
+
+class TestimonialSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    quote: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=TESTIMONIAL_QUOTE_MAX_LENGTH)
+    ]
+    author: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=TESTIMONIAL_AUTHOR_MAX_LENGTH)
+    ]
+
+
 class SneakerRequest(BaseModel):
     name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=SNEAKER_NAME_MAX_LENGTH)]
     description: Annotated[str, StringConstraints(max_length=SNEAKER_DESCRIPTION_MAX_LENGTH)] = ""
@@ -67,6 +107,10 @@ class SneakerRequest(BaseModel):
     currency: CurrencyStr
     release_date: date | None = None
     slug: SlugStr | None = None
+    reference: ReferenceStr | None = None
+    specs: SpecSheetSchema = Field(default_factory=SpecSheetSchema)
+    usage: Annotated[str, StringConstraints(strip_whitespace=True, max_length=SNEAKER_USAGE_MAX_LENGTH)] = ""
+    testimonial: TestimonialSchema | None = None
 
 
 class ColorwayRequest(BaseModel):
@@ -136,5 +180,28 @@ class SneakerResponse(BaseModel):
     release_date: date | None
     created_at: datetime
     updated_at: datetime
+    reference: str | None
+    specs: SpecSheetSchema
+    usage: str
+    testimonial: TestimonialSchema | None
     colorways: list[ColorwayResponse]
     images: list[ImageResponse]
+
+
+class FacetCountResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    value: str
+    label: str
+    count: int
+
+
+class CatalogFacetsResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    brands: list[FacetCountResponse]
+    categories: list[FacetCountResponse]
+    genders: list[FacetCountResponse]
+    sizes: list[FacetCountResponse]
+    colors: list[FacetCountResponse]
+    currencies: list[str]

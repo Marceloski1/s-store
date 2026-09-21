@@ -251,3 +251,77 @@ def test_unknown_ids_return_not_found(client: TestClient, references: dict[str, 
     assert client.post(f"/sneakers/{unknown}/publish").status_code == 404
     assert client.delete(f"/sneakers/{sneaker['id']}/colorways/{unknown}").status_code == 404
     assert client.delete(f"/sneakers/{sneaker['id']}/images/{unknown}").status_code == 404
+
+
+def test_sneaker_sales_content_round_trip(client: TestClient, references: dict[str, str]) -> None:
+    content = {
+        "reference": "als-am90-001",
+        "specs": {"material": "Mesh", "technology": "Air", "weight": "310 g", "cushioning": "Media"},
+        "usage": "Running diario",
+        "testimonial": {"quote": "Muy cómodas", "author": "Ana, talla 38"},
+    }
+    sneaker = create_sneaker(client, references, **content)
+
+    assert sneaker["reference"] == "ALS-AM90-001"
+    assert sneaker["specs"] == content["specs"]
+    assert sneaker["usage"] == "Running diario"
+    assert sneaker["testimonial"] == content["testimonial"]
+
+    cleared = client.put(f"/sneakers/{sneaker['id']}", json=sneaker_payload(references)).json()
+    assert (cleared["reference"], cleared["usage"], cleared["testimonial"]) == (None, "", None)
+    assert cleared["specs"] == {"material": "", "technology": "", "weight": "", "cushioning": ""}
+
+
+def test_duplicated_reference_is_a_conflict(client: TestClient, references: dict[str, str]) -> None:
+    create_sneaker(client, references, reference="ALS-001")
+
+    response = client.post("/sneakers", json=sneaker_payload(references, name="Air Max 95", reference="als-001"))
+
+    assert response.status_code == 409
+
+
+def test_get_sneaker_by_slug(client: TestClient, references: dict[str, str]) -> None:
+    sneaker = create_sneaker(client, references)
+
+    assert client.get("/sneakers/by-slug/air-max-90").json() == sneaker
+    assert client.get("/sneakers/by-slug/missing").status_code == 404
+
+
+def test_list_sneakers_accepts_repeated_filters(client: TestClient, references: dict[str, str]) -> None:
+    create_sneaker(client, references, gender="men")
+    create_sneaker(client, references, name="Cortez", gender="women")
+    create_sneaker(client, references, name="Kids Run", gender="kids")
+
+    listed = client.get("/sneakers", params=[("gender", "men"), ("gender", "women"), ("sort", "name")]).json()
+
+    assert [item["name"] for item in listed["items"]] == ["Air Max 90", "Cortez"]
+    assert client.get("/sneakers", params={"color": "blue"}).status_code == 422
+
+
+def test_public_catalog_only_exposes_published_sneakers(client: TestClient, references: dict[str, str]) -> None:
+    published = make_publishable(client, references)
+    client.post(f"/sneakers/{published['id']}/publish")
+    create_sneaker(client, references, name="Draft Runner")
+
+    listed = client.get("/catalog/sneakers", params={"status": "draft"}).json()
+
+    assert [item["slug"] for item in listed["items"]] == ["air-max-90"]
+    assert client.get("/catalog/sneakers/air-max-90").json()["status"] == "active"
+    assert client.get("/catalog/sneakers/draft-runner").status_code == 404
+
+
+def test_public_catalog_facets(client: TestClient, references: dict[str, str]) -> None:
+    published = make_publishable(client, references)
+    client.post(f"/sneakers/{published['id']}/publish")
+    create_sneaker(client, references, name="Draft Runner", currency="EUR")
+
+    facets = client.get("/catalog/facets").json()
+
+    assert facets == {
+        "brands": [{"value": "nike", "label": "Nike", "count": 1}],
+        "categories": [{"value": "running", "label": "Running", "count": 1}],
+        "genders": [{"value": "unisex", "label": "unisex", "count": 1}],
+        "sizes": [{"value": "42", "label": "42", "count": 1}],
+        "colors": [{"value": "#FF0000", "label": "Infrared", "count": 1}],
+        "currencies": ["USD"],
+    }

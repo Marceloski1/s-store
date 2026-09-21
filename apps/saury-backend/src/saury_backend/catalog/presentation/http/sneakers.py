@@ -1,8 +1,8 @@
-from decimal import Decimal
+from dataclasses import replace
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from shared.presentation.http.dependencies import PageParamsDep, UnitOfWorkDep
 from shared.presentation.http.schemas import (
     CONFLICT_RESPONSE,
@@ -14,6 +14,8 @@ from shared.presentation.http.schemas import (
 from saury_backend.catalog.application.dtos.sneaker import (
     CreateSneakerCommand,
     ListSneakersQuery,
+    SpecSheetDTO,
+    TestimonialDTO,
     UpdateSneakerCommand,
 )
 from saury_backend.catalog.application.use_cases.publication import (
@@ -25,11 +27,10 @@ from saury_backend.catalog.application.use_cases.sneaker import (
     CreateSneaker,
     DeleteSneaker,
     GetSneaker,
+    GetSneakerBySlug,
     ListSneakers,
     UpdateSneaker,
 )
-from saury_backend.catalog.domain.repositories.sneaker_repository import SneakerSort
-from saury_backend.catalog.domain.value_objects.gender import Gender
 from saury_backend.catalog.domain.value_objects.sneaker_status import SneakerStatus
 from saury_backend.catalog.presentation.http.dependencies import (
     BrandRepositoryDep,
@@ -38,6 +39,7 @@ from saury_backend.catalog.presentation.http.dependencies import (
     SneakerRepositoryDep,
 )
 from saury_backend.catalog.presentation.http.schemas import SneakerRequest, SneakerResponse
+from saury_backend.catalog.presentation.http.sneaker_queries import list_sneakers_query
 
 router = APIRouter(prefix="/sneakers", tags=["sneakers"])
 
@@ -60,44 +62,34 @@ async def create_sneaker(
         currency=body.currency,
         release_date=body.release_date,
         slug=body.slug,
+        reference=body.reference,
+        specs=SpecSheetDTO(**body.specs.model_dump()),
+        usage=body.usage,
+        testimonial=_testimonial(body),
     )
     sneaker = await CreateSneaker(repository, brand_repository, category_repository, unit_of_work).execute(command)
     return SneakerResponse.model_validate(sneaker)
+
+
+def _testimonial(body: SneakerRequest) -> TestimonialDTO | None:
+    return TestimonialDTO(**body.testimonial.model_dump()) if body.testimonial else None
 
 
 @router.get("", responses=UNPROCESSABLE_RESPONSE)
 async def list_sneakers(
     repository: SneakerRepositoryDep,
     page_params: PageParamsDep,
-    brand: str | None = None,
-    category: str | None = None,
-    gender: Gender | None = None,
+    query: Annotated[ListSneakersQuery, Depends(list_sneakers_query)],
     sneaker_status: Annotated[SneakerStatus | None, Query(alias="status")] = None,
-    shoe_size: Decimal | None = None,
-    min_price: Decimal | None = None,
-    max_price: Decimal | None = None,
-    currency: str | None = None,
-    in_stock: bool = False,
-    q: str | None = None,
-    sort: SneakerSort = SneakerSort.CREATED_AT,
-    descending: bool = False,
 ) -> PageResponse[SneakerResponse]:
-    query = ListSneakersQuery(
-        brand=brand,
-        category=category,
-        gender=gender.value if gender else None,
-        status=sneaker_status.value if sneaker_status else None,
-        size=shoe_size,
-        min_price=min_price,
-        max_price=max_price,
-        currency=currency,
-        in_stock=in_stock,
-        q=q,
-        sort=sort.value,
-        descending=descending,
-    )
-    page = await ListSneakers(repository).execute(query, page_params)
+    scoped = replace(query, status=sneaker_status.value if sneaker_status else None)
+    page = await ListSneakers(repository).execute(scoped, page_params)
     return PageResponse[SneakerResponse].from_page(page.map(SneakerResponse.model_validate))
+
+
+@router.get("/by-slug/{slug}", responses=NOT_FOUND_RESPONSE)
+async def get_sneaker_by_slug(slug: str, repository: SneakerRepositoryDep) -> SneakerResponse:
+    return SneakerResponse.model_validate(await GetSneakerBySlug(repository).execute(slug))
 
 
 @router.get("/{sneaker_id}", responses=NOT_FOUND_RESPONSE)
@@ -125,6 +117,10 @@ async def update_sneaker(
         currency=body.currency,
         release_date=body.release_date,
         slug=body.slug,
+        reference=body.reference,
+        specs=SpecSheetDTO(**body.specs.model_dump()),
+        usage=body.usage,
+        testimonial=_testimonial(body),
     )
     sneaker = await UpdateSneaker(repository, brand_repository, category_repository, unit_of_work).execute(command)
     return SneakerResponse.model_validate(sneaker)
