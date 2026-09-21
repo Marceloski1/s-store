@@ -564,6 +564,11 @@ export interface components {
       /** Password */
       password: string
     }
+    /**
+     * Currency
+     * @enum {string}
+     */
+    Currency: Currency
     /** ErrorResponse */
     ErrorResponse: {
       /** Detail */
@@ -582,7 +587,7 @@ export interface components {
      * Gender
      * @enum {string}
      */
-    Gender: "men" | "women" | "unisex" | "kids"
+    Gender: Gender
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
@@ -681,7 +686,7 @@ export interface components {
      * Role
      * @enum {string}
      */
-    Role: "ADMIN" | "SUPER_ADMIN"
+    Role: Role
     /** SizeStockRequest */
     SizeStockRequest: {
       /** Stock */
@@ -716,8 +721,7 @@ export interface components {
       gender: components["schemas"]["Gender"]
       /** Price */
       price: number | string
-      /** Currency */
-      currency: string
+      currency: components["schemas"]["Currency"]
       /** Release Date */
       release_date?: string | null
       /** Slug */
@@ -785,12 +789,12 @@ export interface components {
      * SneakerSort
      * @enum {string}
      */
-    SneakerSort: "name" | "price" | "release_date" | "created_at"
+    SneakerSort: SneakerSort
     /**
      * SneakerStatus
      * @enum {string}
      */
-    SneakerStatus: "draft" | "active" | "archived"
+    SneakerStatus: SneakerStatus
     /** SpecSheetSchema */
     SpecSheetSchema: {
       /**
@@ -1761,7 +1765,7 @@ export interface operations {
         color?: string[]
         min_price?: number | string | null
         max_price?: number | string | null
-        currency?: string | null
+        currency?: components["schemas"]["Currency"] | null
         in_stock?: boolean
         q?: string | null
         sort?: components["schemas"]["SneakerSort"]
@@ -2913,7 +2917,7 @@ export interface operations {
         color?: string[]
         min_price?: number | string | null
         max_price?: number | string | null
-        currency?: string | null
+        currency?: components["schemas"]["Currency"] | null
         in_stock?: boolean
         q?: string | null
         sort?: components["schemas"]["SneakerSort"]
@@ -3025,4 +3029,30 @@ export interface operations {
       }
     }
   }
+}
+export enum Currency {
+  USD = "USD",
+  CUP = "CUP",
+  EUR = "EUR",
+}
+export enum Gender {
+  MEN = "MEN",
+  WOMEN = "WOMEN",
+  UNISEX = "UNISEX",
+  KIDS = "KIDS",
+}
+export enum Role {
+  ADMIN = "ADMIN",
+  SUPER_ADMIN = "SUPER_ADMIN",
+}
+export enum SneakerSort {
+  NAME = "NAME",
+  PRICE = "PRICE",
+  RELEASE_DATE = "RELEASE_DATE",
+  CREATED_AT = "CREATED_AT",
+}
+export enum SneakerStatus {
+  DRAFT = "DRAFT",
+  ACTIVE = "ACTIVE",
+  ARCHIVED = "ARCHIVED",
 }

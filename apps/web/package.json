@@ -11,7 +11,7 @@
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx,astro}\"",
     "typecheck": "astro check && tsc --noEmit",
-    "api:types": "openapi-typescript http://127.0.0.1:8000/openapi.json -o src/lib/api/schema.d.ts"
+    "api:types": "openapi-typescript http://127.0.0.1:8000/openapi.json -o src/lib/api/schema.ts --enum --dedupe-enums"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.6",
