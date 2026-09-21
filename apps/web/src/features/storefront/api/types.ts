@@ -1,3 +1,4 @@
+import type { Currency, Gender } from "@/lib/api/types"
 export type Money = {
   amount: string
   currency: string
@@ -116,12 +117,12 @@ export const CATALOG_SORT_LABELS: Record<CatalogSort, string> = {
 export type CatalogQuery = {
   brands: string[]
   categories: string[]
-  genders: string[]
+  genders: Gender[]
   sizes: string[]
   colors: string[]
   minPrice: string | null
   maxPrice: string | null
-  currency: string | null
+  currency: Currency | null
   inStock: boolean
   q: string | null
   reference: string | null

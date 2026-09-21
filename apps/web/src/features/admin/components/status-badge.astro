@@ -1,5 +1,5 @@
 ---
-import { STATUS_LABELS, type SneakerStatus } from "@/features/admin/api/types"
+import { STATUS_LABELS, SneakerStatus } from "@/features/admin/api/types"
 
 interface Props {
   status: SneakerStatus
@@ -8,11 +8,11 @@ interface Props {
 
 const { status, class: className = "" } = Astro.props
 
-const tones = {
-  active: "bg-success/10 text-success",
-  draft: "bg-warning/10 text-warning",
-  archived: "bg-muted text-muted-foreground",
-} as const
+const tones: Record<SneakerStatus, string> = {
+  [SneakerStatus.ACTIVE]: "bg-success/10 text-success",
+  [SneakerStatus.DRAFT]: "bg-warning/10 text-warning",
+  [SneakerStatus.ARCHIVED]: "bg-muted text-muted-foreground",
+}
 ---
 
 <span

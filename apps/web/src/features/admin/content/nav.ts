@@ -1,3 +1,4 @@
+import { Role } from "@/lib/api/types"
 import type { ApiRole, ApiUser } from "@/lib/api/types"
 
 export enum AdminSection {
@@ -16,9 +17,9 @@ const ADMIN_SECTION_ROUTES: Record<
   AdminSection,
   { href: string; role: ApiRole }
 > = {
-  [AdminSection.SNEAKERS]: { href: "/admin", role: "ADMIN" },
-  [AdminSection.BRANDS]: { href: "/admin/marcas", role: "ADMIN" },
-  [AdminSection.USERS]: { href: "/admin/usuarios", role: "SUPER_ADMIN" },
+  [AdminSection.SNEAKERS]: { href: "/admin", role: Role.ADMIN },
+  [AdminSection.BRANDS]: { href: "/admin/marcas", role: Role.ADMIN },
+  [AdminSection.USERS]: { href: "/admin/usuarios", role: Role.SUPER_ADMIN },
 }
 
 export const ADMIN_NAV = Object.values(AdminSection).map((section) => ({

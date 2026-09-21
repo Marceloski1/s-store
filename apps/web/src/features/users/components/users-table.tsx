@@ -1,3 +1,4 @@
+import { Role } from "@/lib/api/types"
 import { useState } from "react"
 
 import { Form, FormField } from "@workspace/ui/components/form"
@@ -60,7 +61,7 @@ export function UsersTable({
           <tbody>
             {users.map((user) => {
               const manageable =
-                user.role === "ADMIN" && user.id !== currentUserId
+                user.role === Role.ADMIN && user.id !== currentUserId
               return (
                 <tr
                   key={user.id}

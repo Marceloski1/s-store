@@ -1,7 +1,14 @@
 import type { ColorwayInput, SneakerForm } from "@/features/admin/api/schemas"
-import type { ApiColorway, ApiSneaker, ApiSneakerStatus } from "@/lib/api/types"
+import {
+  Currency,
+  Gender,
+  SneakerStatus,
+  type ApiColorway,
+  type ApiSneaker,
+} from "@/lib/api/types"
+import { toEnum } from "@/lib/enums"
 
-export type SneakerStatus = ApiSneakerStatus
+export { SneakerStatus }
 
 export type AdminMoney = {
   amount: string
@@ -63,15 +70,15 @@ export type PublishCheck = {
 export type { ColorwayInput, SneakerForm } from "@/features/admin/api/schemas"
 
 export const STATUS_LABELS: Record<SneakerStatus, string> = {
-  draft: "Borrador",
-  active: "Publicado",
-  archived: "Archivado",
+  [SneakerStatus.DRAFT]: "Borrador",
+  [SneakerStatus.ACTIVE]: "Publicado",
+  [SneakerStatus.ARCHIVED]: "Archivado",
 }
 
 export const STATUS_TRANSITIONS: Record<SneakerStatus, SneakerStatus[]> = {
-  draft: ["active"],
-  active: ["archived"],
-  archived: ["draft"],
+  [SneakerStatus.DRAFT]: [SneakerStatus.ACTIVE],
+  [SneakerStatus.ACTIVE]: [SneakerStatus.ARCHIVED],
+  [SneakerStatus.ARCHIVED]: [SneakerStatus.DRAFT],
 }
 
 export const MAX_IMAGES = 8
@@ -144,9 +151,9 @@ export function emptySneakerForm(
     description: "",
     brandId,
     categoryId,
-    gender: "unisex",
+    gender: Gender.UNISEX,
     price: "",
-    currency: "USD",
+    currency: Currency.USD,
     releaseDate: "",
     material: "",
     technology: "",
@@ -168,7 +175,7 @@ export function sneakerToForm(sneaker: ApiSneaker): SneakerForm {
     categoryId: sneaker.category_id,
     gender: sneaker.gender,
     price: sneaker.base_price.amount,
-    currency: sneaker.base_price.currency,
+    currency: toEnum(Currency, sneaker.base_price.currency) ?? Currency.USD,
     releaseDate: sneaker.release_date ?? "",
     material: sneaker.specs.material,
     technology: sneaker.specs.technology,

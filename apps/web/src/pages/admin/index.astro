@@ -4,22 +4,19 @@ import { getAdminStats, listAdminSneakers } from "@/features/admin/api/sneakers"
 import {
   formatAdminDate,
   formatAdminMoney,
-  STATUS_LABELS,
   type AdminSneakerPage,
   type AdminStats,
-  type SneakerStatus,
+  SneakerStatus,
 } from "@/features/admin/api/types"
 import StatTile from "@/features/admin/components/stat-tile.astro"
 import StatusBadge from "@/features/admin/components/status-badge.astro"
 import ImagePlaceholder from "@/features/storefront/components/image-placeholder.astro"
 import AdminLayout from "@/layouts/admin.astro"
 import { toErrorMessage } from "@/lib/api/errors"
+import { toEnum } from "@/lib/enums"
 
 const requestedStatus = Astro.url.searchParams.get("estado")
-const statusFilter =
-  requestedStatus && requestedStatus in STATUS_LABELS
-    ? (requestedStatus as SneakerStatus)
-    : null
+const statusFilter = toEnum(SneakerStatus, requestedStatus)
 const requestedPage = Number(Astro.url.searchParams.get("page") ?? "1")
 const currentPage =
   Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1
@@ -47,9 +44,9 @@ const visible = listing.rows
 
 const tabs = [
   { value: null, label: "Todos", count: stats.total },
-  { value: "active", label: "Publicados", count: stats.published },
-  { value: "draft", label: "Borradores", count: stats.drafts },
-  { value: "archived", label: "Archivados", count: stats.archived },
+  { value: SneakerStatus.ACTIVE, label: "Publicados", count: stats.published },
+  { value: SneakerStatus.DRAFT, label: "Borradores", count: stats.drafts },
+  { value: SneakerStatus.ARCHIVED, label: "Archivados", count: stats.archived },
 ] satisfies { value: SneakerStatus | null; label: string; count: number }[]
 
 function pageHref(page: number): string {
@@ -280,7 +277,11 @@ const hasNext = listing.page < listing.pages
                       />
                     ) : (
                       <ImagePlaceholder
-                        tone={row.status === "archived" ? "soft" : "tint"}
+                        tone={
+                          row.status === SneakerStatus.ARCHIVED
+                            ? "soft"
+                            : "tint"
+                        }
                         class="size-11 shrink-0"
                         glyphClass="w-[68%]"
                       />

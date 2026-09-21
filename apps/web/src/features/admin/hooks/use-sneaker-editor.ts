@@ -11,7 +11,7 @@ import {
   sneakerToForm,
   type ColorwayInput,
   type SneakerForm,
-  type SneakerStatus,
+  SneakerStatus,
 } from "@/features/admin/api/types"
 import { toErrorMessage } from "@/lib/api/errors"
 import { colorwayService } from "@/services/admin-services/colorway"
@@ -113,14 +113,14 @@ export function useSneakerEditor(initialSneaker: ApiSneaker | null) {
       return
     }
     const transitions = {
-      active: sneakerService.publish,
-      archived: sneakerService.archive,
-      draft: sneakerService.unarchive,
+      [SneakerStatus.ACTIVE]: sneakerService.publish,
+      [SneakerStatus.ARCHIVED]: sneakerService.archive,
+      [SneakerStatus.DRAFT]: sneakerService.unarchive,
     } satisfies Record<SneakerStatus, (id: string) => Promise<ApiSneaker>>
     const messages: Record<SneakerStatus, string> = {
-      active: "Modelo publicado",
-      archived: "Modelo archivado",
-      draft: "Modelo devuelto a borrador",
+      [SneakerStatus.ACTIVE]: "Modelo publicado",
+      [SneakerStatus.ARCHIVED]: "Modelo archivado",
+      [SneakerStatus.DRAFT]: "Modelo devuelto a borrador",
     }
     await run((current) => transitions[target](current.id), messages[target])
   }

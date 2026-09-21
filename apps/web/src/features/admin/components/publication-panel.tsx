@@ -2,7 +2,7 @@ import {
   PublishCheckState,
   STATUS_LABELS,
   type PublishCheck,
-  type SneakerStatus,
+  SneakerStatus,
 } from "@/features/admin/api/types"
 import {
   fieldClass,
@@ -18,7 +18,11 @@ type PublicationPanelProps = {
   onChangeStatus: (target: SneakerStatus) => void
 }
 
-const STATUS_ORDER: SneakerStatus[] = ["draft", "active", "archived"]
+const STATUS_ORDER: SneakerStatus[] = [
+  SneakerStatus.DRAFT,
+  SneakerStatus.ACTIVE,
+  SneakerStatus.ARCHIVED,
+]
 
 export function PublicationPanel({
   checks,

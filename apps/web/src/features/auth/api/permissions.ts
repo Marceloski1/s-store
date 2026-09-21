@@ -1,16 +1,17 @@
+import { Role } from "@/lib/api/types"
 import type { ApiRole, ApiUser } from "@/lib/api/types"
 
 export const LOGIN_PATH = "/admin/login"
 export const LOGOUT_PATH = "/admin/logout"
 
 export const ROLE_HOME: Record<ApiRole, string> = {
-  ADMIN: "/admin",
-  SUPER_ADMIN: "/admin/usuarios",
+  [Role.ADMIN]: "/admin",
+  [Role.SUPER_ADMIN]: "/admin/usuarios",
 }
 
 export const ROLE_LABELS: Record<ApiRole, string> = {
-  ADMIN: "Administrador",
-  SUPER_ADMIN: "Superadministrador",
+  [Role.ADMIN]: "Administrador",
+  [Role.SUPER_ADMIN]: "Superadministrador",
 }
 
 type RouteRule = {
@@ -21,8 +22,8 @@ type RouteRule = {
 const ROUTE_RULES: readonly RouteRule[] = [
   { prefix: LOGIN_PATH, roles: "public" },
   { prefix: LOGOUT_PATH, roles: "session" },
-  { prefix: "/admin/usuarios", roles: ["SUPER_ADMIN"] },
-  { prefix: "/admin", roles: ["ADMIN"] },
+  { prefix: "/admin/usuarios", roles: [Role.SUPER_ADMIN] },
+  { prefix: "/admin", roles: [Role.ADMIN] },
 ]
 
 function matches(path: string, prefix: string): boolean {

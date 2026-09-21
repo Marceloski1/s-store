@@ -1,3 +1,4 @@
+import { SneakerStatus } from "@/lib/api/types"
 import { Form } from "@workspace/ui/components/form"
 
 import { sneakerFormSchema } from "@/features/admin/api/schemas"
@@ -46,7 +47,7 @@ export function SneakerEditor({
         status={sneaker?.status ?? null}
         isSaving={isSaving}
         formId={SNEAKER_FORM_ID}
-        onArchive={() => void editor.changeStatus("archived")}
+        onArchive={() => void editor.changeStatus(SneakerStatus.ARCHIVED)}
       />
 
       {(editor.error || editor.notice) && (

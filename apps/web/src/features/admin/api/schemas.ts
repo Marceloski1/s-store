@@ -1,5 +1,7 @@
 import { z } from "zod"
 
+import { Currency, Gender } from "@/lib/api/types"
+
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const CODE_PATTERN = /^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/
 const PRICE_PATTERN = /^\d+(?:\.\d{1,2})?$/
@@ -42,9 +44,9 @@ export const sneakerFormSchema = z
     description: maxText(2000),
     brandId: z.string().min(1, "Elige una marca"),
     categoryId: z.string().min(1, "Elige una categoría"),
-    gender: z.enum(["men", "women", "unisex", "kids"]),
+    gender: z.enum(Gender),
     price,
-    currency: z.string().regex(/^[A-Z]{3}$/, "Moneda no válida"),
+    currency: z.enum(Currency, "Moneda no válida"),
     releaseDate: z.string(),
     material: maxText(100),
     technology: maxText(100),

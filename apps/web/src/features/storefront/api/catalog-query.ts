@@ -1,3 +1,5 @@
+import { Currency, Gender } from "@/lib/api/types"
+import { toEnum, toEnums } from "@/lib/enums"
 import { CatalogSort, type CatalogQuery } from "@/features/storefront/api/types"
 
 function optional(params: URLSearchParams, key: string): string | null {
@@ -15,12 +17,12 @@ export function parseCatalogQuery(params: URLSearchParams): CatalogQuery {
   return {
     brands: params.getAll("brand"),
     categories: params.getAll("category"),
-    genders: params.getAll("gender"),
+    genders: toEnums(Gender, params.getAll("gender")),
     sizes: params.getAll("size"),
     colors: params.getAll("color"),
     minPrice: optional(params, "min_price"),
     maxPrice: optional(params, "max_price"),
-    currency: optional(params, "currency"),
+    currency: toEnum(Currency, params.get("currency")),
     inStock: params.get("in_stock") === "true",
     q: optional(params, "q"),
     reference: optional(params, "reference"),

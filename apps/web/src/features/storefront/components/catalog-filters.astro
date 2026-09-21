@@ -92,7 +92,7 @@ const { facets, selected } = Astro.props
             type="checkbox"
             name="gender"
             value={gender.value}
-            checked={selected.genders.includes(gender.value)}
+            checked={selected.genders.some((value) => value === gender.value)}
             class="size-4 accent-primary"
           />
           <span class="grow">{gender.label}</span>

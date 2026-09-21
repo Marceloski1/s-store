@@ -1,3 +1,4 @@
+import { SneakerSort } from "@/lib/api/types"
 import { GENDER_LABELS } from "@/features/catalog/api/labels"
 import {
   REFERENCE_PAGE_SIZE,
@@ -28,15 +29,18 @@ const DAY_IN_MS = 24 * 60 * 60 * 1000
 const SORT_PARAMS: Record<
   CatalogSort,
   {
-    sort: "created_at" | "price" | "name" | "release_date"
+    sort: SneakerSort
     descending: boolean
   }
 > = {
-  [CatalogSort.CREATED_AT]: { sort: "created_at", descending: true },
-  [CatalogSort.PRICE_ASC]: { sort: "price", descending: false },
-  [CatalogSort.PRICE_DESC]: { sort: "price", descending: true },
-  [CatalogSort.NAME]: { sort: "name", descending: false },
-  [CatalogSort.RELEASE_DATE]: { sort: "release_date", descending: true },
+  [CatalogSort.CREATED_AT]: { sort: SneakerSort.CREATED_AT, descending: true },
+  [CatalogSort.PRICE_ASC]: { sort: SneakerSort.PRICE, descending: false },
+  [CatalogSort.PRICE_DESC]: { sort: SneakerSort.PRICE, descending: true },
+  [CatalogSort.NAME]: { sort: SneakerSort.NAME, descending: false },
+  [CatalogSort.RELEASE_DATE]: {
+    sort: SneakerSort.RELEASE_DATE,
+    descending: true,
+  },
 }
 
 type ListParams = {
@@ -193,18 +197,19 @@ function toSummary(detail: SneakerDetail): SneakerSummary {
 
 async function fetchPage({ query = {}, size = CATALOG_PAGE_SIZE }: ListParams) {
   const { sort, descending } = SORT_PARAMS[query.sort ?? CatalogSort.CREATED_AT]
-  const hasPriceFilter = Boolean(query.minPrice || query.maxPrice)
+  const currency = query.currency ?? undefined
+  const hasPriceFilter = Boolean(currency && (query.minPrice || query.maxPrice))
   return sneakerService.list({
     page: query.page ?? 1,
     size,
     brand: query.brands,
     category: query.categories,
-    gender: query.genders?.filter(isGender),
+    gender: query.genders,
     shoe_size: query.sizes,
     color: query.colors,
-    min_price: query.minPrice ?? undefined,
-    max_price: query.maxPrice ?? undefined,
-    currency: hasPriceFilter ? (query.currency ?? undefined) : undefined,
+    min_price: hasPriceFilter ? (query.minPrice ?? undefined) : undefined,
+    max_price: hasPriceFilter ? (query.maxPrice ?? undefined) : undefined,
+    currency: hasPriceFilter ? currency : undefined,
     in_stock: query.inStock,
     q: query.reference ?? query.q ?? undefined,
     sort,

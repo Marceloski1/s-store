@@ -1,12 +1,14 @@
-import type {
-  AdminSneakerPage,
-  AdminSneakerRow,
-  AdminStats,
-  ColorwayInput,
-  SneakerForm,
+import {
+  primaryImageUrl,
+  sneakerStock,
   SneakerStatus,
+  type AdminSneakerPage,
+  type AdminSneakerRow,
+  type AdminStats,
+  type ColorwayInput,
+  type SneakerForm,
 } from "@/features/admin/api/types"
-import { primaryImageUrl, sneakerStock } from "@/features/admin/api/types"
+import { SneakerSort } from "@/lib/api/types"
 import {
   REFERENCE_PAGE_SIZE,
   toCatalogReferences,
@@ -31,7 +33,7 @@ function warningFor(sneaker: ApiSneaker): string | null {
   if (sneakerStock(sneaker) === 0) {
     return "sin tallas con stock"
   }
-  if (sneaker.status === "archived") {
+  if (sneaker.status === SneakerStatus.ARCHIVED) {
     return "archivado"
   }
   return null
@@ -71,7 +73,7 @@ function listPage(page: number, size: number, status: SneakerStatus | null) {
     page,
     size,
     status,
-    sort: "created_at",
+    sort: SneakerSort.CREATED_AT,
     descending: true,
   })
 }
@@ -108,9 +110,9 @@ export async function getAdminStats(): Promise<AdminStats> {
     sneakers.filter((sneaker) => sneaker.status === status).length
   return {
     total: sneakers.length,
-    published: count("active"),
-    drafts: count("draft"),
-    archived: count("archived"),
+    published: count(SneakerStatus.ACTIVE),
+    drafts: count(SneakerStatus.DRAFT),
+    archived: count(SneakerStatus.ARCHIVED),
     outOfStock: sneakers.filter((sneaker) => sneakerStock(sneaker) === 0)
       .length,
   }

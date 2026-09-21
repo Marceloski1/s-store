@@ -1,4 +1,4 @@
-import type { SneakerStatus } from "@/features/admin/api/types"
+import { SneakerStatus } from "@/features/admin/api/types"
 import { StatusPill } from "@/features/admin/components/status-pill"
 
 type SneakerEditorHeaderProps = {
@@ -46,7 +46,7 @@ export function SneakerEditorHeader({
         </div>
       </div>
       <div className="flex flex-wrap items-center gap-2.5">
-        {status === "active" && (
+        {status === SneakerStatus.ACTIVE && (
           <button
             type="button"
             disabled={isSaving}

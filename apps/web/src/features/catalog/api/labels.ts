@@ -1,14 +1,15 @@
-import type { ApiGender } from "@/lib/api/types"
+import { Currency, Gender } from "@/lib/api/types"
 
-export const GENDER_LABELS: Record<ApiGender, string> = {
-  men: "Hombre",
-  women: "Mujer",
-  unisex: "Unisex",
-  kids: "Niños",
+export const GENDER_LABELS: Record<Gender, string> = {
+  [Gender.MEN]: "Hombre",
+  [Gender.WOMEN]: "Mujer",
+  [Gender.UNISEX]: "Unisex",
+  [Gender.KIDS]: "Niños",
 }
 
-export const GENDER_OPTIONS = Object.entries(GENDER_LABELS).map(
-  ([value, label]) => ({ value: value as ApiGender, label })
-)
+export const GENDER_OPTIONS = Object.values(Gender).map((value) => ({
+  value,
+  label: GENDER_LABELS[value],
+}))
 
-export const CURRENCY_OPTIONS = ["USD", "CUP", "EUR"] as const
+export const CURRENCY_OPTIONS = Object.values(Currency)
