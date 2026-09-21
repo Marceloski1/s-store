@@ -19,6 +19,7 @@ def test_preflight_from_allowed_origin_is_accepted() -> None:
 
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == ALLOWED_ORIGIN
+    assert response.headers["access-control-allow-credentials"] == "true"
 
 
 def test_preflight_from_unknown_origin_is_rejected() -> None:
