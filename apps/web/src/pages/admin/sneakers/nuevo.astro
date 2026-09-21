@@ -1,0 +1,46 @@
+---
+import { emptySneakerForm, toAdminOptions } from "@/features/admin/api/types"
+import { SneakerEditor } from "@/features/admin/components/sneaker-editor"
+import { CURRENCY_OPTIONS, GENDER_OPTIONS } from "@/features/catalog/api/labels"
+import { loadCatalogReferences } from "@/features/catalog/api/references"
+import AdminLayout from "@/layouts/admin.astro"
+
+const references = await loadCatalogReferences()
+
+const initialForm = emptySneakerForm(
+  references.brands[0]?.id ?? "",
+  references.categories[0]?.id ?? ""
+)
+const missingReferences =
+  references.brands.length === 0 || references.categories.length === 0
+---
+
+<AdminLayout
+  title="Nuevo sneaker"
+  active="sneakers"
+  breadcrumb={[
+    { label: "Sneakers", href: "/admin" },
+    { label: "Nuevo sneaker" },
+  ]}
+>
+  {
+    missingReferences && (
+      <p class="border border-dashed border-warning bg-warning/10 p-3 text-[13px] font-semibold text-warning">
+        Necesitas al menos una marca y una categoría.{" "}
+        <a href="/admin/marcas" class="underline">
+          Créalas aquí
+        </a>{" "}
+        antes de dar de alta un modelo.
+      </p>
+    )
+  }
+  <SneakerEditor
+    client:load
+    initialSneaker={null}
+    initialForm={initialForm}
+    brands={toAdminOptions(references.brands)}
+    categories={toAdminOptions(references.categories)}
+    genders={GENDER_OPTIONS}
+    currencies={CURRENCY_OPTIONS}
+  />
+</AdminLayout>

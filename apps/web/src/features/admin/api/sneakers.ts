@@ -1,133 +1,297 @@
 import type {
-  AdminColorway,
-  AdminSneakerDraft,
+  AdminSneakerPage,
   AdminSneakerRow,
   AdminStats,
-  PublishCheck,
+  ColorwayInput,
+  SneakerForm,
+  SneakerStatus,
 } from "@/features/admin/api/types"
+import { primaryImageUrl, sneakerStock } from "@/features/admin/api/types"
 import {
-  CATALOG_SEEDS,
-  seedStock,
-  type SneakerSeed,
-} from "@/lib/catalog-sample"
+  loadCatalogReferences,
+  type CatalogReferences,
+} from "@/features/catalog/api/references"
+import { apiClient } from "@/lib/api/client"
+import { ApiError } from "@/lib/api/errors"
+import type { ApiSneaker, ApiSneakerRequest } from "@/lib/api/types"
 
-function warningFor(seed: SneakerSeed): string | null {
-  if (seed.imageCount === 0) {
+const MAX_PAGE_SIZE = 100
+const ADMIN_PAGE_SIZE = 20
+
+function warningFor(sneaker: ApiSneaker): string | null {
+  if (!primaryImageUrl(sneaker)) {
     return "falta la foto principal"
   }
-  if (seedStock(seed) === 0) {
+  if (sneakerStock(sneaker) === 0) {
     return "sin tallas con stock"
   }
-  if (seed.status === "archived") {
-    // TODO(001): confirmar si un sneaker archivado debe mostrarse como aviso en el listado
+  if (sneaker.status === "archived") {
     return "archivado"
   }
   return null
 }
 
-function toRow(seed: SneakerSeed): AdminSneakerRow {
+function toRow(
+  sneaker: ApiSneaker,
+  references: CatalogReferences
+): AdminSneakerRow {
   return {
-    slug: seed.slug,
-    name: seed.name,
-    sku: seed.reference,
-    brand: seed.brand,
-    category: seed.category,
-    price: { amount: seed.amount, currency: seed.currency },
-    colorways: seed.colorways.length,
-    stock: seedStock(seed),
-    status: seed.status,
-    updatedAt: seed.updatedAt,
-    warning: warningFor(seed),
+    id: sneaker.id,
+    slug: sneaker.slug,
+    name: sneaker.name,
+    sku: sneaker.reference ?? sneaker.colorways[0]?.sku ?? "Sin referencia",
+    brand: references.brandName(sneaker.brand_id),
+    category: references.categoryName(sneaker.category_id),
+    price: sneaker.base_price,
+    colorways: sneaker.colorways.length,
+    stock: sneakerStock(sneaker),
+    status: sneaker.status,
+    updatedAt: sneaker.updated_at,
+    imageUrl: primaryImageUrl(sneaker),
+    warning: warningFor(sneaker),
   }
 }
 
-function toColorways(seed: SneakerSeed): AdminColorway[] {
-  return seed.colorways.map((colorway, index) => ({
-    id: `${seed.slug}-cw-${index + 1}`,
-    name: colorway.name,
-    colorCode: colorway.colorCode,
-    sku: colorway.sku,
-    priceOverride: colorway.amount ?? null,
-    sizes: colorway.sizes.map(([size, stock]) => ({ size, stock })),
-  }))
+async function listPage(
+  page: number,
+  size: number,
+  status: SneakerStatus | null
+) {
+  const { data, error } = await apiClient.GET("/sneakers", {
+    params: {
+      query: { page, size, status, sort: "created_at", descending: true },
+    },
+  })
+  if (error) throw new ApiError(error)
+  return data
 }
 
-function toChecks(seed: SneakerSeed): PublishCheck[] {
-  const stock = seedStock(seed)
-  return [
-    {
-      label: "Tiene foto principal",
-      state: seed.imageCount > 0 ? "ok" : "pending",
-    },
-    {
-      label: "Al menos un color con tallas",
-      state: seed.colorways.some((colorway) => colorway.sizes.length > 0)
-        ? "ok"
-        : "pending",
-    },
-    {
-      label: stock > 0 ? `${stock} pares en stock` : "Sin pares en stock",
-      state: stock > 0 ? "ok" : "pending",
-    },
-  ]
+async function listAll(): Promise<ApiSneaker[]> {
+  const first = await listPage(1, MAX_PAGE_SIZE, null)
+  const rest = await Promise.all(
+    Array.from({ length: Math.max(0, first.pages - 1) }, (_, index) =>
+      listPage(index + 2, MAX_PAGE_SIZE, null)
+    )
+  )
+  return [first, ...rest].flatMap((page) => page.items)
 }
 
-function toDraft(seed: SneakerSeed): AdminSneakerDraft {
+export async function listAdminSneakers(
+  status: SneakerStatus | null,
+  page: number
+): Promise<AdminSneakerPage> {
+  const [result, references] = await Promise.all([
+    listPage(page, ADMIN_PAGE_SIZE, status),
+    loadCatalogReferences(),
+  ])
   return {
-    slug: seed.slug,
-    name: seed.name,
-    description: seed.description,
-    brand: seed.brand,
-    category: seed.category,
-    gender: seed.gender,
-    price: { amount: seed.amount, currency: seed.currency },
-    releaseDate: seed.updatedAt,
-    specs: seed.specs,
-    usage: seed.usage,
-    testimonialQuote: seed.testimonial?.quote ?? "",
-    testimonialAuthor: seed.testimonial?.author ?? "",
-    colorways: toColorways(seed),
-    images: Array.from({ length: seed.imageCount }, (_, index) => ({
-      id: `${seed.slug}-img-${index + 1}`,
-      isPrimary: index === 0,
-    })),
-    status: seed.status,
-    stock: seedStock(seed),
-    updatedAt: seed.updatedAt,
-    checks: toChecks(seed),
+    rows: result.items.map((sneaker) => toRow(sneaker, references)),
+    total: result.total,
+    page: result.page,
+    pages: Math.max(1, result.pages),
   }
-}
-
-const ROWS = CATALOG_SEEDS.map(toRow)
-
-export async function listAdminSneakers(): Promise<AdminSneakerRow[]> {
-  return ROWS
 }
 
 export async function getAdminStats(): Promise<AdminStats> {
+  const sneakers = await listAll()
+  const count = (status: SneakerStatus) =>
+    sneakers.filter((sneaker) => sneaker.status === status).length
   return {
-    total: ROWS.length,
-    published: ROWS.filter((row) => row.status === "active").length,
-    drafts: ROWS.filter((row) => row.status === "draft").length,
-    outOfStock: ROWS.filter((row) => row.stock === 0).length,
+    total: sneakers.length,
+    published: count("active"),
+    drafts: count("draft"),
+    archived: count("archived"),
+    outOfStock: sneakers.filter((sneaker) => sneakerStock(sneaker) === 0)
+      .length,
   }
 }
 
-export async function getAdminSneaker(
-  slug: string
-): Promise<AdminSneakerDraft | null> {
-  const seed = CATALOG_SEEDS.find((item) => item.slug === slug)
-  return seed ? toDraft(seed) : null
+function blankToNull(value: string): string | null {
+  const trimmed = value.trim()
+  return trimmed === "" ? null : trimmed
 }
 
-export async function listAdminSlugs(): Promise<string[]> {
-  return CATALOG_SEEDS.map((seed) => seed.slug)
+export function formToRequest(form: SneakerForm): ApiSneakerRequest {
+  const quote = form.testimonialQuote.trim()
+  const author = form.testimonialAuthor.trim()
+  return {
+    name: form.name,
+    slug: blankToNull(form.slug),
+    reference: blankToNull(form.reference),
+    description: form.description,
+    brand_id: form.brandId,
+    category_id: form.categoryId,
+    gender: form.gender,
+    price: form.price,
+    currency: form.currency,
+    release_date: blankToNull(form.releaseDate),
+    specs: {
+      material: form.material,
+      technology: form.technology,
+      weight: form.weight,
+      cushioning: form.cushioning,
+    },
+    usage: form.usage,
+    testimonial: quote && author ? { quote, author } : null,
+  }
 }
 
-export async function listBrandOptions(): Promise<string[]> {
-  return [...new Set(CATALOG_SEEDS.map((seed) => seed.brand))].sort()
+function colorwayRequest(input: ColorwayInput) {
+  return {
+    name: input.name,
+    color_code: input.colorCode,
+    sku: input.sku,
+    price_override: blankToNull(input.priceOverride),
+  }
 }
 
-export async function listCategoryOptions(): Promise<string[]> {
-  return [...new Set(CATALOG_SEEDS.map((seed) => seed.category))].sort()
+function unwrap<T>(result: { data?: T; error?: unknown }): T {
+  if (result.error !== undefined || result.data === undefined) {
+    throw new ApiError(result.error)
+  }
+  return result.data
 }
+
+function sneakerPath(sneakerId: string) {
+  return { params: { path: { sneaker_id: sneakerId } } }
+}
+
+export const adminSneakersGateway = {
+  async getBySlug(slug: string): Promise<ApiSneaker | null> {
+    const { data, error, response } = await apiClient.GET(
+      "/sneakers/by-slug/{slug}",
+      { params: { path: { slug } } }
+    )
+    if (response.status === 404) return null
+    if (error) throw new ApiError(error)
+    return data
+  },
+  async create(body: ApiSneakerRequest): Promise<ApiSneaker> {
+    return unwrap(await apiClient.POST("/sneakers", { body }))
+  },
+  async update(sneakerId: string, body: ApiSneakerRequest) {
+    return unwrap(
+      await apiClient.PUT("/sneakers/{sneaker_id}", {
+        ...sneakerPath(sneakerId),
+        body,
+      })
+    )
+  },
+  async publish(sneakerId: string) {
+    return unwrap(
+      await apiClient.POST(
+        "/sneakers/{sneaker_id}/publish",
+        sneakerPath(sneakerId)
+      )
+    )
+  },
+  async archive(sneakerId: string) {
+    return unwrap(
+      await apiClient.POST(
+        "/sneakers/{sneaker_id}/archive",
+        sneakerPath(sneakerId)
+      )
+    )
+  },
+  async unarchive(sneakerId: string) {
+    return unwrap(
+      await apiClient.POST(
+        "/sneakers/{sneaker_id}/unarchive",
+        sneakerPath(sneakerId)
+      )
+    )
+  },
+  async addColorway(sneakerId: string, input: ColorwayInput) {
+    return unwrap(
+      await apiClient.POST("/sneakers/{sneaker_id}/colorways", {
+        ...sneakerPath(sneakerId),
+        body: colorwayRequest(input),
+      })
+    )
+  },
+  async updateColorway(
+    sneakerId: string,
+    colorwayId: string,
+    input: ColorwayInput
+  ) {
+    return unwrap(
+      await apiClient.PUT("/sneakers/{sneaker_id}/colorways/{colorway_id}", {
+        params: { path: { sneaker_id: sneakerId, colorway_id: colorwayId } },
+        body: colorwayRequest(input),
+      })
+    )
+  },
+  async removeColorway(sneakerId: string, colorwayId: string) {
+    return unwrap(
+      await apiClient.DELETE("/sneakers/{sneaker_id}/colorways/{colorway_id}", {
+        params: { path: { sneaker_id: sneakerId, colorway_id: colorwayId } },
+      })
+    )
+  },
+  async setSizeStock(
+    sneakerId: string,
+    colorwayId: string,
+    size: string,
+    stock: number
+  ) {
+    return unwrap(
+      await apiClient.PUT(
+        "/sneakers/{sneaker_id}/colorways/{colorway_id}/sizes/{size}",
+        {
+          params: {
+            path: { sneaker_id: sneakerId, colorway_id: colorwayId, size },
+          },
+          body: { stock },
+        }
+      )
+    )
+  },
+  async removeSize(sneakerId: string, colorwayId: string, size: string) {
+    return unwrap(
+      await apiClient.DELETE(
+        "/sneakers/{sneaker_id}/colorways/{colorway_id}/sizes/{size}",
+        {
+          params: {
+            path: { sneaker_id: sneakerId, colorway_id: colorwayId, size },
+          },
+        }
+      )
+    )
+  },
+  async uploadImage(sneakerId: string, file: File, alt: string) {
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("alt", alt)
+    return unwrap(
+      await apiClient.POST("/sneakers/{sneaker_id}/images", {
+        ...sneakerPath(sneakerId),
+        body: { file: "", alt },
+        bodySerializer: () => formData,
+      })
+    )
+  },
+  async reorderImages(sneakerId: string, imageIds: string[]) {
+    return unwrap(
+      await apiClient.PUT("/sneakers/{sneaker_id}/images/order", {
+        ...sneakerPath(sneakerId),
+        body: { image_ids: imageIds },
+      })
+    )
+  },
+  async markPrimaryImage(sneakerId: string, imageId: string) {
+    return unwrap(
+      await apiClient.POST("/sneakers/{sneaker_id}/images/{image_id}/primary", {
+        params: { path: { sneaker_id: sneakerId, image_id: imageId } },
+      })
+    )
+  },
+  async removeImage(sneakerId: string, imageId: string) {
+    return unwrap(
+      await apiClient.DELETE("/sneakers/{sneaker_id}/images/{image_id}", {
+        params: { path: { sneaker_id: sneakerId, image_id: imageId } },
+      })
+    )
+  },
+}
+
+export type AdminSneakersGateway = typeof adminSneakersGateway

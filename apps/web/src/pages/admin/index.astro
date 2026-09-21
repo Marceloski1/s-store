@@ -3,30 +3,65 @@ import { getAdminStats, listAdminSneakers } from "@/features/admin/api/sneakers"
 import {
   formatAdminDate,
   formatAdminMoney,
+  STATUS_LABELS,
+  type AdminSneakerPage,
+  type AdminStats,
   type SneakerStatus,
 } from "@/features/admin/api/types"
 import StatTile from "@/features/admin/components/stat-tile.astro"
 import StatusBadge from "@/features/admin/components/status-badge.astro"
 import ImagePlaceholder from "@/features/storefront/components/image-placeholder.astro"
 import AdminLayout from "@/layouts/admin.astro"
+import { toErrorMessage } from "@/lib/api/errors"
 
-const [rows, stats] = await Promise.all([listAdminSneakers(), getAdminStats()])
+const requestedStatus = Astro.url.searchParams.get("estado")
+const statusFilter =
+  requestedStatus && requestedStatus in STATUS_LABELS
+    ? (requestedStatus as SneakerStatus)
+    : null
+const requestedPage = Number(Astro.url.searchParams.get("page") ?? "1")
+const currentPage =
+  Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1
 
-const statusFilter = Astro.url.searchParams.get("estado")
-const visible = rows.filter(
-  (row) => !statusFilter || row.status === statusFilter
-)
+let listing: AdminSneakerPage = { rows: [], total: 0, page: 1, pages: 1 }
+let stats: AdminStats = {
+  total: 0,
+  published: 0,
+  drafts: 0,
+  archived: 0,
+  outOfStock: 0,
+}
+let loadError: string | null = null
+
+try {
+  ;[listing, stats] = await Promise.all([
+    listAdminSneakers(statusFilter, currentPage),
+    getAdminStats(),
+  ])
+} catch (error) {
+  loadError = toErrorMessage(error)
+}
+
+const visible = listing.rows
 
 const tabs = [
   { value: null, label: "Todos", count: stats.total },
   { value: "active", label: "Publicados", count: stats.published },
   { value: "draft", label: "Borradores", count: stats.drafts },
-  {
-    value: "archived",
-    label: "Archivados",
-    count: rows.filter((row) => row.status === "archived").length,
-  },
+  { value: "archived", label: "Archivados", count: stats.archived },
 ] satisfies { value: SneakerStatus | null; label: string; count: number }[]
+
+function pageHref(page: number): string {
+  const params = new URLSearchParams()
+  if (statusFilter) params.set("estado", statusFilter)
+  if (page > 1) params.set("page", String(page))
+  const query = params.toString()
+  return query ? `/admin?${query}` : "/admin"
+}
+
+// TODO(admin): la exportación y la selección múltiple todavía no tienen acción
+const hasPrevious = listing.page > 1
+const hasNext = listing.page < listing.pages
 ---
 
 <AdminLayout
@@ -48,7 +83,9 @@ const tabs = [
     <div class="flex flex-wrap items-center gap-2.5">
       <button
         type="button"
-        class="flex h-11 items-center gap-2 border border-input bg-card px-4 text-xs font-extrabold tracking-[0.06em] text-foreground uppercase hover:bg-muted"
+        disabled
+        title="Próximamente"
+        class="flex h-11 items-center gap-2 border border-input bg-card px-4 text-xs font-extrabold tracking-[0.06em] text-foreground uppercase hover:bg-muted disabled:opacity-60"
       >
         <svg
           width="16"
@@ -67,7 +104,7 @@ const tabs = [
         Exportar
       </button>
       <a
-        href="/admin/sneakers/runner-pro-2"
+        href="/admin/sneakers/nuevo"
         class="flex h-11 items-center gap-2 bg-primary px-5 text-xs font-extrabold tracking-[0.06em] text-primary-foreground uppercase hover:bg-primary/90"
       >
         <svg
@@ -86,6 +123,17 @@ const tabs = [
       </a>
     </div>
   </div>
+
+  {
+    loadError && (
+      <p
+        role="alert"
+        class="border border-destructive/40 bg-destructive/10 px-4 py-3 text-[13px] font-semibold text-destructive"
+      >
+        No se pudo cargar el catálogo: {loadError}
+      </p>
+    )
+  }
 
   <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
     <StatTile
@@ -196,25 +244,46 @@ const tabs = [
         </thead>
         <tbody>
           {
+            visible.length === 0 && !loadError && (
+              <tr class="border-t border-border/60">
+                <td
+                  colspan="10"
+                  class="px-5 py-10 text-center text-sm text-muted-foreground"
+                >
+                  No hay modelos en esta vista.
+                </td>
+              </tr>
+            )
+          }
+          {
             visible.map((row) => (
               <tr class="border-t border-border/60">
                 <td class="py-3 pr-0 pl-5">
-                  <label for={`select-${row.slug}`} class="sr-only">
+                  <label for={`select-${row.id}`} class="sr-only">
                     Seleccionar {row.name}
                   </label>
                   <input
-                    id={`select-${row.slug}`}
+                    id={`select-${row.id}`}
                     type="checkbox"
                     class="size-4 accent-primary"
                   />
                 </td>
                 <td class="px-3 py-3">
                   <div class="flex items-center gap-3">
-                    <ImagePlaceholder
-                      tone={row.status === "archived" ? "soft" : "tint"}
-                      class="size-11 shrink-0"
-                      glyphClass="w-[68%]"
-                    />
+                    {row.imageUrl ? (
+                      <img
+                        src={row.imageUrl}
+                        alt=""
+                        loading="lazy"
+                        class="size-11 shrink-0 bg-muted object-cover"
+                      />
+                    ) : (
+                      <ImagePlaceholder
+                        tone={row.status === "archived" ? "soft" : "tint"}
+                        class="size-11 shrink-0"
+                        glyphClass="w-[68%]"
+                      />
+                    )}
                     <div class="flex min-w-0 flex-col gap-0.5">
                       <a
                         href={`/admin/sneakers/${row.slug}`}
@@ -287,54 +356,99 @@ const tabs = [
       class="flex flex-wrap items-center justify-between gap-3 border-t border-border p-4"
     >
       <span class="text-[13px] text-muted-foreground">
-        {visible.length} de {stats.total} modelos
+        {visible.length} de {listing.total} modelos · página {listing.page} de {
+          listing.pages
+        }
       </span>
       <div class="flex items-center gap-2">
-        <button
-          type="button"
-          aria-label="Página anterior"
-          disabled
-          class="flex size-9 items-center justify-center border border-border bg-muted text-muted-foreground"
-        >
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="m14.5 6-6 6 6 6"></path>
-          </svg>
-        </button>
+        {
+          hasPrevious ? (
+            <a
+              href={pageHref(listing.page - 1)}
+              aria-label="Página anterior"
+              class="flex size-9 items-center justify-center border border-border bg-card text-foreground hover:border-primary"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m14.5 6-6 6 6 6" />
+              </svg>
+            </a>
+          ) : (
+            <span
+              aria-hidden="true"
+              class="flex size-9 items-center justify-center border border-border bg-muted text-muted-foreground"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m14.5 6-6 6 6 6" />
+              </svg>
+            </span>
+          )
+        }
         <span
+          aria-current="page"
           class="flex size-9 items-center justify-center border border-primary bg-primary text-[13px] font-extrabold text-primary-foreground"
         >
-          1
+          {listing.page}
         </span>
-        <button
-          type="button"
-          aria-label="Página siguiente"
-          disabled
-          class="flex size-9 items-center justify-center border border-border bg-muted text-muted-foreground"
-        >
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="m9.5 6 6 6-6 6"></path>
-          </svg>
-        </button>
+        {
+          hasNext ? (
+            <a
+              href={pageHref(listing.page + 1)}
+              aria-label="Página siguiente"
+              class="flex size-9 items-center justify-center border border-border bg-card text-foreground hover:border-primary"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="m9.5 6 6 6-6 6" />
+              </svg>
+            </a>
+          ) : (
+            <span
+              aria-hidden="true"
+              class="flex size-9 items-center justify-center border border-border bg-muted text-muted-foreground"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m9.5 6 6 6-6 6" />
+              </svg>
+            </span>
+          )
+        }
       </div>
     </div>
   </div>
