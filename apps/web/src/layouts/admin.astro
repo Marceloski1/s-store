@@ -1,0 +1,37 @@
+---
+import "@workspace/ui/globals.css"
+
+import AdminSidebar from "@/features/admin/components/admin-sidebar.astro"
+import AdminTopbar from "@/features/admin/components/admin-topbar.astro"
+import type { AdminNavKey } from "@/features/admin/content/nav"
+import { STORE_NAME } from "@/features/storefront/content/store"
+
+interface Props {
+  title: string
+  active: AdminNavKey
+  breadcrumb: { label: string; href?: string }[]
+}
+
+const { title, active, breadcrumb } = Astro.props
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="robots" content="noindex" />
+    <title>{title} · Panel {STORE_NAME}</title>
+  </head>
+  <body class="min-h-screen bg-muted text-foreground antialiased">
+    <div class="grid min-h-screen lg:grid-cols-[248px_minmax(0,1fr)]">
+      <AdminSidebar active={active} />
+      <div class="flex min-w-0 flex-col">
+        <AdminTopbar active={active} breadcrumb={breadcrumb} />
+        <main class="flex min-w-0 grow flex-col gap-5 p-4 sm:p-8">
+          <slot />
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

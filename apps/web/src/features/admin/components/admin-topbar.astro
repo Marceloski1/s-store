@@ -1,0 +1,124 @@
+---
+import { ADMIN_NAV, type AdminNavKey } from "@/features/admin/content/nav"
+
+interface Props {
+  active: AdminNavKey
+  breadcrumb: { label: string; href?: string }[]
+}
+
+const { active, breadcrumb } = Astro.props
+---
+
+<div class="border-b border-border bg-card">
+  <div class="flex h-[68px] items-center justify-between gap-4 px-4 sm:px-8">
+    <nav
+      aria-label="Ruta de navegación"
+      class="flex items-center gap-2 text-[13px] font-semibold"
+    >
+      {
+        breadcrumb.map((crumb, index) => (
+          <>
+            {index > 0 && (
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="text-border"
+                aria-hidden="true"
+              >
+                <path d="m9.5 6 6 6-6 6" />
+              </svg>
+            )}
+            {crumb.href ? (
+              <a
+                href={crumb.href}
+                class="text-muted-foreground hover:text-primary"
+              >
+                {crumb.label}
+              </a>
+            ) : (
+              <span class="font-bold text-foreground">{crumb.label}</span>
+            )}
+          </>
+        ))
+      }
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <form action="/admin" method="get" class="hidden md:block">
+        <label for="admin-search" class="sr-only">Buscar en el panel</label>
+        <div
+          class="flex h-11 w-[300px] items-center gap-2 border border-border bg-muted px-3"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.9"
+            stroke-linecap="round"
+            class="text-muted-foreground"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="M16.4 16.4 21 21"></path>
+          </svg>
+          <input
+            id="admin-search"
+            type="search"
+            name="q"
+            placeholder="Modelo, slug o SKU"
+            class="w-full bg-transparent text-[13px] outline-none placeholder:text-muted-foreground"
+          />
+        </div>
+      </form>
+      <a
+        href="/"
+        class="flex h-11 items-center gap-2 border border-border px-3 text-xs font-bold text-foreground hover:bg-muted"
+      >
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.9"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M14 4h6v6M20 4l-8.5 8.5"></path>
+          <path
+            d="M18 14v5a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 19V7.5A1.5 1.5 0 0 1 5.5 6H10"
+          ></path>
+        </svg>
+        <span class="hidden sm:inline">Ver la tienda</span>
+      </a>
+    </div>
+  </div>
+
+  <nav
+    class="flex gap-6 overflow-x-auto border-t border-border px-4 py-3 text-xs font-bold tracking-[0.08em] uppercase sm:px-8 lg:hidden"
+    aria-label="Secciones del panel"
+  >
+    {
+      ADMIN_NAV.map((item) => (
+        <a
+          href={item.href}
+          class:list={[
+            "shrink-0",
+            item.key === active ? "text-primary underline" : "text-foreground",
+          ]}
+        >
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+</div>

@@ -1,0 +1,36 @@
+---
+type Tone = "primary" | "success" | "warning" | "muted"
+
+interface Props {
+  label: string
+  value: number | string
+  detail: string
+  tone?: Tone
+}
+
+const { label, value, detail, tone = "primary" } = Astro.props
+
+const accents = {
+  primary: "border-t-primary",
+  success: "border-t-success",
+  warning: "border-t-warning",
+  muted: "border-t-muted-foreground",
+} as const
+---
+
+<div
+  class:list={[
+    "flex flex-col gap-1.5 border border-t-[3px] border-border bg-card p-5",
+    accents[tone],
+  ]}
+>
+  <span
+    class="text-[11px] font-extrabold tracking-[0.14em] text-muted-foreground uppercase"
+  >
+    {label}
+  </span>
+  <span class="text-3xl leading-none font-extrabold text-foreground"
+    >{value}</span
+  >
+  <span class="text-xs text-muted-foreground">{detail}</span>
+</div>

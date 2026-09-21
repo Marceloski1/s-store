@@ -1,0 +1,739 @@
+---
+import type { GetStaticPaths } from "astro"
+
+import {
+  getAdminSneaker,
+  listAdminSlugs,
+  listBrandOptions,
+  listCategoryOptions,
+} from "@/features/admin/api/sneakers"
+import { formatAdminDate } from "@/features/admin/api/types"
+import StatusBadge from "@/features/admin/components/status-badge.astro"
+import ImagePlaceholder from "@/features/storefront/components/image-placeholder.astro"
+import AdminLayout from "@/layouts/admin.astro"
+
+export const getStaticPaths = (async () => {
+  const slugs = await listAdminSlugs()
+  return slugs.map((slug) => ({ params: { slug } }))
+}) satisfies GetStaticPaths
+
+const { slug } = Astro.params
+const draft = await getAdminSneaker(slug ?? "")
+
+if (!draft) {
+  return Astro.redirect("/admin")
+}
+
+const [brands, categories] = await Promise.all([
+  listBrandOptions(),
+  listCategoryOptions(),
+])
+
+const genders = ["Unisex", "Hombre", "Mujer", "Niños"]
+const currencies = ["USD", "CUP", "EUR"]
+const mainColorway = draft.colorways[0]
+const otherColorways = draft.colorways.slice(1)
+
+const fieldClass =
+  "h-11 border border-input bg-background px-3 text-sm font-semibold text-foreground outline-none focus-visible:border-ring"
+const labelClass =
+  "text-[11px] font-extrabold tracking-[0.1em] text-muted-foreground uppercase"
+---
+
+<AdminLayout
+  title={draft.name}
+  active="sneakers"
+  breadcrumb={[{ label: "Sneakers", href: "/admin" }, { label: draft.name }]}
+>
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div class="flex min-w-0 flex-col gap-2">
+      <a
+        href="/admin"
+        class="flex items-center gap-2 text-xs font-bold tracking-[0.06em] text-muted-foreground uppercase hover:text-primary"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m14.5 6-6 6 6 6"></path>
+        </svg>
+        Volver a sneakers
+      </a>
+      <div class="flex flex-wrap items-center gap-3">
+        <h1
+          class="font-display text-3xl leading-none font-extrabold tracking-tight text-foreground uppercase sm:text-4xl"
+        >
+          {draft.name}
+        </h1>
+        <StatusBadge status={draft.status} />
+      </div>
+    </div>
+    <div class="flex flex-wrap items-center gap-2.5">
+      <button
+        type="button"
+        class="h-11 border border-input bg-card px-4 text-xs font-extrabold tracking-[0.06em] text-destructive uppercase hover:bg-muted"
+      >
+        Archivar
+      </button>
+      <button
+        type="button"
+        class="h-11 border border-input bg-card px-4 text-xs font-extrabold tracking-[0.06em] text-foreground uppercase hover:bg-muted"
+      >
+        Guardar borrador
+      </button>
+      <button
+        type="button"
+        class="h-11 bg-primary px-6 text-xs font-extrabold tracking-[0.06em] text-primary-foreground uppercase hover:bg-primary/90"
+      >
+        Guardar cambios
+      </button>
+    </div>
+  </div>
+
+  <div class="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+    <div class="flex min-w-0 flex-col gap-5">
+      <section class="border border-border bg-card">
+        <div class="border-b border-border px-6 py-4">
+          <h2 class="text-[17px] font-extrabold">Datos generales</h2>
+        </div>
+        <div class="flex flex-col gap-5 px-6 py-5">
+          <div class="grid gap-4 sm:grid-cols-[1.4fr_1fr]">
+            <div class="flex flex-col gap-1.5">
+              <label for="name" class={labelClass}>Nombre del modelo</label>
+              <input
+                id="name"
+                type="text"
+                value={draft.name}
+                class={fieldClass}
+              />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label for="slug" class={labelClass}>Slug (URL)</label>
+              <div class="flex gap-2">
+                <input
+                  id="slug"
+                  type="text"
+                  value={draft.slug}
+                  class={`${fieldClass} min-w-0 grow bg-muted text-muted-foreground`}
+                />
+                <button
+                  type="button"
+                  class="h-11 shrink-0 border border-input bg-card px-3 text-[11px] font-extrabold tracking-[0.04em] uppercase hover:bg-muted"
+                >
+                  Regenerar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label for="description" class={labelClass}>Descripción</label>
+            <textarea
+              id="description"
+              rows="3"
+              class="border border-input bg-background p-3 text-sm leading-relaxed outline-none focus-visible:border-ring"
+              >{draft.description}</textarea
+            >
+            <span class="text-[11px] text-muted-foreground">
+              {draft.description.length} / 2000 caracteres
+            </span>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-3">
+            <div class="flex flex-col gap-1.5">
+              <label for="brand" class={labelClass}>Marca</label>
+              <select id="brand" class={fieldClass}>
+                {
+                  brands.map((brand) => (
+                    <option value={brand} selected={brand === draft.brand}>
+                      {brand}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label for="category" class={labelClass}>Categoría</label>
+              <select id="category" class={fieldClass}>
+                {
+                  categories.map((category) => (
+                    <option
+                      value={category}
+                      selected={category === draft.category}
+                    >
+                      {category}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label for="gender" class={labelClass}>Para quién</label>
+              <select id="gender" class={fieldClass}>
+                {
+                  genders.map((gender) => (
+                    <option value={gender} selected={gender === draft.gender}>
+                      {gender}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-[1fr_0.7fr_1fr]">
+            <div class="flex flex-col gap-1.5">
+              <label for="price" class={labelClass}>Precio base</label>
+              <input
+                id="price"
+                type="number"
+                step="0.01"
+                value={draft.price.amount}
+                class={fieldClass}
+              />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label for="currency" class={labelClass}>Moneda</label>
+              <select id="currency" class={fieldClass}>
+                {
+                  currencies.map((currency) => (
+                    <option
+                      value={currency}
+                      selected={currency === draft.price.currency}
+                    >
+                      {currency}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label for="release" class={labelClass}
+                >Fecha de lanzamiento</label
+              >
+              <input
+                id="release"
+                type="date"
+                value={draft.releaseDate}
+                class={fieldClass}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="border border-border bg-card">
+        <div
+          class="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-4"
+        >
+          <h2 class="text-[17px] font-extrabold">
+            Ficha técnica y textos de venta
+          </h2>
+          <span class="text-xs text-muted-foreground">
+            Se muestran en la página pública del modelo
+          </span>
+        </div>
+        <div class="flex flex-col gap-5 px-6 py-5">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="flex flex-col gap-1.5">
+              <label for="material" class={labelClass}>Material</label>
+              <input
+                id="material"
+                type="text"
+                value={draft.specs.material}
+                class={fieldClass}
+              />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label for="technology" class={labelClass}>Tecnología</label>
+              <input
+                id="technology"
+                type="text"
+                value={draft.specs.technology}
+                class={fieldClass}
+              />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label for="weight" class={labelClass}>Peso</label>
+              <input
+                id="weight"
+                type="text"
+                value={draft.specs.weight}
+                class={fieldClass}
+              />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label for="cushioning" class={labelClass}>Amortiguación</label>
+              <input
+                id="cushioning"
+                type="text"
+                value={draft.specs.cushioning}
+                class={fieldClass}
+              />
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label for="usage" class={labelClass}
+              >Recomendación de uso o estilo</label
+            >
+            <textarea
+              id="usage"
+              rows="2"
+              class="border border-input bg-background p-3 text-sm leading-relaxed outline-none focus-visible:border-ring"
+              >{draft.usage}</textarea
+            >
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-[1.7fr_1fr]">
+            <div class="flex flex-col gap-1.5">
+              <label for="testimonial" class={labelClass}
+                >Testimonio de cliente</label
+              >
+              <textarea
+                id="testimonial"
+                rows="2"
+                placeholder="Todavía sin testimonio"
+                class="border border-input bg-background p-3 text-sm leading-relaxed outline-none focus-visible:border-ring"
+                >{draft.testimonialQuote}</textarea
+              >
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label for="testimonial-author" class={labelClass}
+                >Quién lo dice</label
+              >
+              <input
+                id="testimonial-author"
+                type="text"
+                value={draft.testimonialAuthor}
+                placeholder="Nombre y talla"
+                class={fieldClass}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="border border-border bg-card">
+        <div
+          class="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-4"
+        >
+          <div class="flex items-baseline gap-2.5">
+            <h2 class="text-[17px] font-extrabold">Colores y tallas</h2>
+            <span class="text-[13px] text-muted-foreground">
+              {draft.colorways.length} colores · {draft.stock} pares en total
+            </span>
+          </div>
+          <button
+            type="button"
+            class="flex h-10 items-center gap-2 border border-primary px-3.5 text-[11px] font-extrabold tracking-[0.06em] text-primary uppercase hover:bg-accent"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.3"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+            Añadir color
+          </button>
+        </div>
+
+        <div class="flex flex-col gap-3.5 px-6 py-5">
+          {
+            mainColorway && (
+              <div class="border border-input bg-muted/40">
+                <div class="grid items-end gap-3.5 p-4 sm:grid-cols-[56px_1.3fr_1fr_1fr_84px]">
+                  <div class="flex flex-col gap-1.5">
+                    <label
+                      for="cw-color"
+                      class="text-[10px] font-extrabold tracking-[0.08em] text-muted-foreground uppercase"
+                    >
+                      Color
+                    </label>
+                    <input
+                      id="cw-color"
+                      type="color"
+                      value={mainColorway.colorCode}
+                      class="h-11 w-14 cursor-pointer border border-input bg-background p-1"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1.5">
+                    <label
+                      for="cw-name"
+                      class="text-[10px] font-extrabold tracking-[0.08em] text-muted-foreground uppercase"
+                    >
+                      Nombre del color
+                    </label>
+                    <input
+                      id="cw-name"
+                      type="text"
+                      value={mainColorway.name}
+                      class={fieldClass}
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1.5">
+                    <label
+                      for="cw-sku"
+                      class="text-[10px] font-extrabold tracking-[0.08em] text-muted-foreground uppercase"
+                    >
+                      SKU (único)
+                    </label>
+                    <input
+                      id="cw-sku"
+                      type="text"
+                      value={mainColorway.sku}
+                      class={fieldClass}
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1.5">
+                    <label
+                      for="cw-price"
+                      class="text-[10px] font-extrabold tracking-[0.08em] text-muted-foreground uppercase"
+                    >
+                      Precio propio
+                    </label>
+                    <input
+                      id="cw-price"
+                      type="number"
+                      step="0.01"
+                      value={mainColorway.priceOverride ?? ""}
+                      placeholder={`${draft.price.amount} heredado`}
+                      class={fieldClass}
+                    />
+                  </div>
+                  <div class="flex justify-end gap-1.5">
+                    <button
+                      type="button"
+                      aria-label="Duplicar este color"
+                      class="flex h-11 w-9 items-center justify-center border border-input bg-card hover:bg-muted"
+                    >
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <rect x="8.5" y="8.5" width="11" height="11" rx="1.5" />
+                        <path d="M15.5 5.5H6A1.5 1.5 0 0 0 4.5 7v9.5" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Eliminar este color"
+                      class="flex h-11 w-9 items-center justify-center border border-input bg-card text-destructive hover:bg-muted"
+                    >
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-3 border-t border-dashed border-input p-4">
+                  <span class="text-[10px] font-extrabold tracking-[0.12em] text-muted-foreground uppercase">
+                    Stock por talla (EU)
+                  </span>
+                  <div class="grid grid-cols-3 gap-2 sm:grid-cols-6 lg:grid-cols-9">
+                    {mainColorway.sizes.map((variant) => (
+                      <div class="flex flex-col gap-1">
+                        <label
+                          for={`size-${variant.size}`}
+                          class="text-center text-xs font-extrabold"
+                        >
+                          {variant.size}
+                        </label>
+                        <input
+                          id={`size-${variant.size}`}
+                          type="number"
+                          min="0"
+                          value={variant.stock}
+                          class:list={[
+                            "h-11 border border-input text-center text-sm font-semibold outline-none focus-visible:border-ring",
+                            variant.stock === 0
+                              ? "bg-muted text-muted-foreground"
+                              : "bg-background text-foreground",
+                          ]}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    class="flex h-10 w-fit items-center gap-2 border border-dashed border-muted-foreground px-3 text-[11px] font-extrabold tracking-[0.06em] text-muted-foreground uppercase hover:text-foreground"
+                  >
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.3"
+                      stroke-linecap="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    Añadir talla
+                  </button>
+                </div>
+              </div>
+            )
+          }
+
+          {
+            otherColorways.map((colorway) => {
+              const stock = colorway.sizes.reduce(
+                (total, variant) => total + variant.stock,
+                0
+              )
+              return (
+                <div class="flex flex-wrap items-center gap-3.5 border border-border bg-card p-4">
+                  <span
+                    class="size-9 shrink-0 border border-input"
+                    style={`background-color: ${colorway.colorCode}`}
+                    aria-hidden="true"
+                  />
+                  <div class="flex min-w-0 grow flex-col gap-0.5">
+                    <span class="text-sm font-bold">{colorway.name}</span>
+                    <span class="text-xs text-muted-foreground">
+                      {colorway.sku} · {colorway.sizes.length} tallas · {stock}{" "}
+                      pares ·{" "}
+                      {colorway.priceOverride
+                        ? `${colorway.priceOverride.replace(".", ",")} ${draft.price.currency} propio`
+                        : "precio heredado"}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    class="h-10 border border-input px-3.5 text-[11px] font-extrabold tracking-[0.06em] uppercase hover:bg-muted"
+                  >
+                    Editar tallas
+                  </button>
+                </div>
+              )
+            })
+          }
+        </div>
+      </section>
+    </div>
+
+    <div class="flex flex-col gap-5">
+      <section class="border border-border bg-card">
+        <div class="border-b border-border px-5 py-4">
+          <h2 class="text-[15px] font-extrabold">Publicación</h2>
+        </div>
+        <div class="flex flex-col gap-4 px-5 py-4">
+          <div class="flex flex-col gap-2.5">
+            {
+              draft.checks.map((check) => (
+                <span
+                  class:list={[
+                    "flex items-center gap-2.5 text-[13px] font-semibold",
+                    check.state === "ok" ? "text-foreground" : "text-warning",
+                  ]}
+                >
+                  {check.state === "ok" ? (
+                    <svg
+                      width="17"
+                      height="17"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.4"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="text-success"
+                      aria-hidden="true"
+                    >
+                      <path d="m5 12.5 4.5 4.5L19 7.5" />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="17"
+                      height="17"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <circle cx="12" cy="12" r="8.5" />
+                      <path d="M12 8v4.5M12 16h0" />
+                    </svg>
+                  )}
+                  {check.label}
+                </span>
+              ))
+            }
+          </div>
+          <div class="flex flex-col gap-1.5 border-t border-border pt-4">
+            <label for="status" class={labelClass}>Estado</label>
+            <select id="status" class={fieldClass}>
+              <option value="draft" selected={draft.status === "draft"}
+                >Borrador</option
+              >
+              <option value="active" selected={draft.status === "active"}
+                >Publicado</option
+              >
+              <option value="archived" selected={draft.status === "archived"}
+                >Archivado</option
+              >
+            </select>
+            <span class="text-[11px] leading-relaxed text-muted-foreground">
+              Un modelo publicado solo puede archivarse; para volver a editarlo
+              a fondo, pásalo a borrador desde archivados.
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <section class="border border-border bg-card">
+        <div
+          class="flex items-center justify-between border-b border-border px-5 py-4"
+        >
+          <h2 class="text-[15px] font-extrabold">Fotos</h2>
+          <span class="text-xs text-muted-foreground"
+            >{draft.images.length} de 8</span
+          >
+        </div>
+        <div class="flex flex-col gap-3.5 px-5 py-4">
+          {
+            draft.images.length > 0 ? (
+              <div class="grid grid-cols-2 gap-3">
+                {draft.images.map((image, index) => (
+                  <div class="relative">
+                    <ImagePlaceholder
+                      tone={image.isPrimary ? "tint" : "soft"}
+                      class={`h-[122px] ${image.isPrimary ? "border-2 border-primary" : "border border-border"}`}
+                      glyphClass="w-[62%]"
+                    />
+                    {image.isPrimary ? (
+                      <span class="absolute top-2 left-2 bg-primary px-2 py-1 text-[9px] font-extrabold tracking-[0.08em] text-primary-foreground uppercase">
+                        Principal
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        class="absolute bottom-2 left-2 border border-input bg-background px-2 py-1 text-[9px] font-extrabold tracking-[0.06em] uppercase hover:bg-muted"
+                      >
+                        Hacer principal
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      aria-label={`Quitar la foto ${index + 1}`}
+                      class="absolute top-1.5 right-1.5 flex size-7 items-center justify-center border border-input bg-background text-destructive hover:bg-muted"
+                    >
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.4"
+                        stroke-linecap="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M6 6l12 12M18 6 6 18" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p class="border border-dashed border-warning bg-warning/10 p-3 text-[13px] font-semibold text-warning">
+                Este modelo no tiene fotos. Sube al menos una para poder
+                publicarlo.
+              </p>
+            )
+          }
+
+          <button
+            type="button"
+            class="flex h-24 flex-col items-center justify-center gap-1.5 border-[1.5px] border-dashed border-muted-foreground bg-muted/40 hover:bg-muted"
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.9"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="text-primary"
+              aria-hidden="true"
+            >
+              <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"></path>
+              <path
+                d="M4 16v2.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V16"
+              ></path>
+            </svg>
+            <span
+              class="text-xs font-extrabold tracking-[0.06em] text-primary uppercase"
+            >
+              Subir fotos
+            </span>
+            <span class="text-[11px] text-muted-foreground"
+              >JPG o PNG · hasta 8 por modelo</span
+            >
+          </button>
+
+          <span class="text-[11px] leading-relaxed text-muted-foreground">
+            Arrastra las miniaturas para cambiar el orden. Al borrar una foto se
+            elimina también del almacenamiento.
+          </span>
+        </div>
+      </section>
+
+      <section class="flex flex-col gap-3 border border-border bg-card p-5">
+        <h2 class="text-[15px] font-extrabold">Resumen</h2>
+        <div class="flex items-center justify-between text-[13px]">
+          <span class="text-muted-foreground">Pares en stock</span>
+          <span class="font-bold">{draft.stock}</span>
+        </div>
+        <div class="flex items-center justify-between text-[13px]">
+          <span class="text-muted-foreground">Colores</span>
+          <span class="font-bold">{draft.colorways.length}</span>
+        </div>
+        <div class="flex items-center justify-between text-[13px]">
+          <span class="text-muted-foreground">Fotos</span>
+          <span class="font-bold">{draft.images.length}</span>
+        </div>
+        <div class="flex items-center justify-between text-[13px]">
+          <span class="text-muted-foreground">Actualizado</span>
+          <span class="font-bold">{formatAdminDate(draft.updatedAt)}</span>
+        </div>
+      </section>
+    </div>
+  </div>
+</AdminLayout>
