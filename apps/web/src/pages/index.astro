@@ -13,7 +13,7 @@ import {
 } from "@/features/storefront/content/store"
 import StorefrontLayout from "@/layouts/storefront.astro"
 
-const featured = await listFeatured(4)
+const featured = await listFeatured(4).catch(() => [])
 ---
 
 <StorefrontLayout title="Inicio" description={STORE_INTRO}>

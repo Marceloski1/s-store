@@ -139,14 +139,16 @@ export function SneakerPurchasePanel({ sneaker }: SneakerPurchasePanelProps) {
         </button>
       </div>
 
-      <div className="flex flex-col gap-1.5 border-l-[3px] border-primary bg-muted p-4">
-        <span className="text-[11px] font-extrabold tracking-[0.14em] text-primary uppercase">
-          Recomendación de uso
-        </span>
-        <span className="text-sm leading-relaxed text-foreground">
-          {sneaker.usage}
-        </span>
-      </div>
+      {sneaker.usage && (
+        <div className="flex flex-col gap-1.5 border-l-[3px] border-primary bg-muted p-4">
+          <span className="text-[11px] font-extrabold tracking-[0.14em] text-primary uppercase">
+            Recomendación de uso
+          </span>
+          <span className="text-sm leading-relaxed text-foreground">
+            {sneaker.usage}
+          </span>
+        </div>
+      )}
     </div>
   )
 }

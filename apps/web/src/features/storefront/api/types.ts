@@ -7,7 +7,7 @@ export type SneakerBadge = "new" | "last-sizes" | "sold-out"
 
 export type SneakerImage = {
   id: string
-  url: string | null
+  url: string
   alt: string
   isPrimary: boolean
 }
@@ -54,6 +54,7 @@ export type SneakerSummary = {
 }
 
 export type SneakerDetail = SneakerSummary & {
+  categorySlug: string | null
   description: string
   usage: string
   specs: SpecSheet
@@ -86,11 +87,39 @@ export type CatalogPage = {
   pages: number
 }
 
-export interface StorefrontGateway {
-  listSneakers(page: number, size: number): Promise<CatalogPage>
-  listFeatured(limit: number): Promise<SneakerSummary[]>
-  getSneakerBySlug(slug: string): Promise<SneakerDetail | null>
-  getFacets(): Promise<CatalogFacets>
+export type CatalogSort =
+  | "created_at"
+  | "price_asc"
+  | "price_desc"
+  | "name"
+  | "release_date"
+
+export type CatalogQuery = {
+  brands: string[]
+  categories: string[]
+  genders: string[]
+  sizes: string[]
+  colors: string[]
+  minPrice: string | null
+  maxPrice: string | null
+  currency: string | null
+  inStock: boolean
+  q: string | null
+  reference: string | null
+  sort: CatalogSort
+  page: number
+}
+
+export const CATALOG_SORTS: CatalogSort[] = [
+  "created_at",
+  "price_asc",
+  "price_desc",
+  "name",
+  "release_date",
+]
+
+export function hasSpecs(specs: SpecSheet): boolean {
+  return Object.values(specs).some((value) => value.length > 0)
 }
 
 export function formatMoney(price: Money): string {

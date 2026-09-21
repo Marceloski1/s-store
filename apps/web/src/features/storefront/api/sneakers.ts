@@ -1,31 +1,83 @@
+import { GENDER_LABELS } from "@/features/catalog/api/labels"
+import {
+  loadCatalogReferences,
+  type CatalogReferences,
+} from "@/features/catalog/api/references"
 import type {
   CatalogFacets,
   CatalogPage,
+  CatalogQuery,
+  CatalogSort,
   Colorway,
+  SneakerBadge,
   SneakerDetail,
   SneakerImage,
   SneakerSummary,
 } from "@/features/storefront/api/types"
-import { CATALOG_SEEDS, type SneakerSeed } from "@/lib/catalog-sample"
+import { apiClient } from "@/lib/api/client"
+import { ApiError } from "@/lib/api/errors"
+import type { ApiGender, ApiSneaker } from "@/lib/api/types"
 
-function toColorways(seed: SneakerSeed): Colorway[] {
-  return seed.colorways.map((colorway, index) => ({
-    id: `${seed.slug}-cw-${index + 1}`,
+const CATALOG_PAGE_SIZE = 9
+const NEW_RELEASE_DAYS = 30
+const LAST_SIZES_THRESHOLD = 5
+const DAY_IN_MS = 24 * 60 * 60 * 1000
+
+const SORT_PARAMS: Record<
+  CatalogSort,
+  {
+    sort: "created_at" | "price" | "name" | "release_date"
+    descending: boolean
+  }
+> = {
+  created_at: { sort: "created_at", descending: true },
+  price_asc: { sort: "price", descending: false },
+  price_desc: { sort: "price", descending: true },
+  name: { sort: "name", descending: false },
+  release_date: { sort: "release_date", descending: true },
+}
+
+type ListParams = {
+  query?: Partial<CatalogQuery>
+  size?: number
+}
+
+export function normalizeSize(size: string): string {
+  const value = Number(size)
+  return Number.isNaN(value) ? size : String(value)
+}
+
+function isGender(value: string): value is ApiGender {
+  return value in GENDER_LABELS
+}
+
+function toColorways(sneaker: ApiSneaker): Colorway[] {
+  return sneaker.colorways.map((colorway) => ({
+    id: colorway.id,
     name: colorway.name,
-    colorCode: colorway.colorCode,
+    colorCode: colorway.color_code,
     sku: colorway.sku,
-    price: { amount: colorway.amount ?? seed.amount, currency: seed.currency },
-    sizes: colorway.sizes.map(([size, stock]) => ({ size, stock })),
+    price: colorway.effective_price,
+    sizes: colorway.sizes.map((variant) => ({
+      size: normalizeSize(variant.size),
+      stock: variant.stock,
+    })),
   }))
 }
 
-function toImages(seed: SneakerSeed): SneakerImage[] {
-  return Array.from({ length: seed.imageCount }, (_, index) => ({
-    id: `${seed.slug}-img-${index + 1}`,
-    url: null,
-    alt: `${seed.name} de ${seed.brand}, vista ${index + 1}`,
-    isPrimary: index === 0,
-  }))
+function toImages(sneaker: ApiSneaker): SneakerImage[] {
+  return [...sneaker.images]
+    .sort(
+      (left, right) =>
+        Number(right.is_primary) - Number(left.is_primary) ||
+        left.position - right.position
+    )
+    .map((image, index) => ({
+      id: image.id,
+      url: image.url,
+      alt: image.alt || `${sneaker.name}, vista ${index + 1}`,
+      isPrimary: image.is_primary,
+    }))
 }
 
 function sizeRange(colorways: Colorway[]): string {
@@ -48,27 +100,65 @@ function availableStock(colorways: Colorway[]): number {
   )
 }
 
-function toDetail(seed: SneakerSeed): SneakerDetail {
-  const colorways = toColorways(seed)
-  const images = toImages(seed)
+function isNewRelease(releaseDate: string | null | undefined): boolean {
+  if (!releaseDate) {
+    return false
+  }
+  const released = new Date(`${releaseDate}T00:00:00`).getTime()
+  const age = Date.now() - released
+  return age >= 0 && age <= NEW_RELEASE_DAYS * DAY_IN_MS
+}
+
+function badgeFor(
+  sneaker: ApiSneaker,
+  colorways: Colorway[]
+): SneakerBadge | null {
   const stock = availableStock(colorways)
+  if (stock === 0) {
+    return "sold-out"
+  }
+  if (isNewRelease(sneaker.release_date)) {
+    return "new"
+  }
+  if (stock <= LAST_SIZES_THRESHOLD) {
+    return "last-sizes"
+  }
+  return null
+}
+
+function categorySlugLookup(
+  references: CatalogReferences
+): (id: string) => string | null {
+  const slugs = new Map(
+    references.categories.map((category) => [category.id, category.slug])
+  )
+  return (id) => slugs.get(id) ?? null
+}
+
+function toDetail(
+  sneaker: ApiSneaker,
+  references: CatalogReferences
+): SneakerDetail {
+  const colorways = toColorways(sneaker)
+  const images = toImages(sneaker)
   return {
-    id: seed.slug,
-    slug: seed.slug,
-    name: seed.name,
-    brand: seed.brand,
-    category: seed.category,
-    gender: seed.gender,
-    reference: seed.reference,
-    price: { amount: seed.amount, currency: seed.currency },
+    id: sneaker.id,
+    slug: sneaker.slug,
+    name: sneaker.name,
+    brand: references.brandName(sneaker.brand_id),
+    category: references.categoryName(sneaker.category_id),
+    categorySlug: categorySlugLookup(references)(sneaker.category_id),
+    gender: GENDER_LABELS[sneaker.gender],
+    reference: sneaker.reference ?? colorways[0]?.sku ?? "",
+    price: sneaker.base_price,
     colorCodes: colorways.map((colorway) => colorway.colorCode),
     sizeRange: sizeRange(colorways),
-    badge: stock === 0 ? "sold-out" : seed.highlight,
+    badge: badgeFor(sneaker, colorways),
     image: images[0] ?? null,
-    description: seed.description,
-    usage: seed.usage,
-    specs: seed.specs,
-    testimonial: seed.testimonial,
+    description: sneaker.description,
+    usage: sneaker.usage,
+    specs: sneaker.specs,
+    testimonial: sneaker.testimonial ?? null,
     images,
     colorways,
   }
@@ -91,80 +181,107 @@ function toSummary(detail: SneakerDetail): SneakerSummary {
   }
 }
 
-const PUBLISHED = CATALOG_SEEDS.filter((seed) => seed.status === "active").map(
-  toDetail
-)
+async function fetchPage({ query = {}, size = CATALOG_PAGE_SIZE }: ListParams) {
+  const { sort, descending } = SORT_PARAMS[query.sort ?? "created_at"]
+  const hasPriceFilter = Boolean(query.minPrice || query.maxPrice)
+  const { data, error } = await apiClient.GET("/catalog/sneakers", {
+    params: {
+      query: {
+        page: query.page ?? 1,
+        size,
+        brand: query.brands,
+        category: query.categories,
+        gender: query.genders?.filter(isGender),
+        shoe_size: query.sizes,
+        color: query.colors,
+        min_price: query.minPrice ?? undefined,
+        max_price: query.maxPrice ?? undefined,
+        currency: hasPriceFilter ? (query.currency ?? undefined) : undefined,
+        in_stock: query.inStock,
+        q: query.reference ?? query.q ?? undefined,
+        sort,
+        descending,
+      },
+    },
+  })
+  if (error) throw new ApiError(error)
+  return data
+}
 
-export async function listSneakers(page = 1, size = 9): Promise<CatalogPage> {
-  const start = (page - 1) * size
+export async function listSneakers(
+  query: Partial<CatalogQuery>
+): Promise<CatalogPage> {
+  const [page, references] = await Promise.all([
+    fetchPage({ query }),
+    loadCatalogReferences(),
+  ])
   return {
-    items: PUBLISHED.slice(start, start + size).map(toSummary),
-    total: PUBLISHED.length,
-    page,
-    size,
-    pages: Math.max(1, Math.ceil(PUBLISHED.length / size)),
+    items: page.items.map((item) => toSummary(toDetail(item, references))),
+    total: page.total,
+    page: page.page,
+    size: page.size,
+    pages: Math.max(1, page.pages),
   }
 }
 
 export async function listFeatured(limit = 4): Promise<SneakerSummary[]> {
-  return PUBLISHED.slice(0, limit).map(toSummary)
+  const [page, references] = await Promise.all([
+    fetchPage({ query: { sort: "created_at" }, size: limit }),
+    loadCatalogReferences(),
+  ])
+  return page.items.map((item) => toSummary(toDetail(item, references)))
 }
 
 export async function listRelated(
-  slug: string,
+  detail: SneakerDetail,
   limit = 4
 ): Promise<SneakerSummary[]> {
-  return PUBLISHED.filter((detail) => detail.slug !== slug)
+  const [page, references] = await Promise.all([
+    fetchPage({
+      query: { categories: detail.categorySlug ? [detail.categorySlug] : [] },
+      size: limit + 1,
+    }),
+    loadCatalogReferences(),
+  ])
+  return page.items
+    .filter((item) => item.slug !== detail.slug)
     .slice(0, limit)
-    .map(toSummary)
+    .map((item) => toSummary(toDetail(item, references)))
 }
 
 export async function getSneakerBySlug(
   slug: string
 ): Promise<SneakerDetail | null> {
-  return PUBLISHED.find((detail) => detail.slug === slug) ?? null
-}
-
-export async function listSlugs(): Promise<string[]> {
-  return PUBLISHED.map((detail) => detail.slug)
+  const [result, references] = await Promise.all([
+    apiClient.GET("/catalog/sneakers/{slug}", {
+      params: { path: { slug } },
+    }),
+    loadCatalogReferences(),
+  ])
+  if (result.response.status === 404) {
+    return null
+  }
+  if (result.error) throw new ApiError(result.error)
+  return toDetail(result.data, references)
 }
 
 export async function getFacets(): Promise<CatalogFacets> {
-  const countBy = (pick: (detail: SneakerDetail) => string) => {
-    const counts = new Map<string, number>()
-    for (const detail of PUBLISHED) {
-      const key = pick(detail)
-      counts.set(key, (counts.get(key) ?? 0) + 1)
-    }
-    return [...counts.entries()]
-      .map(([label, count]) => ({ value: label.toLowerCase(), label, count }))
-      .sort((left, right) => right.count - left.count)
-  }
-
-  const sizes = new Set<string>()
-  for (const detail of PUBLISHED) {
-    for (const colorway of detail.colorways) {
-      for (const variant of colorway.sizes) {
-        sizes.add(variant.size)
-      }
-    }
-  }
-
+  const { data, error } = await apiClient.GET("/catalog/facets")
+  if (error) throw new ApiError(error)
   return {
-    brands: countBy((detail) => detail.brand),
-    categories: countBy((detail) => detail.category),
-    genders: countBy((detail) => detail.gender),
-    sizes: [...sizes]
-      .sort((left, right) => Number(left) - Number(right))
-      .map((size) => ({ value: size, label: size, count: 0, available: true })),
-    colors: [
-      { value: "#1B4FC0", label: "Azul" },
-      { value: "#FFFFFF", label: "Blanco" },
-      { value: "#15161A", label: "Negro" },
-      { value: "#9AA1AC", label: "Gris" },
-      { value: "#D9C9AE", label: "Arena" },
-      { value: "#3A2A1E", label: "Marrón" },
-    ],
-    currencies: ["USD", "CUP", "EUR"],
+    brands: data.brands,
+    categories: data.categories,
+    genders: data.genders.map((gender) => ({
+      ...gender,
+      label: isGender(gender.value)
+        ? GENDER_LABELS[gender.value]
+        : gender.label,
+    })),
+    sizes: data.sizes.map((size) => ({ ...size, available: true })),
+    colors: data.colors.map((color) => ({
+      value: color.value,
+      label: color.label,
+    })),
+    currencies: data.currencies,
   }
 }

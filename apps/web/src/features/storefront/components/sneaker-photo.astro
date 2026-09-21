@@ -1,0 +1,60 @@
+---
+import { optimizedImageUrl } from "@/features/storefront/api/images"
+import type { SneakerImage } from "@/features/storefront/api/types"
+import ImagePlaceholder from "@/features/storefront/components/image-placeholder.astro"
+
+interface Props {
+  image: SneakerImage | null
+  width?: number
+  tone?: "tint" | "soft" | "none"
+  class?: string
+  glyphClass?: string
+  label?: string
+  eager?: boolean
+}
+
+const {
+  image,
+  width = 640,
+  tone = "tint",
+  class: className = "",
+  glyphClass,
+  label,
+  eager = false,
+} = Astro.props
+
+const surfaces = {
+  tint: "bg-accent",
+  soft: "bg-muted",
+  none: "",
+} as const
+---
+
+{
+  image ? (
+    <div
+      class:list={[
+        "relative flex items-center justify-center overflow-hidden",
+        surfaces[tone],
+        className,
+      ]}
+    >
+      <img
+        src={optimizedImageUrl(image.url, width)}
+        srcset={`${optimizedImageUrl(image.url, width)} 1x, ${optimizedImageUrl(image.url, width * 2)} 2x`}
+        alt={image.alt}
+        loading={eager ? "eager" : "lazy"}
+        decoding="async"
+        fetchpriority={eager ? "high" : "auto"}
+        class="h-full w-full object-contain"
+      />
+    </div>
+  ) : (
+    <ImagePlaceholder
+      tone={tone}
+      class={className}
+      glyphClass={glyphClass}
+      label={label}
+    />
+  )
+}

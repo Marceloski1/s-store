@@ -1,5 +1,5 @@
 ---
-import ImagePlaceholder from "@/features/storefront/components/image-placeholder.astro"
+import SneakerPhoto from "@/features/storefront/components/sneaker-photo.astro"
 import {
   formatMoney,
   type SneakerSummary,
@@ -36,11 +36,13 @@ const soldOut = sneaker.badge === "sold-out"
   class="group flex flex-col border border-border bg-card transition-colors hover:border-primary"
 >
   <div class="relative">
-    <ImagePlaceholder
+    <SneakerPhoto
+      image={sneaker.image}
+      width={480}
       tone={tone}
-      class={imageClass}
+      class={soldOut ? `${imageClass} opacity-60` : imageClass}
       glyphClass={soldOut ? "w-[70%] opacity-50" : "w-[70%]"}
-      label="[FOTO]"
+      label={sneaker.image ? undefined : "[FOTO]"}
     />
     {
       badge && (

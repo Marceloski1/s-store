@@ -1,11 +1,15 @@
 ---
-import type { CatalogFacets } from "@/features/storefront/api/types"
+import type {
+  CatalogFacets,
+  CatalogQuery,
+} from "@/features/storefront/api/types"
 
 interface Props {
   facets: CatalogFacets
+  selected: CatalogQuery
 }
 
-const { facets } = Astro.props
+const { facets, selected } = Astro.props
 ---
 
 <form
@@ -19,6 +23,12 @@ const { facets } = Astro.props
   >
     Filtrar
   </span>
+  {selected.q && <input type="hidden" name="q" value={selected.q} />}
+  {
+    selected.sort !== "created_at" && (
+      <input type="hidden" name="sort" value={selected.sort} />
+    )
+  }
 
   <fieldset class="flex flex-col gap-3">
     <legend
@@ -33,6 +43,7 @@ const { facets } = Astro.props
             type="checkbox"
             name="brand"
             value={brand.value}
+            checked={selected.brands.includes(brand.value)}
             class="size-4 accent-primary"
           />
           <span class="grow">{brand.label}</span>
@@ -55,6 +66,7 @@ const { facets } = Astro.props
             type="checkbox"
             name="category"
             value={category.value}
+            checked={selected.categories.includes(category.value)}
             class="size-4 accent-primary"
           />
           <span class="grow">{category.label}</span>
@@ -79,6 +91,7 @@ const { facets } = Astro.props
             type="checkbox"
             name="gender"
             value={gender.value}
+            checked={selected.genders.includes(gender.value)}
             class="size-4 accent-primary"
           />
           <span class="grow">{gender.label}</span>
@@ -102,6 +115,7 @@ const { facets } = Astro.props
               type="checkbox"
               name="size"
               value={size.value}
+              checked={selected.sizes.includes(size.value)}
               class="peer sr-only"
             />
             <span class="flex h-11 items-center justify-center border border-input text-[13px] font-bold peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-focus-visible:ring-1 peer-focus-visible:ring-ring">
@@ -125,6 +139,7 @@ const { facets } = Astro.props
         id="min-price"
         type="number"
         name="min_price"
+        value={selected.minPrice ?? ""}
         min="0"
         step="0.01"
         placeholder="Desde"
@@ -136,6 +151,7 @@ const { facets } = Astro.props
         id="max-price"
         type="number"
         name="max_price"
+        value={selected.maxPrice ?? ""}
         min="0"
         step="0.01"
         placeholder="Hasta"
@@ -152,7 +168,9 @@ const { facets } = Astro.props
     >
       {
         facets.currencies.map((currency) => (
-          <option value={currency}>{currency}</option>
+          <option value={currency} selected={currency === selected.currency}>
+            {currency}
+          </option>
         ))
       }
     </select>
@@ -172,6 +190,7 @@ const { facets } = Astro.props
               type="checkbox"
               name="color"
               value={color.value}
+              checked={selected.colors.includes(color.value)}
               class="peer sr-only"
             />
             <span
@@ -197,6 +216,7 @@ const { facets } = Astro.props
       id="reference"
       type="text"
       name="reference"
+      value={selected.reference ?? ""}
       placeholder="Ej.: ALS-RP2-001"
       class="h-11 border border-input bg-background px-3 text-sm font-semibold outline-none focus-visible:border-ring"
     />
@@ -207,6 +227,7 @@ const { facets } = Astro.props
         type="checkbox"
         name="in_stock"
         value="true"
+        checked={selected.inStock}
         class="size-4 accent-primary"
       />
       <span>Solo modelos con stock</span>

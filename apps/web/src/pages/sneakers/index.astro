@@ -1,32 +1,132 @@
 ---
+import { GENDER_LABELS } from "@/features/catalog/api/labels"
+import {
+  catalogHref,
+  parseCatalogQuery,
+} from "@/features/storefront/api/catalog-query"
 import { getFacets, listSneakers } from "@/features/storefront/api/sneakers"
+import type {
+  CatalogFacet,
+  CatalogFacets,
+  CatalogPage,
+} from "@/features/storefront/api/types"
 import CatalogFilters from "@/features/storefront/components/catalog-filters.astro"
 import SneakerCard from "@/features/storefront/components/sneaker-card.astro"
 import StorefrontLayout from "@/layouts/storefront.astro"
 
-const params = Astro.url.searchParams
-const page = Number(params.get("page") ?? "1")
-const query = params.get("q") ?? ""
+const query = parseCatalogQuery(Astro.url.searchParams)
 
-const [catalog, facets] = await Promise.all([
-  listSneakers(page, 9),
-  getFacets(),
-])
+const emptyFacets: CatalogFacets = {
+  brands: [],
+  categories: [],
+  genders: [],
+  sizes: [],
+  colors: [],
+  currencies: [],
+}
 
-// TODO(003): aplicar los filtros de la query contra el backend; hoy el listado devuelve el catálogo completo
+let catalog: CatalogPage = {
+  items: [],
+  total: 0,
+  page: query.page,
+  size: 0,
+  pages: 1,
+}
+let facets = emptyFacets
+let loadFailed = false
+
+try {
+  ;[catalog, facets] = await Promise.all([listSneakers(query), getFacets()])
+} catch {
+  loadFailed = true
+  Astro.response.status = 503
+}
+
+function labelFor(options: { value: string; label: string }[], value: string) {
+  return options.find((option) => option.value === value)?.label ?? value
+}
+
+type ListFilter = "brands" | "categories" | "genders" | "sizes" | "colors"
+
+function without(key: ListFilter, value: string): string {
+  return catalogHref(query, {
+    [key]: query[key].filter((item) => item !== value),
+    page: 1,
+  })
+}
+
+const genderOptions: CatalogFacet[] = Object.entries(GENDER_LABELS).map(
+  ([value, label]) => ({ value, label, count: 0 })
+)
+
+const priceLabel =
+  query.minPrice || query.maxPrice
+    ? `Precio ${query.minPrice ?? "0"} – ${query.maxPrice ?? "∞"}${query.currency ? ` ${query.currency}` : ""}`
+    : null
+
 const activeFilters = [
-  ...params
-    .getAll("brand")
-    .map((value) => ({ key: "brand", value, label: value })),
-  ...params
-    .getAll("category")
-    .map((value) => ({ key: "category", value, label: value })),
-  ...params
-    .getAll("gender")
-    .map((value) => ({ key: "gender", value, label: value })),
-  ...params
-    .getAll("size")
-    .map((value) => ({ key: "size", value, label: `Talla EU ${value}` })),
+  ...query.brands.map((value) => ({
+    label: labelFor(facets.brands, value),
+    href: without("brands", value),
+  })),
+  ...query.categories.map((value) => ({
+    label: labelFor(facets.categories, value),
+    href: without("categories", value),
+  })),
+  ...query.genders.map((value) => ({
+    label: labelFor(genderOptions, value),
+    href: without("genders", value),
+  })),
+  ...query.sizes.map((value) => ({
+    label: `Talla EU ${value}`,
+    href: without("sizes", value),
+  })),
+  ...query.colors.map((value) => ({
+    label: `Color ${labelFor(facets.colors, value)}`,
+    href: without("colors", value),
+  })),
+  ...(priceLabel
+    ? [
+        {
+          label: priceLabel,
+          href: catalogHref(query, {
+            minPrice: null,
+            maxPrice: null,
+            currency: null,
+            page: 1,
+          }),
+        },
+      ]
+    : []),
+  ...(query.reference
+    ? [
+        {
+          label: `Ref. ${query.reference}`,
+          href: catalogHref(query, { reference: null, page: 1 }),
+        },
+      ]
+    : []),
+  ...(query.inStock
+    ? [
+        {
+          label: "Solo con stock",
+          href: catalogHref(query, { inStock: false, page: 1 }),
+        },
+      ]
+    : []),
+]
+
+const preservedFields = [
+  ...query.brands.map((value) => ["brand", value]),
+  ...query.categories.map((value) => ["category", value]),
+  ...query.genders.map((value) => ["gender", value]),
+  ...query.sizes.map((value) => ["size", value]),
+  ...query.colors.map((value) => ["color", value]),
+  ...(query.minPrice ? [["min_price", query.minPrice]] : []),
+  ...(query.maxPrice ? [["max_price", query.maxPrice]] : []),
+  ...(query.currency ? [["currency", query.currency]] : []),
+  ...(query.reference ? [["reference", query.reference]] : []),
+  ...(query.inStock ? [["in_stock", "true"]] : []),
 ]
 
 const sortOptions = [
@@ -37,10 +137,11 @@ const sortOptions = [
   { value: "release_date", label: "Fecha de lanzamiento" },
 ]
 
-const currentSort = params.get("sort") ?? "created_at"
-
-const shownFrom = catalog.items.length === 0 ? 0 : 1
-const resultsLabel = `Mostrando ${shownFrom} – ${catalog.items.length} de ${catalog.total} modelos`
+const firstShown =
+  catalog.items.length === 0 ? 0 : (catalog.page - 1) * catalog.size + 1
+const lastShown =
+  catalog.items.length === 0 ? 0 : firstShown + catalog.items.length - 1
+const resultsLabel = `Mostrando ${firstShown} – ${lastShown} de ${catalog.total} modelos`
 ---
 
 <StorefrontLayout
@@ -91,6 +192,11 @@ const resultsLabel = `Mostrando ${shownFrom} – ${catalog.items.length} de ${ca
       method="get"
       class="flex grow flex-col gap-3 sm:flex-row sm:items-center"
     >
+      {
+        preservedFields.map(([name, value]) => (
+          <input type="hidden" name={name} value={value} />
+        ))
+      }
       <div
         class="flex h-12 grow items-center gap-2.5 border border-border bg-muted px-4"
       >
@@ -115,7 +221,7 @@ const resultsLabel = `Mostrando ${shownFrom} – ${catalog.items.length} de ${ca
           id="catalog-search"
           type="search"
           name="q"
-          value={query}
+          value={query.q ?? ""}
           placeholder="Marca, modelo o #referencia"
           class="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
         />
@@ -136,7 +242,7 @@ const resultsLabel = `Mostrando ${shownFrom} – ${catalog.items.length} de ${ca
             sortOptions.map((option) => (
               <option
                 value={option.value}
-                selected={option.value === currentSort}
+                selected={option.value === query.sort}
               >
                 {option.label}
               </option>
@@ -160,9 +266,25 @@ const resultsLabel = `Mostrando ${shownFrom} – ${catalog.items.length} de ${ca
           Filtros activos
         </span>
         {activeFilters.map((filter) => (
-          <span class="flex h-9 items-center gap-2 border border-accent bg-accent px-3 text-[13px] font-bold text-primary">
+          <a
+            href={filter.href}
+            aria-label={`Quitar filtro ${filter.label}`}
+            class="flex h-9 items-center gap-2 border border-accent bg-accent px-3 text-[13px] font-bold text-primary hover:border-primary"
+          >
             {filter.label}
-          </span>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.6"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M6 6l12 12M18 6 6 18" />
+            </svg>
+          </a>
         ))}
         <a
           href="/sneakers"
@@ -178,11 +300,30 @@ const resultsLabel = `Mostrando ${shownFrom} – ${catalog.items.length} de ${ca
     class="mx-auto grid max-w-[1440px] items-start gap-10 px-4 py-8 sm:px-8 lg:grid-cols-[264px_minmax(0,1fr)] lg:px-16"
   >
     <aside>
-      <CatalogFilters facets={facets} />
+      <CatalogFilters facets={facets} selected={query} />
     </aside>
 
     {
-      catalog.items.length === 0 ? (
+      loadFailed ? (
+        <div
+          role="alert"
+          class="flex flex-col items-center gap-3 border border-dashed border-destructive/50 py-24 text-center"
+        >
+          <span class="font-display text-2xl font-extrabold uppercase">
+            No pudimos cargar el catálogo
+          </span>
+          <p class="max-w-[360px] text-sm text-muted-foreground">
+            Hubo un problema al consultar los modelos. Vuelve a intentarlo en
+            unos minutos.
+          </p>
+          <a
+            href={catalogHref(query)}
+            class="mt-2 flex h-12 items-center bg-primary px-6 text-xs font-extrabold tracking-[0.08em] text-primary-foreground uppercase"
+          >
+            Reintentar
+          </a>
+        </div>
+      ) : catalog.items.length === 0 ? (
         <div class="flex flex-col items-center gap-3 border border-dashed border-border py-24 text-center">
           <span class="font-display text-2xl font-extrabold uppercase">
             Sin resultados
@@ -223,7 +364,7 @@ const resultsLabel = `Mostrando ${shownFrom} – ${catalog.items.length} de ${ca
           Array.from({ length: catalog.pages }, (_, index) => index + 1).map(
             (number) => (
               <a
-                href={`/sneakers?page=${number}`}
+                href={catalogHref(query, { page: number })}
                 aria-current={number === catalog.page ? "page" : undefined}
                 class:list={[
                   "flex h-11 min-w-11 items-center justify-center border text-sm font-bold",
