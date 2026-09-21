@@ -142,16 +142,16 @@ async def test_publication_lifecycle(upload, sneaker, sneaker_repository, unit_o
     await sneaker_repository.save(sneaker)
     await upload_images(upload, sneaker, 1)
 
-    assert (await PublishSneaker(sneaker_repository, unit_of_work).execute(sneaker.id)).status == "active"
-    assert (await ArchiveSneaker(sneaker_repository, unit_of_work).execute(sneaker.id)).status == "archived"
-    assert (await UnarchiveSneaker(sneaker_repository, unit_of_work).execute(sneaker.id)).status == "draft"
+    assert (await PublishSneaker(sneaker_repository, unit_of_work).execute(sneaker.id)).status == "ACTIVE"
+    assert (await ArchiveSneaker(sneaker_repository, unit_of_work).execute(sneaker.id)).status == "ARCHIVED"
+    assert (await UnarchiveSneaker(sneaker_repository, unit_of_work).execute(sneaker.id)).status == "DRAFT"
 
 
 async def test_publish_without_primary_image_is_rejected(sneaker, sneaker_repository, unit_of_work) -> None:
     with pytest.raises(SneakerNotPublishable, match="primary image"):
         await PublishSneaker(sneaker_repository, unit_of_work).execute(sneaker.id)
 
-    assert (await GetSneaker(sneaker_repository).execute(sneaker.id)).status == "draft"
+    assert (await GetSneaker(sneaker_repository).execute(sneaker.id)).status == "DRAFT"
     assert unit_of_work.commits == 0
 
 

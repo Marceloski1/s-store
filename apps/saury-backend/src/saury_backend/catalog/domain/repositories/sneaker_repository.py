@@ -17,10 +17,10 @@ SEARCH_QUERY_MAX_LENGTH = 100
 
 
 class SneakerSort(StrEnum):
-    NAME = "name"
-    PRICE = "price"
-    RELEASE_DATE = "release_date"
-    CREATED_AT = "created_at"
+    NAME = "NAME"
+    PRICE = "PRICE"
+    RELEASE_DATE = "RELEASE_DATE"
+    CREATED_AT = "CREATED_AT"
 
 
 @dataclass(frozen=True, slots=True)

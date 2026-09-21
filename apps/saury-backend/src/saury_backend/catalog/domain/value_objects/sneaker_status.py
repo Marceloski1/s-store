@@ -2,6 +2,6 @@ from enum import StrEnum
 
 
 class SneakerStatus(StrEnum):
-    DRAFT = "draft"
-    ACTIVE = "active"
-    ARCHIVED = "archived"
+    DRAFT = "DRAFT"
+    ACTIVE = "ACTIVE"
+    ARCHIVED = "ARCHIVED"

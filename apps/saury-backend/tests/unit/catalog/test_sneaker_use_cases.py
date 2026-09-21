@@ -44,7 +44,7 @@ def create_command(brand, category, **overrides) -> CreateSneakerCommand:
         "description": "Classic runner",
         "brand_id": brand.id,
         "category_id": category.id,
-        "gender": "unisex",
+        "gender": "UNISEX",
         "price": Decimal("130"),
         "currency": "USD",
     }
@@ -60,7 +60,7 @@ async def test_create_sneaker_starts_as_draft(create_sneaker, brand, category, u
     sneaker = await create_sneaker.execute(create_command(brand, category))
 
     assert sneaker.slug == "air-max-90"
-    assert sneaker.status == "draft"
+    assert sneaker.status == "DRAFT"
     assert sneaker.base_price.amount == Decimal("130.00")
     assert sneaker.base_price.currency == "USD"
     assert unit_of_work.commits == 1
@@ -106,13 +106,13 @@ async def test_update_sneaker_changes_data(
             description="",
             brand_id=brand.id,
             category_id=category.id,
-            gender="men",
+            gender="MEN",
             price=Decimal("150"),
             currency="EUR",
         )
     )
 
-    assert (updated.name, updated.slug, updated.gender) == ("Air Max 95", "air-max-95", "men")
+    assert (updated.name, updated.slug, updated.gender) == ("Air Max 95", "air-max-95", "MEN")
     assert await GetSneaker(sneaker_repository).execute(created.id) == updated
 
 
@@ -121,7 +121,7 @@ async def test_update_sneaker_raises_when_missing(
 ) -> None:
     with pytest.raises(SneakerNotFound):
         await UpdateSneaker(sneaker_repository, brand_repository, category_repository, unit_of_work).execute(
-            UpdateSneakerCommand(uuid7(), "X", "", brand.id, category.id, "men", Decimal("1"), "USD")
+            UpdateSneakerCommand(uuid7(), "X", "", brand.id, category.id, "MEN", Decimal("1"), "USD")
         )
 
 
@@ -137,8 +137,8 @@ async def test_list_sneakers_translates_query_into_filters(sneaker_repository, c
         ListSneakersQuery(
             brands=("nike", "adidas"),
             categories=("running",),
-            genders=("men", "unisex"),
-            status="active",
+            genders=("MEN", "UNISEX"),
+            status="ACTIVE",
             sizes=(Decimal("42.5"), Decimal("43")),
             colors=(" #1b4fc0 ",),
             min_price=Decimal("50"),
@@ -146,7 +146,7 @@ async def test_list_sneakers_translates_query_into_filters(sneaker_repository, c
             currency="EUR",
             in_stock=True,
             q=" max ",
-            sort="price",
+            sort="PRICE",
             descending=True,
         ),
         PageParams(),
@@ -174,6 +174,7 @@ async def test_list_sneakers_translates_query_into_filters(sneaker_repository, c
         ListSneakersQuery(sizes=(Decimal("42.3"),)),
         ListSneakersQuery(genders=("aliens",)),
         ListSneakersQuery(colors=("blue",)),
+        ListSneakersQuery(min_price=Decimal("10"), currency="GBP"),
     ],
     ids=[
         "min-price-without-currency",
@@ -183,6 +184,7 @@ async def test_list_sneakers_translates_query_into_filters(sneaker_repository, c
         "invalid-size",
         "invalid-gender",
         "invalid-color",
+        "unsupported-currency",
     ],
 )
 async def test_list_sneakers_rejects_invalid_queries(sneaker_repository, query) -> None:
@@ -259,7 +261,7 @@ async def test_update_sneaker_keeps_its_own_reference(
             description="",
             brand_id=brand.id,
             category_id=category.id,
-            gender="unisex",
+            gender="UNISEX",
             price=Decimal("130"),
             currency="USD",
             reference="ALS-001",
@@ -287,3 +289,8 @@ async def test_get_catalog_facets_scopes_to_published_sneakers(sneaker_repositor
 
     await GetCatalogFacets(sneaker_repository).execute(published_only=False)
     assert sneaker_repository.last_facets_status is None
+
+
+async def test_create_sneaker_rejects_unsupported_currencies(create_sneaker, brand, category) -> None:
+    with pytest.raises(ValidationError):
+        await create_sneaker.execute(create_command(brand, category, currency="GBP"))
