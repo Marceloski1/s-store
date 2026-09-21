@@ -1,0 +1,50 @@
+---
+import { UsersManager } from "@/features/users/components/users-manager"
+import AdminLayout from "@/layouts/admin.astro"
+import { toErrorMessage } from "@/lib/api/errors"
+import { userService } from "@/services/admin-services/user"
+
+const USERS_PAGE_SIZE = 100
+
+const currentUser = Astro.locals.user
+const result = await userService.list(1, USERS_PAGE_SIZE).then(
+  (page) => ({ users: page.items, error: null }),
+  (reason: unknown) => ({ users: [], error: toErrorMessage(reason) })
+)
+---
+
+<AdminLayout
+  title="Usuarios"
+  active="usuarios"
+  breadcrumb={[{ label: "Administración" }, { label: "Usuarios" }]}
+>
+  <div class="flex flex-col gap-1.5">
+    <h1
+      class="font-display text-3xl leading-none font-extrabold tracking-tight text-foreground uppercase sm:text-4xl"
+    >
+      Usuarios
+    </h1>
+    <span class="text-sm text-muted-foreground">
+      Da de alta administradores para que gestionen el catálogo y retírales el
+      acceso cuando ya no lo necesiten.
+    </span>
+  </div>
+  {
+    result.error ? (
+      <p
+        role="alert"
+        class="border border-destructive/40 bg-destructive/10 px-4 py-3 text-[13px] font-semibold text-destructive"
+      >
+        {result.error}
+      </p>
+    ) : (
+      currentUser && (
+        <UsersManager
+          client:load
+          initialUsers={result.users}
+          currentUserId={currentUser.id}
+        />
+      )
+    )
+  }
+</AdminLayout>
