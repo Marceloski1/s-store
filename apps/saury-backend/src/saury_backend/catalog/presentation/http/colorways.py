@@ -1,9 +1,9 @@
 from decimal import Decimal
 from uuid import UUID
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from shared.presentation.http.dependencies import UnitOfWorkDep
-from shared.presentation.http.schemas import CONFLICT_RESPONSE, NOT_FOUND_RESPONSE
+from shared.presentation.http.schemas import AUTH_RESPONSES, CONFLICT_RESPONSE, NOT_FOUND_RESPONSE
 
 from saury_backend.catalog.application.dtos.sneaker import (
     CreateColorwayCommand,
@@ -15,8 +15,14 @@ from saury_backend.catalog.application.use_cases.colorway import CreateColorway,
 from saury_backend.catalog.application.use_cases.size_variant import RemoveSize, SetSizeStock
 from saury_backend.catalog.presentation.http.dependencies import SneakerRepositoryDep
 from saury_backend.catalog.presentation.http.schemas import ColorwayRequest, SizeStockRequest, SneakerResponse
+from saury_backend.identity.presentation.http.dependencies import require_admin
 
-router = APIRouter(prefix="/sneakers/{sneaker_id}/colorways", tags=["colorways"])
+router = APIRouter(
+    prefix="/sneakers/{sneaker_id}/colorways",
+    tags=["colorways"],
+    dependencies=[Depends(require_admin)],
+    responses=AUTH_RESPONSES,
+)
 
 
 @router.post("", status_code=201, responses=NOT_FOUND_RESPONSE | CONFLICT_RESPONSE)

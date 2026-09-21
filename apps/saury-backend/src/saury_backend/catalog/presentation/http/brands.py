@@ -1,8 +1,8 @@
 from uuid import UUID
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 from shared.presentation.http.dependencies import PageParamsDep, UnitOfWorkDep
-from shared.presentation.http.schemas import CONFLICT_RESPONSE, NOT_FOUND_RESPONSE, PageResponse
+from shared.presentation.http.schemas import AUTH_RESPONSES, CONFLICT_RESPONSE, NOT_FOUND_RESPONSE, PageResponse
 
 from saury_backend.catalog.application.dtos.brand import CreateBrandCommand, UpdateBrandCommand
 from saury_backend.catalog.application.use_cases.brand import (
@@ -14,11 +14,19 @@ from saury_backend.catalog.application.use_cases.brand import (
 )
 from saury_backend.catalog.presentation.http.dependencies import BrandRepositoryDep, SneakerRepositoryDep
 from saury_backend.catalog.presentation.http.schemas import BrandRequest, BrandResponse
+from saury_backend.identity.presentation.http.dependencies import require_admin
+
+ADMIN_ONLY = [Depends(require_admin)]
 
 router = APIRouter(prefix="/brands", tags=["brands"])
 
 
-@router.post("", status_code=status.HTTP_201_CREATED, responses=CONFLICT_RESPONSE)
+@router.post(
+    "",
+    status_code=status.HTTP_201_CREATED,
+    responses=AUTH_RESPONSES | CONFLICT_RESPONSE,
+    dependencies=ADMIN_ONLY,
+)
 async def create_brand(
     body: BrandRequest,
     repository: BrandRepositoryDep,
@@ -39,7 +47,11 @@ async def get_brand(brand_id: UUID, repository: BrandRepositoryDep) -> BrandResp
     return BrandResponse.model_validate(await GetBrand(repository).execute(brand_id))
 
 
-@router.put("/{brand_id}", responses=NOT_FOUND_RESPONSE | CONFLICT_RESPONSE)
+@router.put(
+    "/{brand_id}",
+    responses=AUTH_RESPONSES | NOT_FOUND_RESPONSE | CONFLICT_RESPONSE,
+    dependencies=ADMIN_ONLY,
+)
 async def update_brand(
     brand_id: UUID,
     body: BrandRequest,
@@ -50,7 +62,12 @@ async def update_brand(
     return BrandResponse.model_validate(await UpdateBrand(repository, unit_of_work).execute(command))
 
 
-@router.delete("/{brand_id}", status_code=status.HTTP_204_NO_CONTENT, responses=NOT_FOUND_RESPONSE | CONFLICT_RESPONSE)
+@router.delete(
+    "/{brand_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses=AUTH_RESPONSES | NOT_FOUND_RESPONSE | CONFLICT_RESPONSE,
+    dependencies=ADMIN_ONLY,
+)
 async def delete_brand(
     brand_id: UUID,
     repository: BrandRepositoryDep,

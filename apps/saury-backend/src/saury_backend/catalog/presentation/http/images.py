@@ -1,9 +1,14 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Form, status
+from fastapi import APIRouter, Depends, Form, status
 from shared.presentation.http.dependencies import UnitOfWorkDep
-from shared.presentation.http.schemas import CONFLICT_RESPONSE, NOT_FOUND_RESPONSE, UNPROCESSABLE_RESPONSE
+from shared.presentation.http.schemas import (
+    AUTH_RESPONSES,
+    CONFLICT_RESPONSE,
+    NOT_FOUND_RESPONSE,
+    UNPROCESSABLE_RESPONSE,
+)
 
 from saury_backend.catalog.application.dtos.sneaker import (
     ReorderSneakerImagesCommand,
@@ -22,8 +27,14 @@ from saury_backend.catalog.presentation.http.dependencies import (
 )
 from saury_backend.catalog.presentation.http.image_upload import ImageUploadDep
 from saury_backend.catalog.presentation.http.schemas import AltStr, ImageOrderRequest, SneakerResponse
+from saury_backend.identity.presentation.http.dependencies import require_admin
 
-router = APIRouter(prefix="/sneakers/{sneaker_id}/images", tags=["sneaker-images"])
+router = APIRouter(
+    prefix="/sneakers/{sneaker_id}/images",
+    tags=["sneaker-images"],
+    dependencies=[Depends(require_admin)],
+    responses=AUTH_RESPONSES,
+)
 
 
 @router.post(

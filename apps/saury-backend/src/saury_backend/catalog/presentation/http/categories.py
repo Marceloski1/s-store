@@ -1,8 +1,8 @@
 from uuid import UUID
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 from shared.presentation.http.dependencies import PageParamsDep, UnitOfWorkDep
-from shared.presentation.http.schemas import CONFLICT_RESPONSE, NOT_FOUND_RESPONSE, PageResponse
+from shared.presentation.http.schemas import AUTH_RESPONSES, CONFLICT_RESPONSE, NOT_FOUND_RESPONSE, PageResponse
 
 from saury_backend.catalog.application.dtos.category import CreateCategoryCommand, UpdateCategoryCommand
 from saury_backend.catalog.application.use_cases.category import (
@@ -14,11 +14,19 @@ from saury_backend.catalog.application.use_cases.category import (
 )
 from saury_backend.catalog.presentation.http.dependencies import CategoryRepositoryDep, SneakerRepositoryDep
 from saury_backend.catalog.presentation.http.schemas import CategoryRequest, CategoryResponse
+from saury_backend.identity.presentation.http.dependencies import require_admin
+
+ADMIN_ONLY = [Depends(require_admin)]
 
 router = APIRouter(prefix="/categories", tags=["categories"])
 
 
-@router.post("", status_code=status.HTTP_201_CREATED, responses=CONFLICT_RESPONSE)
+@router.post(
+    "",
+    status_code=status.HTTP_201_CREATED,
+    responses=AUTH_RESPONSES | CONFLICT_RESPONSE,
+    dependencies=ADMIN_ONLY,
+)
 async def create_category(
     body: CategoryRequest,
     repository: CategoryRepositoryDep,
@@ -42,7 +50,11 @@ async def get_category(category_id: UUID, repository: CategoryRepositoryDep) -> 
     return CategoryResponse.model_validate(await GetCategory(repository).execute(category_id))
 
 
-@router.put("/{category_id}", responses=NOT_FOUND_RESPONSE | CONFLICT_RESPONSE)
+@router.put(
+    "/{category_id}",
+    responses=AUTH_RESPONSES | NOT_FOUND_RESPONSE | CONFLICT_RESPONSE,
+    dependencies=ADMIN_ONLY,
+)
 async def update_category(
     category_id: UUID,
     body: CategoryRequest,
@@ -53,7 +65,12 @@ async def update_category(
     return CategoryResponse.model_validate(await UpdateCategory(repository, unit_of_work).execute(command))
 
 
-@router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT, responses=NOT_FOUND_RESPONSE | CONFLICT_RESPONSE)
+@router.delete(
+    "/{category_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses=AUTH_RESPONSES | NOT_FOUND_RESPONSE | CONFLICT_RESPONSE,
+    dependencies=ADMIN_ONLY,
+)
 async def delete_category(
     category_id: UUID,
     repository: CategoryRepositoryDep,
