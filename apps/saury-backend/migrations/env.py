@@ -7,11 +7,12 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from saury_backend.catalog.infrastructure.persistence import models
 from saury_backend.config.settings import get_settings
+from saury_backend.identity.infrastructure.persistence import models as identity_models
 
 if context.config.config_file_name is not None:
     fileConfig(context.config.config_file_name)
 
-target_metadata = models.Base.metadata
+target_metadata = identity_models.Base.metadata
 database_url = get_settings().async_database_url
 
 

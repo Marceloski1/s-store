@@ -1,9 +1,10 @@
 import os
+import secrets
 from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import SecretStr
+from pydantic import SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import make_url
 
@@ -29,6 +30,20 @@ class Settings(BaseSettings):
     cloudinary_api_key: str | None = None
     cloudinary_api_secret: SecretStr | None = None
     cloudinary_folder: str = "sauri-store"
+    jwt_secret: SecretStr | None = None
+    jwt_expires_minutes: int = 480
+
+    @model_validator(mode="after")
+    def _ensure_jwt_secret(self) -> Settings:
+        if self.jwt_secret is None:
+            if self.app_env is Environment.PRODUCTION:
+                raise ValueError("JWT_SECRET is required in production")
+            self.jwt_secret = SecretStr(secrets.token_urlsafe(32))
+        return self
+
+    @property
+    def cookie_secure(self) -> bool:
+        return self.app_env is Environment.PRODUCTION
 
     @property
     def async_database_url(self) -> str:

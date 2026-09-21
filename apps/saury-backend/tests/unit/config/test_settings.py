@@ -46,3 +46,35 @@ def test_cloudinary_settings_are_optional(monkeypatch: pytest.MonkeyPatch) -> No
     assert settings.cloudinary_cloud_name is None
     assert settings.cloudinary_api_secret is None
     assert settings.cloudinary_folder == "sauri-store"
+
+
+def test_jwt_secret_is_required_in_production(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("JWT_SECRET", raising=False)
+
+    with pytest.raises(ValueError, match="JWT_SECRET"):
+        Settings(_env_file=None, database_url="sqlite+aiosqlite:///catalog.db", app_env="production")
+
+
+def test_development_generates_an_ephemeral_jwt_secret(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("JWT_SECRET", raising=False)
+
+    first = Settings(_env_file=None, database_url="sqlite+aiosqlite:///catalog.db")
+    second = Settings(_env_file=None, database_url="sqlite+aiosqlite:///catalog.db")
+
+    assert first.jwt_secret is not None and second.jwt_secret is not None
+    assert first.jwt_secret.get_secret_value() != second.jwt_secret.get_secret_value()
+    assert (first.jwt_expires_minutes, first.cookie_secure) == (480, False)
+
+
+def test_reads_jwt_settings_from_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABASE_URL", "sqlite+aiosqlite:///catalog.db")
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("JWT_SECRET", "production-secret-value")
+    monkeypatch.setenv("JWT_EXPIRES_MINUTES", "60")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.jwt_secret is not None
+    assert settings.jwt_secret.get_secret_value() == "production-secret-value"
+    assert "production-secret-value" not in repr(settings)
+    assert (settings.jwt_expires_minutes, settings.cookie_secure) == (60, True)
