@@ -2,10 +2,10 @@
 import { emptySneakerForm, toAdminOptions } from "@/features/admin/api/types"
 import { SneakerEditor } from "@/features/admin/components/sneaker-editor"
 import { CURRENCY_OPTIONS, GENDER_OPTIONS } from "@/features/catalog/api/labels"
-import { loadCatalogReferences } from "@/features/catalog/api/references"
+import { loadAdminReferences } from "@/features/admin/api/sneakers"
 import AdminLayout from "@/layouts/admin.astro"
 
-const references = await loadCatalogReferences()
+const references = await loadAdminReferences()
 
 const initialForm = emptySneakerForm(
   references.brands[0]?.id ?? "",

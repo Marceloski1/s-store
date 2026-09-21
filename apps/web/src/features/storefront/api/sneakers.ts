@@ -1,6 +1,7 @@
 import { GENDER_LABELS } from "@/features/catalog/api/labels"
 import {
-  loadCatalogReferences,
+  REFERENCE_PAGE_SIZE,
+  toCatalogReferences,
   type CatalogReferences,
 } from "@/features/catalog/api/references"
 import type {
@@ -14,9 +15,11 @@ import type {
   SneakerImage,
   SneakerSummary,
 } from "@/features/storefront/api/types"
-import { apiClient } from "@/lib/api/client"
-import { ApiError } from "@/lib/api/errors"
 import type { ApiGender, ApiSneaker } from "@/lib/api/types"
+import { brandService } from "@/services/catalogs-services/brand"
+import { categoryService } from "@/services/catalogs-services/category"
+import { facetService } from "@/services/catalogs-services/facet"
+import { sneakerService } from "@/services/catalogs-services/sneaker"
 
 const CATALOG_PAGE_SIZE = 9
 const NEW_RELEASE_DAYS = 30
@@ -45,6 +48,14 @@ type ListParams = {
 export function normalizeSize(size: string): string {
   const value = Number(size)
   return Number.isNaN(value) ? size : String(value)
+}
+
+async function loadCatalogReferences(): Promise<CatalogReferences> {
+  const [brands, categories] = await Promise.all([
+    brandService.list(1, REFERENCE_PAGE_SIZE),
+    categoryService.list(1, REFERENCE_PAGE_SIZE),
+  ])
+  return toCatalogReferences(brands.items, categories.items)
 }
 
 function isGender(value: string): value is ApiGender {
@@ -184,28 +195,22 @@ function toSummary(detail: SneakerDetail): SneakerSummary {
 async function fetchPage({ query = {}, size = CATALOG_PAGE_SIZE }: ListParams) {
   const { sort, descending } = SORT_PARAMS[query.sort ?? "created_at"]
   const hasPriceFilter = Boolean(query.minPrice || query.maxPrice)
-  const { data, error } = await apiClient.GET("/catalog/sneakers", {
-    params: {
-      query: {
-        page: query.page ?? 1,
-        size,
-        brand: query.brands,
-        category: query.categories,
-        gender: query.genders?.filter(isGender),
-        shoe_size: query.sizes,
-        color: query.colors,
-        min_price: query.minPrice ?? undefined,
-        max_price: query.maxPrice ?? undefined,
-        currency: hasPriceFilter ? (query.currency ?? undefined) : undefined,
-        in_stock: query.inStock,
-        q: query.reference ?? query.q ?? undefined,
-        sort,
-        descending,
-      },
-    },
+  return sneakerService.list({
+    page: query.page ?? 1,
+    size,
+    brand: query.brands,
+    category: query.categories,
+    gender: query.genders?.filter(isGender),
+    shoe_size: query.sizes,
+    color: query.colors,
+    min_price: query.minPrice ?? undefined,
+    max_price: query.maxPrice ?? undefined,
+    currency: hasPriceFilter ? (query.currency ?? undefined) : undefined,
+    in_stock: query.inStock,
+    q: query.reference ?? query.q ?? undefined,
+    sort,
+    descending,
   })
-  if (error) throw new ApiError(error)
-  return data
 }
 
 export async function listSneakers(
@@ -252,22 +257,15 @@ export async function listRelated(
 export async function getSneakerBySlug(
   slug: string
 ): Promise<SneakerDetail | null> {
-  const [result, references] = await Promise.all([
-    apiClient.GET("/catalog/sneakers/{slug}", {
-      params: { path: { slug } },
-    }),
+  const [sneaker, references] = await Promise.all([
+    sneakerService.getBySlug(slug),
     loadCatalogReferences(),
   ])
-  if (result.response.status === 404) {
-    return null
-  }
-  if (result.error) throw new ApiError(result.error)
-  return toDetail(result.data, references)
+  return sneaker ? toDetail(sneaker, references) : null
 }
 
 export async function getFacets(): Promise<CatalogFacets> {
-  const { data, error } = await apiClient.GET("/catalog/facets")
-  if (error) throw new ApiError(error)
+  const data = await facetService.get()
   return {
     brands: data.brands,
     categories: data.categories,

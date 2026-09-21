@@ -1,9 +1,6 @@
 import { useRef, useState } from "react"
 
-import {
-  adminSneakersGateway,
-  formToRequest,
-} from "@/features/admin/api/sneakers"
+import { colorwayRequest, formToRequest } from "@/features/admin/api/sneakers"
 import {
   MAX_IMAGE_BYTES,
   MAX_IMAGES,
@@ -15,6 +12,9 @@ import {
   type SneakerStatus,
 } from "@/features/admin/api/types"
 import { toErrorMessage } from "@/lib/api/errors"
+import { colorwayService } from "@/services/admin-services/colorway"
+import { imageService } from "@/services/admin-services/image"
+import { sneakerService } from "@/services/admin-services/sneaker"
 import type { ApiSneaker } from "@/lib/api/types"
 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png"]
@@ -107,7 +107,7 @@ export function useSneakerEditor(
     if (!sneaker) {
       setIsSaving(true)
       try {
-        const created = await adminSneakersGateway.create(request)
+        const created = await sneakerService.create(request)
         window.location.assign(editorUrl(created.slug))
       } catch (reason) {
         setError(toErrorMessage(reason))
@@ -117,7 +117,7 @@ export function useSneakerEditor(
     }
     const previousSlug = sneaker.slug
     const updated = await run(
-      (current) => adminSneakersGateway.update(current.id, request),
+      (current) => sneakerService.update(current.id, request),
       "Cambios guardados"
     )
     if (!updated) return
@@ -140,9 +140,9 @@ export function useSneakerEditor(
       return
     }
     const transitions = {
-      active: adminSneakersGateway.publish,
-      archived: adminSneakersGateway.archive,
-      draft: adminSneakersGateway.unarchive,
+      active: sneakerService.publish,
+      archived: sneakerService.archive,
+      draft: sneakerService.unarchive,
     } satisfies Record<SneakerStatus, (id: string) => Promise<ApiSneaker>>
     const messages: Record<SneakerStatus, string> = {
       active: "Modelo publicado",
@@ -154,7 +154,7 @@ export function useSneakerEditor(
 
   function addColorway(input: ColorwayInput) {
     return run(
-      (current) => adminSneakersGateway.addColorway(current.id, input),
+      (current) => colorwayService.add(current.id, colorwayRequest(input)),
       "Color añadido"
     )
   }
@@ -162,14 +162,14 @@ export function useSneakerEditor(
   function updateColorway(colorwayId: string, input: ColorwayInput) {
     return run(
       (current) =>
-        adminSneakersGateway.updateColorway(current.id, colorwayId, input),
+        colorwayService.update(current.id, colorwayId, colorwayRequest(input)),
       "Color actualizado"
     )
   }
 
   function removeColorway(colorwayId: string) {
     return run(
-      (current) => adminSneakersGateway.removeColorway(current.id, colorwayId),
+      (current) => colorwayService.remove(current.id, colorwayId),
       "Color eliminado"
     )
   }
@@ -180,14 +180,13 @@ export function useSneakerEditor(
       return Promise.resolve(null)
     }
     return run((current) =>
-      adminSneakersGateway.setSizeStock(current.id, colorwayId, size, stock)
+      colorwayService.setSizeStock(current.id, colorwayId, size, stock)
     )
   }
 
   function removeSize(colorwayId: string, size: string) {
     return run(
-      (current) =>
-        adminSneakersGateway.removeSize(current.id, colorwayId, size),
+      (current) => colorwayService.removeSize(current.id, colorwayId, size),
       "Talla eliminada"
     )
   }
@@ -210,25 +209,19 @@ export function useSneakerEditor(
     await run(async (current) => {
       let uploaded = current
       for (const file of files) {
-        uploaded = await adminSneakersGateway.uploadImage(
-          current.id,
-          file,
-          current.name
-        )
+        uploaded = await imageService.upload(current.id, file, current.name)
       }
       return uploaded
     }, "Fotos subidas")
   }
 
   function markPrimaryImage(imageId: string) {
-    return run((current) =>
-      adminSneakersGateway.markPrimaryImage(current.id, imageId)
-    )
+    return run((current) => imageService.markPrimary(current.id, imageId))
   }
 
   function removeImage(imageId: string) {
     return run(
-      (current) => adminSneakersGateway.removeImage(current.id, imageId),
+      (current) => imageService.remove(current.id, imageId),
       "Foto eliminada"
     )
   }
@@ -247,7 +240,7 @@ export function useSneakerEditor(
       }
       ids.splice(fromIndex, 1)
       ids.splice(targetIndex, 0, imageId)
-      return adminSneakersGateway.reorderImages(current.id, ids)
+      return imageService.reorder(current.id, ids)
     })
   }
 

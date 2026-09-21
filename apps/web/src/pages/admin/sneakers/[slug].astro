@@ -1,16 +1,16 @@
 ---
-import { adminSneakersGateway } from "@/features/admin/api/sneakers"
+import { sneakerService } from "@/services/admin-services/sneaker"
+import { loadAdminReferences } from "@/features/admin/api/sneakers"
 import { sneakerToForm, toAdminOptions } from "@/features/admin/api/types"
 import { SneakerEditor } from "@/features/admin/components/sneaker-editor"
 import { CURRENCY_OPTIONS, GENDER_OPTIONS } from "@/features/catalog/api/labels"
-import { loadCatalogReferences } from "@/features/catalog/api/references"
 import AdminLayout from "@/layouts/admin.astro"
 
 const { slug = "" } = Astro.params
 
 const [sneaker, references] = await Promise.all([
-  adminSneakersGateway.getBySlug(slug),
-  loadCatalogReferences(),
+  sneakerService.getBySlug(slug),
+  loadAdminReferences(),
 ])
 
 if (!sneaker) {

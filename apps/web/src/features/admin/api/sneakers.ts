@@ -8,12 +8,18 @@ import type {
 } from "@/features/admin/api/types"
 import { primaryImageUrl, sneakerStock } from "@/features/admin/api/types"
 import {
-  loadCatalogReferences,
+  REFERENCE_PAGE_SIZE,
+  toCatalogReferences,
   type CatalogReferences,
 } from "@/features/catalog/api/references"
-import { apiClient } from "@/lib/api/client"
-import { ApiError } from "@/lib/api/errors"
-import type { ApiSneaker, ApiSneakerRequest } from "@/lib/api/types"
+import type {
+  ApiColorwayRequest,
+  ApiSneaker,
+  ApiSneakerRequest,
+} from "@/lib/api/types"
+import { brandService } from "@/services/admin-services/brand"
+import { categoryService } from "@/services/admin-services/category"
+import { sneakerService } from "@/services/admin-services/sneaker"
 
 const MAX_PAGE_SIZE = 100
 const ADMIN_PAGE_SIZE = 20
@@ -52,18 +58,22 @@ function toRow(
   }
 }
 
-async function listPage(
-  page: number,
-  size: number,
-  status: SneakerStatus | null
-) {
-  const { data, error } = await apiClient.GET("/sneakers", {
-    params: {
-      query: { page, size, status, sort: "created_at", descending: true },
-    },
+export async function loadAdminReferences(): Promise<CatalogReferences> {
+  const [brands, categories] = await Promise.all([
+    brandService.list(1, REFERENCE_PAGE_SIZE),
+    categoryService.list(1, REFERENCE_PAGE_SIZE),
+  ])
+  return toCatalogReferences(brands.items, categories.items)
+}
+
+function listPage(page: number, size: number, status: SneakerStatus | null) {
+  return sneakerService.list({
+    page,
+    size,
+    status,
+    sort: "created_at",
+    descending: true,
   })
-  if (error) throw new ApiError(error)
-  return data
 }
 
 async function listAll(): Promise<ApiSneaker[]> {
@@ -82,7 +92,7 @@ export async function listAdminSneakers(
 ): Promise<AdminSneakerPage> {
   const [result, references] = await Promise.all([
     listPage(page, ADMIN_PAGE_SIZE, status),
-    loadCatalogReferences(),
+    loadAdminReferences(),
   ])
   return {
     rows: result.items.map((sneaker) => toRow(sneaker, references)),
@@ -136,7 +146,7 @@ export function formToRequest(form: SneakerForm): ApiSneakerRequest {
   }
 }
 
-function colorwayRequest(input: ColorwayInput) {
+export function colorwayRequest(input: ColorwayInput): ApiColorwayRequest {
   return {
     name: input.name,
     color_code: input.colorCode,
@@ -144,154 +154,3 @@ function colorwayRequest(input: ColorwayInput) {
     price_override: blankToNull(input.priceOverride),
   }
 }
-
-function unwrap<T>(result: { data?: T; error?: unknown }): T {
-  if (result.error !== undefined || result.data === undefined) {
-    throw new ApiError(result.error)
-  }
-  return result.data
-}
-
-function sneakerPath(sneakerId: string) {
-  return { params: { path: { sneaker_id: sneakerId } } }
-}
-
-export const adminSneakersGateway = {
-  async getBySlug(slug: string): Promise<ApiSneaker | null> {
-    const { data, error, response } = await apiClient.GET(
-      "/sneakers/by-slug/{slug}",
-      { params: { path: { slug } } }
-    )
-    if (response.status === 404) return null
-    if (error) throw new ApiError(error)
-    return data
-  },
-  async create(body: ApiSneakerRequest): Promise<ApiSneaker> {
-    return unwrap(await apiClient.POST("/sneakers", { body }))
-  },
-  async update(sneakerId: string, body: ApiSneakerRequest) {
-    return unwrap(
-      await apiClient.PUT("/sneakers/{sneaker_id}", {
-        ...sneakerPath(sneakerId),
-        body,
-      })
-    )
-  },
-  async publish(sneakerId: string) {
-    return unwrap(
-      await apiClient.POST(
-        "/sneakers/{sneaker_id}/publish",
-        sneakerPath(sneakerId)
-      )
-    )
-  },
-  async archive(sneakerId: string) {
-    return unwrap(
-      await apiClient.POST(
-        "/sneakers/{sneaker_id}/archive",
-        sneakerPath(sneakerId)
-      )
-    )
-  },
-  async unarchive(sneakerId: string) {
-    return unwrap(
-      await apiClient.POST(
-        "/sneakers/{sneaker_id}/unarchive",
-        sneakerPath(sneakerId)
-      )
-    )
-  },
-  async addColorway(sneakerId: string, input: ColorwayInput) {
-    return unwrap(
-      await apiClient.POST("/sneakers/{sneaker_id}/colorways", {
-        ...sneakerPath(sneakerId),
-        body: colorwayRequest(input),
-      })
-    )
-  },
-  async updateColorway(
-    sneakerId: string,
-    colorwayId: string,
-    input: ColorwayInput
-  ) {
-    return unwrap(
-      await apiClient.PUT("/sneakers/{sneaker_id}/colorways/{colorway_id}", {
-        params: { path: { sneaker_id: sneakerId, colorway_id: colorwayId } },
-        body: colorwayRequest(input),
-      })
-    )
-  },
-  async removeColorway(sneakerId: string, colorwayId: string) {
-    return unwrap(
-      await apiClient.DELETE("/sneakers/{sneaker_id}/colorways/{colorway_id}", {
-        params: { path: { sneaker_id: sneakerId, colorway_id: colorwayId } },
-      })
-    )
-  },
-  async setSizeStock(
-    sneakerId: string,
-    colorwayId: string,
-    size: string,
-    stock: number
-  ) {
-    return unwrap(
-      await apiClient.PUT(
-        "/sneakers/{sneaker_id}/colorways/{colorway_id}/sizes/{size}",
-        {
-          params: {
-            path: { sneaker_id: sneakerId, colorway_id: colorwayId, size },
-          },
-          body: { stock },
-        }
-      )
-    )
-  },
-  async removeSize(sneakerId: string, colorwayId: string, size: string) {
-    return unwrap(
-      await apiClient.DELETE(
-        "/sneakers/{sneaker_id}/colorways/{colorway_id}/sizes/{size}",
-        {
-          params: {
-            path: { sneaker_id: sneakerId, colorway_id: colorwayId, size },
-          },
-        }
-      )
-    )
-  },
-  async uploadImage(sneakerId: string, file: File, alt: string) {
-    const formData = new FormData()
-    formData.append("file", file)
-    formData.append("alt", alt)
-    return unwrap(
-      await apiClient.POST("/sneakers/{sneaker_id}/images", {
-        ...sneakerPath(sneakerId),
-        body: { file: "", alt },
-        bodySerializer: () => formData,
-      })
-    )
-  },
-  async reorderImages(sneakerId: string, imageIds: string[]) {
-    return unwrap(
-      await apiClient.PUT("/sneakers/{sneaker_id}/images/order", {
-        ...sneakerPath(sneakerId),
-        body: { image_ids: imageIds },
-      })
-    )
-  },
-  async markPrimaryImage(sneakerId: string, imageId: string) {
-    return unwrap(
-      await apiClient.POST("/sneakers/{sneaker_id}/images/{image_id}/primary", {
-        params: { path: { sneaker_id: sneakerId, image_id: imageId } },
-      })
-    )
-  },
-  async removeImage(sneakerId: string, imageId: string) {
-    return unwrap(
-      await apiClient.DELETE("/sneakers/{sneaker_id}/images/{image_id}", {
-        params: { path: { sneaker_id: sneakerId, image_id: imageId } },
-      })
-    )
-  },
-}
-
-export type AdminSneakersGateway = typeof adminSneakersGateway
