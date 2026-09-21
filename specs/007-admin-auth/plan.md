@@ -14,7 +14,8 @@
 | CORS | `allow_credentials=True` con orígenes explícitos | Cookies desde `localhost:4321` |
 | Bootstrap | Script `create-super-admin` (`uv run create-super-admin --email … --name …`, contraseña por prompt o `SUPER_ADMIN_PASSWORD`) | RF-07 |
 | Frontend | Middleware de Astro que llama a `GET /auth/me` reenviando la cookie y guarda el usuario en `Astro.locals`; tabla de permisos por prefijo de ruta | RF-06 |
-| Cliente HTTP | `credentials: "include"` en el navegador; en SSR se reenvía la cookie de la petición | Mismo cliente tipado |
+| Cliente HTTP | El navegador llama a `/api/*`, un proxy de Astro hacia el backend (`API_URL`, solo servidor); en SSR el cliente llama directo al backend y reenvía la cookie de la petición mediante `AsyncLocalStorage` | La cookie es first-party aunque web y API vivan en dominios distintos |
+| Cierre de sesión | `POST /admin/logout` (endpoint de Astro, sin JS) borra la cookie y redirige al login | Funciona sin hidratar islas |
 
 ## Modelo de datos
 

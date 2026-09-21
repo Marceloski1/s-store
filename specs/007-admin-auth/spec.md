@@ -26,7 +26,7 @@ Todos los endpoints de escritura y la UI de gestión son públicos. Es aceptable
 
 - **RF-01** Inicio y cierre de sesión con email y contraseña.
 - **RF-02** Roles `ADMIN` y `SUPER_ADMIN` con los permisos de la tabla; no son acumulativos.
-- **RF-03** Los endpoints `/catalog/*`, `GET /brands` y `GET /categories` son públicos.
+- **RF-03** Los endpoints `/catalog/*` y las lecturas de marcas y categorías (`GET /brands`, `GET /brands/{id}`, `GET /categories`, `GET /categories/{id}`) son públicos.
 - **RF-04** El resto de endpoints del catálogo exige `ADMIN`; los de usuarios exigen `SUPER_ADMIN`.
 - **RF-05** La autorización se comprueba en el backend, nunca solo en el frontend.
 - **RF-06** Permisos por ruta en el frontend: `/admin/login` es pública; las rutas del catálogo del panel exigen `ADMIN`; `/admin/usuarios` exige `SUPER_ADMIN`. Sin sesión se redirige al login; con rol insuficiente, a la ruta de inicio de su rol.
