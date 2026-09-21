@@ -28,3 +28,6 @@ class ErrorResponse(BaseModel):
 NOT_FOUND_RESPONSE = {status.HTTP_404_NOT_FOUND: {"model": ErrorResponse}}
 CONFLICT_RESPONSE = {status.HTTP_409_CONFLICT: {"model": ErrorResponse}}
 UNPROCESSABLE_RESPONSE = {status.HTTP_422_UNPROCESSABLE_CONTENT: {"model": ErrorResponse}}
+UNAUTHORIZED_RESPONSE = {status.HTTP_401_UNAUTHORIZED: {"model": ErrorResponse}}
+FORBIDDEN_RESPONSE = {status.HTTP_403_FORBIDDEN: {"model": ErrorResponse}}
+AUTH_RESPONSES = UNAUTHORIZED_RESPONSE | FORBIDDEN_RESPONSE

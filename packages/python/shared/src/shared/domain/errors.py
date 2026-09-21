@@ -12,3 +12,11 @@ class NotFoundError(DomainError):
 
 class ConflictError(DomainError):
     pass
+
+
+class UnauthorizedError(DomainError):
+    pass
+
+
+class ForbiddenError(DomainError):
+    pass
