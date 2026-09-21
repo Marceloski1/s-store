@@ -1,5 +1,5 @@
 ---
-import { ADMIN_NAV, type AdminNavKey } from "@/features/admin/content/nav"
+import { navFor, type AdminNavKey } from "@/features/admin/content/nav"
 
 interface Props {
   active: AdminNavKey
@@ -108,7 +108,7 @@ const { active, breadcrumb } = Astro.props
     aria-label="Secciones del panel"
   >
     {
-      ADMIN_NAV.map((item) => (
+      navFor(Astro.locals.user).map((item) => (
         <a
           href={item.href}
           class:list={[

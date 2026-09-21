@@ -1,9 +1,10 @@
 ---
 import {
-  ADMIN_NAV,
-  ADMIN_USER,
+  initialsOf,
+  navFor,
   type AdminNavKey,
 } from "@/features/admin/content/nav"
+import { LOGOUT_PATH, ROLE_LABELS } from "@/features/auth/api/permissions"
 import { STORE_NAME } from "@/features/storefront/content/store"
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 }
 
 const { active } = Astro.props
+const user = Astro.locals.user
 ---
 
 <aside
@@ -32,7 +34,7 @@ const { active } = Astro.props
 
     <nav class="flex flex-col gap-0.5" aria-label="Secciones del panel">
       {
-        ADMIN_NAV.map((item) => (
+        navFor(user).map((item) => (
           <a
             href={item.href}
             aria-current={item.key === active ? "page" : undefined}
@@ -56,6 +58,22 @@ const { active } = Astro.props
                 aria-hidden="true"
               >
                 <path d="M3 15c0-4 2-7 5-7 2 0 3 1.4 3.7 3 .7 1.6 2 2.4 3.6 2.4H18c2 0 3 1 3 2.6V17H3Z" />
+              </svg>
+            ) : item.key === "usuarios" ? (
+              <svg
+                width="19"
+                height="19"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="9" cy="8" r="3.5" />
+                <path d="M3 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" />
+                <path d="M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.4c1.8.6 3 2.3 3 4.6" />
               </svg>
             ) : (
               <svg
@@ -104,39 +122,44 @@ const { active } = Astro.props
       Ver la tienda
     </a>
 
-    <div class="flex items-center gap-3 border-t border-sidebar-border pt-4">
-      <span
-        class="flex size-10 shrink-0 items-center justify-center bg-primary text-sm font-extrabold text-primary-foreground"
-      >
-        {ADMIN_USER.initials}
-      </span>
-      <div class="flex min-w-0 flex-col">
-        <span class="text-[13px] font-bold text-sidebar-accent-foreground">
-          {ADMIN_USER.name}
-        </span>
-        <span class="text-[11px] opacity-60">{ADMIN_USER.role}</span>
-      </div>
-    </div>
+    {
+      user && (
+        <div class="flex items-center gap-3 border-t border-sidebar-border pt-4">
+          <span class="flex size-10 shrink-0 items-center justify-center bg-primary text-sm font-extrabold text-primary-foreground">
+            {initialsOf(user.name)}
+          </span>
+          <div class="flex min-w-0 flex-col">
+            <span class="truncate text-[13px] font-bold text-sidebar-accent-foreground">
+              {user.name}
+            </span>
+            <span class="text-[11px] opacity-60">{ROLE_LABELS[user.role]}</span>
+          </div>
+        </div>
+      )
+    }
 
-    <a
-      href="/admin/login"
-      class="flex items-center gap-2 text-xs font-bold tracking-[0.06em] uppercase opacity-70 hover:opacity-100"
-    >
-      <svg
-        width="15"
-        height="15"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.9"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
+    <form method="post" action={LOGOUT_PATH}>
+      <button
+        type="submit"
+        class="flex items-center gap-2 text-xs font-bold tracking-[0.06em] uppercase opacity-70 hover:opacity-100"
       >
-        <path d="M14 20H6a1.5 1.5 0 0 1-1.5-1.5v-13A1.5 1.5 0 0 1 6 4h8"></path>
-        <path d="M17 8.5 20.5 12 17 15.5M10 12h10.5"></path>
-      </svg>
-      Cerrar sesión
-    </a>
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.9"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M14 20H6a1.5 1.5 0 0 1-1.5-1.5v-13A1.5 1.5 0 0 1 6 4h8"
+          ></path>
+          <path d="M17 8.5 20.5 12 17 15.5M10 12h10.5"></path>
+        </svg>
+        Cerrar sesión
+      </button>
+    </form>
   </div>
 </aside>
