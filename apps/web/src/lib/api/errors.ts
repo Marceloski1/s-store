@@ -34,8 +34,11 @@ function detailToMessage(body: unknown): string {
 
 function validationIssueToMessage(issue: unknown): string {
   if (typeof issue === "object" && issue !== null && "msg" in issue) {
-    const location = "loc" in issue && Array.isArray(issue.loc) ? issue.loc.at(-1) : undefined
-    return location ? `${String(location)}: ${String(issue.msg)}` : String(issue.msg)
+    const location =
+      "loc" in issue && Array.isArray(issue.loc) ? issue.loc.at(-1) : undefined
+    return location
+      ? `${String(location)}: ${String(issue.msg)}`
+      : String(issue.msg)
   }
   return String(issue)
 }
