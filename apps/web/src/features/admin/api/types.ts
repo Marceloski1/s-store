@@ -50,9 +50,14 @@ export function toAdminOptions(
   return items.map((item) => ({ value: item.id, label: item.name }))
 }
 
+export enum PublishCheckState {
+  OK = "OK",
+  PENDING = "PENDING",
+}
+
 export type PublishCheck = {
   label: string
-  state: "ok" | "pending"
+  state: PublishCheckState
 }
 
 export type { ColorwayInput, SneakerForm } from "@/features/admin/api/schemas"
@@ -111,17 +116,19 @@ export function publishChecks(sneaker: ApiSneaker): PublishCheck[] {
   return [
     {
       label: "Tiene foto principal",
-      state: primaryImageUrl(sneaker) ? "ok" : "pending",
+      state: primaryImageUrl(sneaker)
+        ? PublishCheckState.OK
+        : PublishCheckState.PENDING,
     },
     {
       label: "Al menos un color con tallas",
       state: sneaker.colorways.some((colorway) => colorway.sizes.length > 0)
-        ? "ok"
-        : "pending",
+        ? PublishCheckState.OK
+        : PublishCheckState.PENDING,
     },
     {
       label: stock > 0 ? `${stock} pares en stock` : "Sin pares en stock",
-      state: stock > 0 ? "ok" : "pending",
+      state: stock > 0 ? PublishCheckState.OK : PublishCheckState.PENDING,
     },
   ]
 }

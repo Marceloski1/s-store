@@ -1,11 +1,12 @@
 ---
+import { AdminSection } from "@/features/admin/content/nav"
 import { CatalogAdmin } from "@/features/catalog/components/catalog-admin"
 import AdminLayout from "@/layouts/admin.astro"
 ---
 
 <AdminLayout
   title="Marcas y categorías"
-  active="marcas"
+  active={AdminSection.BRANDS}
   breadcrumb={[{ label: "Catálogo" }, { label: "Marcas y categorías" }]}
 >
   <div class="flex flex-col gap-1.5">

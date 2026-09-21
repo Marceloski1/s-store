@@ -1,4 +1,5 @@
 ---
+import { AdminSection } from "@/features/admin/content/nav"
 import { getAdminStats, listAdminSneakers } from "@/features/admin/api/sneakers"
 import {
   formatAdminDate,
@@ -66,7 +67,7 @@ const hasNext = listing.page < listing.pages
 
 <AdminLayout
   title="Sneakers"
-  active="sneakers"
+  active={AdminSection.SNEAKERS}
   breadcrumb={[{ label: "Catálogo" }, { label: "Sneakers" }]}
 >
   <div class="flex flex-wrap items-end justify-between gap-4">

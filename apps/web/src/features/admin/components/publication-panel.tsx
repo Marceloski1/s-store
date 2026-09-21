@@ -1,4 +1,5 @@
 import {
+  PublishCheckState,
   STATUS_LABELS,
   type PublishCheck,
   type SneakerStatus,
@@ -37,12 +38,12 @@ export function PublicationPanel({
             <span
               key={check.label}
               className={
-                check.state === "ok"
+                check.state === PublishCheckState.OK
                   ? "flex items-center gap-2.5 text-[13px] font-semibold text-foreground"
                   : "flex items-center gap-2.5 text-[13px] font-semibold text-warning"
               }
             >
-              {check.state === "ok" ? (
+              {check.state === PublishCheckState.OK ? (
                 <svg
                   width="17"
                   height="17"

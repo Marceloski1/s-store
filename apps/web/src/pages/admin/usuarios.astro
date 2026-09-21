@@ -1,4 +1,5 @@
 ---
+import { AdminSection } from "@/features/admin/content/nav"
 import { UsersManager } from "@/features/users/components/users-manager"
 import AdminLayout from "@/layouts/admin.astro"
 import { toErrorMessage } from "@/lib/api/errors"
@@ -15,7 +16,7 @@ const result = await userService.list(1, USERS_PAGE_SIZE).then(
 
 <AdminLayout
   title="Usuarios"
-  active="usuarios"
+  active={AdminSection.USERS}
   breadcrumb={[{ label: "Administración" }, { label: "Usuarios" }]}
 >
   <div class="flex flex-col gap-1.5">

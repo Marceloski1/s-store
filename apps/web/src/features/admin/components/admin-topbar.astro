@@ -1,8 +1,8 @@
 ---
-import { navFor, type AdminNavKey } from "@/features/admin/content/nav"
+import { navFor, type AdminSection } from "@/features/admin/content/nav"
 
 interface Props {
-  active: AdminNavKey
+  active: AdminSection
   breadcrumb: { label: string; href?: string }[]
 }
 
@@ -113,7 +113,9 @@ const { active, breadcrumb } = Astro.props
           href={item.href}
           class:list={[
             "shrink-0",
-            item.key === active ? "text-primary underline" : "text-foreground",
+            item.section === active
+              ? "text-primary underline"
+              : "text-foreground",
           ]}
         >
           {item.label}

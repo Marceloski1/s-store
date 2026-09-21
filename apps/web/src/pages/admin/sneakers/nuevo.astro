@@ -1,4 +1,5 @@
 ---
+import { AdminSection } from "@/features/admin/content/nav"
 import { emptySneakerForm, toAdminOptions } from "@/features/admin/api/types"
 import { SneakerEditor } from "@/features/admin/components/sneaker-editor"
 import { CURRENCY_OPTIONS, GENDER_OPTIONS } from "@/features/catalog/api/labels"
@@ -17,7 +18,7 @@ const missingReferences =
 
 <AdminLayout
   title="Nuevo sneaker"
-  active="sneakers"
+  active={AdminSection.SNEAKERS}
   breadcrumb={[
     { label: "Sneakers", href: "/admin" },
     { label: "Nuevo sneaker" },

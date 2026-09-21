@@ -3,12 +3,12 @@ import "@workspace/ui/globals.css"
 
 import AdminSidebar from "@/features/admin/components/admin-sidebar.astro"
 import AdminTopbar from "@/features/admin/components/admin-topbar.astro"
-import type { AdminNavKey } from "@/features/admin/content/nav"
+import type { AdminSection } from "@/features/admin/content/nav"
 import { STORE_NAME } from "@/features/storefront/content/store"
 
 interface Props {
   title: string
-  active: AdminNavKey
+  active: AdminSection
   breadcrumb: { label: string; href?: string }[]
 }
 

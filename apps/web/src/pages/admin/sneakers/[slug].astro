@@ -1,4 +1,5 @@
 ---
+import { AdminSection } from "@/features/admin/content/nav"
 import { sneakerService } from "@/services/admin-services/sneaker"
 import { loadAdminReferences } from "@/features/admin/api/sneakers"
 import { sneakerToForm, toAdminOptions } from "@/features/admin/api/types"
@@ -22,7 +23,7 @@ if (!sneaker) {
   sneaker ? (
     <AdminLayout
       title={sneaker.name}
-      active="sneakers"
+      active={AdminSection.SNEAKERS}
       breadcrumb={[
         { label: "Sneakers", href: "/admin" },
         { label: sneaker.name },
@@ -41,7 +42,7 @@ if (!sneaker) {
   ) : (
     <AdminLayout
       title="Modelo no encontrado"
-      active="sneakers"
+      active={AdminSection.SNEAKERS}
       breadcrumb={[
         { label: "Sneakers", href: "/admin" },
         { label: "No encontrado" },
