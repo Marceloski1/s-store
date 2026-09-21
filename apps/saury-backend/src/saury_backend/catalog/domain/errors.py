@@ -47,6 +47,16 @@ class SneakerSlugAlreadyExists(ConflictError):
         super().__init__(f"Sneaker slug '{slug}' already exists")
 
 
+class SneakerSlugNotFound(NotFoundError):
+    def __init__(self, slug: Slug) -> None:
+        super().__init__(f"Sneaker '{slug}' not found")
+
+
+class SneakerReferenceAlreadyExists(ConflictError):
+    def __init__(self, reference: str) -> None:
+        super().__init__(f"Sneaker reference '{reference}' already exists")
+
+
 class SneakerNotPublishable(ConflictError):
     def __init__(self, reason: str) -> None:
         super().__init__(f"Sneaker cannot be published: {reason}")

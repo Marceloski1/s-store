@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
 from typing import Self
@@ -8,7 +9,7 @@ from shared.domain.money import Money
 from shared.domain.slug import Slug
 from shared.domain.validation import require_text
 
-from saury_backend.catalog.domain.entities.colorway import Colorway, normalize_sku
+from saury_backend.catalog.domain.entities.colorway import SKU_PATTERN, Colorway, normalize_sku
 from saury_backend.catalog.domain.entities.image import Image
 from saury_backend.catalog.domain.entities.size_variant import SizeVariant
 from saury_backend.catalog.domain.errors import (
@@ -23,10 +24,16 @@ from saury_backend.catalog.domain.errors import (
 from saury_backend.catalog.domain.value_objects.gender import Gender
 from saury_backend.catalog.domain.value_objects.shoe_size import ShoeSize
 from saury_backend.catalog.domain.value_objects.sneaker_status import SneakerStatus
+from saury_backend.catalog.domain.value_objects.spec_sheet import SpecSheet
+from saury_backend.catalog.domain.value_objects.testimonial import Testimonial
 
 SNEAKER_NAME_MAX_LENGTH = 150
 SNEAKER_DESCRIPTION_MAX_LENGTH = 2000
+SNEAKER_USAGE_MAX_LENGTH = 500
+SNEAKER_REFERENCE_MAX_LENGTH = 64
 MAX_IMAGES_PER_SNEAKER = 8
+
+_REFERENCE_REGEX = re.compile(SKU_PATTERN)
 
 _ALLOWED_TRANSITIONS = {
     (SneakerStatus.DRAFT, SneakerStatus.ACTIVE),
@@ -46,6 +53,22 @@ def _clean_description(description: str) -> str:
     return cleaned
 
 
+def _clean_usage(usage: str) -> str:
+    cleaned = usage.strip()
+    if len(cleaned) > SNEAKER_USAGE_MAX_LENGTH:
+        raise ValidationError(f"usage must be at most {SNEAKER_USAGE_MAX_LENGTH} characters")
+    return cleaned
+
+
+def normalize_reference(reference: str | None) -> str | None:
+    if reference is None or not reference.strip():
+        return None
+    value = reference.strip().upper()
+    if len(value) > SNEAKER_REFERENCE_MAX_LENGTH or not _REFERENCE_REGEX.fullmatch(value):
+        raise ValidationError(f"Invalid reference: '{reference}'")
+    return value
+
+
 @dataclass(slots=True)
 class Sneaker:
     id: UUID
@@ -60,12 +83,18 @@ class Sneaker:
     release_date: date | None
     created_at: datetime
     updated_at: datetime
+    reference: str | None = None
+    specs: SpecSheet = field(default_factory=SpecSheet)
+    usage: str = ""
+    testimonial: Testimonial | None = None
     colorways: list[Colorway] = field(default_factory=list)
     images: list[Image] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         self.name = require_text(self.name, field="name", max_length=SNEAKER_NAME_MAX_LENGTH)
         self.description = _clean_description(self.description)
+        self.reference = normalize_reference(self.reference)
+        self.usage = _clean_usage(self.usage)
         self.colorways.sort(key=lambda colorway: colorway.name)
         self.images.sort(key=lambda image: image.position)
 
@@ -80,6 +109,10 @@ class Sneaker:
         base_price: Money,
         release_date: date | None = None,
         slug: Slug | None = None,
+        reference: str | None = None,
+        specs: SpecSheet | None = None,
+        usage: str = "",
+        testimonial: Testimonial | None = None,
     ) -> Self:
         clean_name = require_text(name, field="name", max_length=SNEAKER_NAME_MAX_LENGTH)
         now = _now()
@@ -96,6 +129,10 @@ class Sneaker:
             release_date=release_date,
             created_at=now,
             updated_at=now,
+            reference=reference,
+            specs=specs or SpecSheet(),
+            usage=usage,
+            testimonial=testimonial,
         )
 
     def update(
@@ -108,6 +145,10 @@ class Sneaker:
         base_price: Money,
         release_date: date | None = None,
         slug: Slug | None = None,
+        reference: str | None = None,
+        specs: SpecSheet | None = None,
+        usage: str = "",
+        testimonial: Testimonial | None = None,
     ) -> None:
         for colorway in self.colorways:
             if colorway.price_override is not None and colorway.price_override.currency != base_price.currency:
@@ -120,6 +161,10 @@ class Sneaker:
         self.gender = gender
         self.base_price = base_price
         self.release_date = release_date
+        self.reference = normalize_reference(reference)
+        self.specs = specs or SpecSheet()
+        self.usage = _clean_usage(usage)
+        self.testimonial = testimonial
         self._touch()
 
     def add_colorway(self, name: str, color_code: str, sku: str, price_override: Money | None = None) -> Colorway:

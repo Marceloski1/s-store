@@ -19,6 +19,8 @@ from saury_backend.catalog.domain.errors import (
 from saury_backend.catalog.domain.value_objects.gender import Gender
 from saury_backend.catalog.domain.value_objects.shoe_size import ShoeSize
 from saury_backend.catalog.domain.value_objects.sneaker_status import SneakerStatus
+from saury_backend.catalog.domain.value_objects.spec_sheet import SpecSheet
+from saury_backend.catalog.domain.value_objects.testimonial import Testimonial as CustomerTestimonial
 
 
 def make_sneaker(base_price: Money | None = None) -> Sneaker:
@@ -279,3 +281,54 @@ class TestStatusTransitions:
 
         with pytest.raises(InvalidSneakerStatusTransition):
             getattr(sneaker, transition)()
+
+
+class TestContent:
+    def test_defaults_to_empty_content(self) -> None:
+        sneaker = make_sneaker()
+
+        assert (sneaker.reference, sneaker.specs, sneaker.usage, sneaker.testimonial) == (None, SpecSheet(), "", None)
+
+    def test_normalizes_content_on_update(self) -> None:
+        sneaker = make_sneaker()
+
+        sneaker.update(
+            name="Air Max 90",
+            description="",
+            brand_id=sneaker.brand_id,
+            category_id=sneaker.category_id,
+            gender=Gender.UNISEX,
+            base_price=sneaker.base_price,
+            reference=" als-am90-001 ",
+            specs=SpecSheet(material=" Mesh ", weight="310 g"),
+            usage=" Running diario ",
+            testimonial=CustomerTestimonial(quote=" Muy cómodas ", author="Ana, talla 38"),
+        )
+
+        assert sneaker.reference == "ALS-AM90-001"
+        assert sneaker.specs == SpecSheet(material="Mesh", weight="310 g")
+        assert sneaker.usage == "Running diario"
+        assert sneaker.testimonial == CustomerTestimonial(quote="Muy cómodas", author="Ana, talla 38")
+
+    def test_blank_reference_is_cleared(self) -> None:
+        sneaker = Sneaker.create("Air Max", "", uuid7(), uuid7(), Gender.MEN, Money.of("10", "USD"), reference="  ")
+
+        assert sneaker.reference is None
+
+    @pytest.mark.parametrize("reference", ["ALS 001", "als_001", "A" * 65])
+    def test_rejects_invalid_references(self, reference: str) -> None:
+        with pytest.raises(ValidationError):
+            Sneaker.create("Air Max", "", uuid7(), uuid7(), Gender.MEN, Money.of("10", "USD"), reference=reference)
+
+    def test_rejects_too_long_usage(self) -> None:
+        with pytest.raises(ValidationError):
+            Sneaker.create("Air Max", "", uuid7(), uuid7(), Gender.MEN, Money.of("10", "USD"), usage="a" * 501)
+
+    def test_rejects_too_long_spec_values(self) -> None:
+        with pytest.raises(ValidationError):
+            SpecSheet(material="a" * 101)
+
+    @pytest.mark.parametrize(("quote", "author"), [("", "Ana"), ("Muy cómodas", "  "), ("a" * 501, "Ana")])
+    def test_rejects_invalid_testimonials(self, quote: str, author: str) -> None:
+        with pytest.raises(ValidationError):
+            CustomerTestimonial(quote=quote, author=author)

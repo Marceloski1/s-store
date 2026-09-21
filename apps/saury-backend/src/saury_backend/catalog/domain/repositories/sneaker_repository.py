@@ -25,11 +25,12 @@ class SneakerSort(StrEnum):
 
 @dataclass(frozen=True, slots=True)
 class SneakerFilters:
-    brand: Slug | None = None
-    category: Slug | None = None
-    gender: Gender | None = None
+    brands: tuple[Slug, ...] = ()
+    categories: tuple[Slug, ...] = ()
+    genders: tuple[Gender, ...] = ()
     status: SneakerStatus | None = None
-    size: ShoeSize | None = None
+    sizes: tuple[ShoeSize, ...] = ()
+    colors: tuple[str, ...] = ()
     min_price: Money | None = None
     max_price: Money | None = None
     in_stock: bool = False
@@ -52,6 +53,23 @@ class SneakerFilters:
         return price.currency if price is not None else None
 
 
+@dataclass(frozen=True, slots=True)
+class FacetCount:
+    value: str
+    label: str
+    count: int
+
+
+@dataclass(frozen=True, slots=True)
+class CatalogFacets:
+    brands: list[FacetCount]
+    categories: list[FacetCount]
+    genders: list[FacetCount]
+    sizes: list[FacetCount]
+    colors: list[FacetCount]
+    currencies: list[str]
+
+
 class SneakerRepository(Protocol):
     async def save(self, sneaker: Sneaker) -> None: ...
 
@@ -61,7 +79,11 @@ class SneakerRepository(Protocol):
 
     async def find_sku_owner(self, sku: str) -> UUID | None: ...
 
+    async def find_reference_owner(self, reference: str) -> UUID | None: ...
+
     async def paginate(self, filters: SneakerFilters, params: PageParams) -> Page[Sneaker]: ...
+
+    async def facets(self, status: SneakerStatus | None) -> CatalogFacets: ...
 
     async def delete(self, sneaker: Sneaker) -> None: ...
 
