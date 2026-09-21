@@ -17,6 +17,8 @@ from saury_backend.catalog.domain.repositories.sneaker_repository import Sneaker
 from saury_backend.catalog.domain.value_objects.gender import Gender
 from saury_backend.catalog.domain.value_objects.shoe_size import ShoeSize
 from saury_backend.catalog.domain.value_objects.sneaker_status import SneakerStatus
+from saury_backend.catalog.domain.value_objects.spec_sheet import SpecSheet
+from saury_backend.catalog.domain.value_objects.testimonial import Testimonial as CustomerTestimonial
 from saury_backend.catalog.infrastructure.persistence.brand_repository import SqlAlchemyBrandRepository
 from saury_backend.catalog.infrastructure.persistence.category_repository import SqlAlchemyCategoryRepository
 from saury_backend.catalog.infrastructure.persistence.sneaker_repository import SqlAlchemySneakerRepository
@@ -183,10 +185,10 @@ async def test_filters_by_brand_size_and_stock(repository, session, catalog) -> 
     await store(repository, session, "Invincible", nike, running, sizes={"44": 5})
     await store(repository, session, "Adizero", adidas, running, sizes={"42": 8})
 
-    in_stock_42 = SneakerFilters(brand=Slug("nike"), size=ShoeSize.of("42"), in_stock=True)
+    in_stock_42 = SneakerFilters(brands=(Slug("nike"),), sizes=(ShoeSize.of("42"),), in_stock=True)
 
     assert await names(repository, in_stock_42) == ["Pegasus"]
-    assert await names(repository, SneakerFilters(brand=Slug("nike"), size=ShoeSize.of("42"))) == [
+    assert await names(repository, SneakerFilters(brands=(Slug("nike"),), sizes=(ShoeSize.of("42"),))) == [
         "Pegasus",
         "Vomero",
     ]
@@ -204,8 +206,8 @@ async def test_filters_by_category_gender_status_and_text(repository, session, c
     await store(repository, session, "Cortez", nike, lifestyle, gender=Gender.WOMEN, publish=True)
     await store(repository, session, "Air Force 1", nike, lifestyle, description="Court_classic", publish=True)
 
-    assert await names(repository, SneakerFilters(category=Slug("running"))) == ["Pegasus"]
-    assert await names(repository, SneakerFilters(gender=Gender.WOMEN)) == ["Cortez"]
+    assert await names(repository, SneakerFilters(categories=(Slug("running"),))) == ["Pegasus"]
+    assert await names(repository, SneakerFilters(genders=(Gender.WOMEN,))) == ["Cortez"]
     assert await names(
         repository, SneakerFilters(status=SneakerStatus.ACTIVE, sort=SneakerSort.NAME)
     ) == ["Air Force 1", "Cortez"]
@@ -257,3 +259,91 @@ async def test_paginates_filtered_results(repository, session, catalog) -> None:
 
     assert [sneaker.name for sneaker in page.items] == ["A3"]
     assert (page.total, page.pages) == (3, 2)
+
+
+async def test_round_trips_sales_content(repository, session, catalog) -> None:
+    sneaker = Sneaker.create(
+        "Runner Pro 2",
+        "",
+        catalog["nike"].id,
+        catalog["running"].id,
+        Gender.UNISEX,
+        Money.of("89", "USD"),
+        reference="ALS-RP2-001",
+        specs=SpecSheet(material="Mesh", technology="Foam", weight="280 g", cushioning="Alta"),
+        usage="Running diario",
+        testimonial=CustomerTestimonial(quote="Muy cómodas", author="Ana, talla 38"),
+    )
+    await repository.save(sneaker)
+    await session.commit()
+    session.expunge_all()
+
+    loaded = await repository.get(sneaker.id)
+
+    assert loaded is not None
+    assert loaded.reference == "ALS-RP2-001"
+    assert loaded.specs == SpecSheet(material="Mesh", technology="Foam", weight="280 g", cushioning="Alta")
+    assert loaded.usage == "Running diario"
+    assert loaded.testimonial == CustomerTestimonial(quote="Muy cómodas", author="Ana, talla 38")
+    assert await repository.find_reference_owner("ALS-RP2-001") == sneaker.id
+    assert await repository.find_reference_owner("ALS-NONE") is None
+
+
+async def test_filters_accept_several_values_colors_and_references(repository, session, catalog) -> None:
+    nike, adidas = catalog["nike"], catalog["adidas"]
+    running, lifestyle = catalog["running"], catalog["lifestyle"]
+    await store(repository, session, "Pegasus", nike, running, gender=Gender.MEN, sizes={"42": 1})
+    await store(repository, session, "Samba", adidas, lifestyle, gender=Gender.WOMEN, sizes={"38": 1})
+    blazer = await store(repository, session, "Blazer", nike, lifestyle, sizes={"44": 1})
+    blazer.add_colorway("Azul", "#1B4FC0", "BLAZER-BLUE")
+    blazer.update(
+        blazer.name,
+        "",
+        blazer.brand_id,
+        blazer.category_id,
+        blazer.gender,
+        blazer.base_price,
+        reference="ALS-BLZ-009",
+    )
+    await repository.save(blazer)
+    await session.commit()
+
+    by_name = SneakerSort.NAME
+    assert await names(repository, SneakerFilters(brands=(Slug("nike"), Slug("adidas")), sort=by_name)) == [
+        "Blazer",
+        "Pegasus",
+        "Samba",
+    ]
+    assert await names(repository, SneakerFilters(genders=(Gender.MEN, Gender.WOMEN), sort=by_name)) == [
+        "Pegasus",
+        "Samba",
+    ]
+    assert await names(repository, SneakerFilters(sizes=(ShoeSize.of("38"), ShoeSize.of("44")), sort=by_name)) == [
+        "Blazer",
+        "Samba",
+    ]
+    assert await names(repository, SneakerFilters(colors=("#1B4FC0",))) == ["Blazer"]
+    assert await names(repository, SneakerFilters(q="blz-009")) == ["Blazer"]
+
+
+async def test_facets_count_sneakers_in_scope(repository, session, catalog) -> None:
+    nike, adidas = catalog["nike"], catalog["adidas"]
+    running, lifestyle = catalog["running"], catalog["lifestyle"]
+    await store(repository, session, "Pegasus", nike, running, gender=Gender.MEN, sizes={"42": 2, "43": 0}, publish=True)
+    await store(repository, session, "Cortez", nike, lifestyle, gender=Gender.WOMEN, publish=True)
+    await store(repository, session, "Samba", adidas, lifestyle, currency="EUR", sizes={"39": 1})
+
+    published = await repository.facets(SneakerStatus.ACTIVE)
+
+    assert [(facet.value, facet.label, facet.count) for facet in published.brands] == [("nike", "Nike", 2)]
+    assert [(facet.value, facet.count) for facet in published.categories] == [("lifestyle", 1), ("running", 1)]
+    assert [(facet.value, facet.count) for facet in published.genders] == [("men", 1), ("women", 1)]
+    assert [(facet.value, facet.count) for facet in published.sizes] == [("40", 2), ("42", 1)]
+    assert [(facet.value, facet.label, facet.count) for facet in published.colors] == [("#000000", "Default", 2)]
+    assert published.currencies == ["USD"]
+
+    everything = await repository.facets(None)
+
+    assert [(facet.value, facet.count) for facet in everything.brands] == [("nike", 2), ("adidas", 1)]
+    assert [facet.value for facet in everything.sizes] == ["39", "40", "42"]
+    assert everything.currencies == ["EUR", "USD"]

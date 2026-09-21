@@ -26,9 +26,19 @@ from saury_backend.catalog.domain.entities.image import (
     IMAGE_PUBLIC_ID_MAX_LENGTH,
     IMAGE_URL_MAX_LENGTH,
 )
-from saury_backend.catalog.domain.entities.sneaker import SNEAKER_DESCRIPTION_MAX_LENGTH, SNEAKER_NAME_MAX_LENGTH
+from saury_backend.catalog.domain.entities.sneaker import (
+    SNEAKER_DESCRIPTION_MAX_LENGTH,
+    SNEAKER_NAME_MAX_LENGTH,
+    SNEAKER_REFERENCE_MAX_LENGTH,
+    SNEAKER_USAGE_MAX_LENGTH,
+)
 from saury_backend.catalog.domain.value_objects.gender import Gender
 from saury_backend.catalog.domain.value_objects.sneaker_status import SneakerStatus
+from saury_backend.catalog.domain.value_objects.spec_sheet import SPEC_FIELD_MAX_LENGTH
+from saury_backend.catalog.domain.value_objects.testimonial import (
+    TESTIMONIAL_AUTHOR_MAX_LENGTH,
+    TESTIMONIAL_QUOTE_MAX_LENGTH,
+)
 
 PRICE_TYPE = Numeric(10, 2, asdecimal=True)
 SIZE_TYPE = Numeric(3, 1, asdecimal=True)
@@ -65,6 +75,9 @@ class SneakerModel(Base):
     __tablename__ = "sneakers"
     __table_args__ = (
         CheckConstraint("base_price >= 0", name="base_price_non_negative"),
+        CheckConstraint(
+            "(testimonial_quote IS NULL) = (testimonial_author IS NULL)", name="testimonial_complete"
+        ),
         Index("ix_sneakers_currency_base_price", "currency", "base_price"),
     )
 
@@ -81,6 +94,14 @@ class SneakerModel(Base):
     release_date: Mapped[date | None] = mapped_column(Date)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    reference: Mapped[str | None] = mapped_column(String(SNEAKER_REFERENCE_MAX_LENGTH), unique=True)
+    material: Mapped[str] = mapped_column(String(SPEC_FIELD_MAX_LENGTH), server_default="")
+    technology: Mapped[str] = mapped_column(String(SPEC_FIELD_MAX_LENGTH), server_default="")
+    weight: Mapped[str] = mapped_column(String(SPEC_FIELD_MAX_LENGTH), server_default="")
+    cushioning: Mapped[str] = mapped_column(String(SPEC_FIELD_MAX_LENGTH), server_default="")
+    usage: Mapped[str] = mapped_column(String(SNEAKER_USAGE_MAX_LENGTH), server_default="")
+    testimonial_quote: Mapped[str | None] = mapped_column(String(TESTIMONIAL_QUOTE_MAX_LENGTH))
+    testimonial_author: Mapped[str | None] = mapped_column(String(TESTIMONIAL_AUTHOR_MAX_LENGTH))
 
     colorways: Mapped[list[ColorwayModel]] = relationship(
         cascade="all, delete-orphan",
