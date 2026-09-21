@@ -1,0 +1,206 @@
+---
+import type { GetStaticPaths } from "astro"
+
+import {
+  getSneakerBySlug,
+  listRelated,
+  listSlugs,
+} from "@/features/storefront/api/sneakers"
+import ImagePlaceholder from "@/features/storefront/components/image-placeholder.astro"
+import SectionHeading from "@/features/storefront/components/section-heading.astro"
+import SneakerCard from "@/features/storefront/components/sneaker-card.astro"
+import SneakerSpecSheet from "@/features/storefront/components/sneaker-spec-sheet.astro"
+import { SneakerPurchasePanel } from "@/features/storefront/components/sneaker-purchase-panel"
+import StorefrontLayout from "@/layouts/storefront.astro"
+
+export const getStaticPaths = (async () => {
+  const slugs = await listSlugs()
+  return slugs.map((slug) => ({ params: { slug } }))
+}) satisfies GetStaticPaths
+
+const { slug } = Astro.params
+const sneaker = await getSneakerBySlug(slug ?? "")
+
+if (!sneaker) {
+  return Astro.redirect("/sneakers")
+}
+
+const related = await listRelated(sneaker.slug, 4)
+const description = `${sneaker.name} de ${sneaker.brand}. ${sneaker.usage}`
+---
+
+<StorefrontLayout
+  title={sneaker.name}
+  description={description}
+  active="catalogo"
+>
+  <div class="mx-auto max-w-[1440px] px-4 pt-6 sm:px-8 lg:px-16">
+    <nav
+      aria-label="Ruta de navegación"
+      class="flex flex-wrap items-center gap-2 text-xs font-semibold"
+    >
+      <a href="/" class="text-muted-foreground hover:text-primary">Inicio</a>
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="text-border"
+        aria-hidden="true"
+      >
+        <path d="m9.5 6 6 6-6 6"></path>
+      </svg>
+      <a href="/sneakers" class="text-muted-foreground hover:text-primary"
+        >Catálogo</a
+      >
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="text-border"
+        aria-hidden="true"
+      >
+        <path d="m9.5 6 6 6-6 6"></path>
+      </svg>
+      <span class="text-foreground">{sneaker.name}</span>
+    </nav>
+  </div>
+
+  <section
+    class="mx-auto grid max-w-[1440px] items-start gap-14 px-4 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_470px] lg:px-16"
+  >
+    <div class="flex flex-col gap-5">
+      <div class="relative">
+        <ImagePlaceholder
+          tone="tint"
+          class="h-[380px] sm:h-[520px] lg:h-[560px]"
+          glyphClass="w-[72%]"
+          label="[FOTO 1 · PRINCIPAL]"
+        />
+        {
+          sneaker.badge === "new" && (
+            <span class="absolute top-4 left-4 bg-foreground px-3 py-1.5 text-[10px] font-extrabold tracking-[0.12em] text-background uppercase">
+              Nuevo
+            </span>
+          )
+        }
+      </div>
+      <div class="grid grid-cols-4 gap-4">
+        {
+          sneaker.images.map((image, index) => (
+            <ImagePlaceholder
+              tone={index === 0 ? "tint" : "soft"}
+              class={`h-[90px] sm:h-[140px] ${
+                index === 0 ? "border-2 border-primary" : "border border-border"
+              }`}
+              glyphClass="w-[70%]"
+              label={
+                image.isPrimary ? "[FOTO PRINCIPAL]" : `[FOTO ${index + 1}]`
+              }
+            />
+          ))
+        }
+      </div>
+    </div>
+
+    <SneakerPurchasePanel sneaker={sneaker} client:load />
+  </section>
+
+  <section class="border-y border-border bg-muted">
+    <div
+      class="mx-auto flex max-w-[1440px] flex-col gap-7 px-4 py-14 sm:px-8 lg:px-16"
+    >
+      <div class="flex flex-wrap items-center gap-4">
+        <h2
+          class="font-display text-3xl leading-none font-extrabold tracking-tight text-foreground uppercase sm:text-4xl"
+        >
+          Características principales
+        </h2>
+        <span
+          class="border border-border bg-background px-2.5 py-1.5 text-[10px] font-extrabold tracking-[0.12em] text-muted-foreground"
+        >
+          [FICHA TÉCNICA DE EJEMPLO]
+        </span>
+      </div>
+      <SneakerSpecSheet specs={sneaker.specs} />
+      <p class="max-w-[980px] text-base leading-relaxed text-muted-foreground">
+        {sneaker.description}
+      </p>
+    </div>
+  </section>
+
+  <section
+    id="guia-de-tallas"
+    class="mx-auto grid max-w-[1440px] gap-10 px-4 py-14 sm:px-8 lg:grid-cols-[1fr_1.2fr] lg:px-16"
+  >
+    <div class="flex flex-col gap-3.5 border border-border p-7">
+      <span
+        class="text-[11px] font-extrabold tracking-[0.16em] text-primary uppercase"
+      >
+        Cómo llevarlo
+      </span>
+      <h3 class="text-xl leading-snug font-bold text-foreground sm:text-[22px]">
+        Del entrenamiento a la calle sin cambiarte de zapatos
+      </h3>
+      <p class="text-[15px] leading-relaxed text-muted-foreground">
+        {sneaker.usage}
+      </p>
+      <p class="text-[15px] leading-relaxed text-muted-foreground">
+        Talla recomendada: la habitual. Si usas plantilla, sube media talla.
+      </p>
+    </div>
+
+    {
+      sneaker.testimonial && (
+        <div class="flex flex-col justify-center gap-4 bg-primary p-8 sm:p-9">
+          <svg
+            width="30"
+            height="30"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="text-primary-foreground/40"
+            aria-hidden="true"
+          >
+            <path d="M7 6h4v6a5 5 0 0 1-5 5v-3a2 2 0 0 0 2-2H7Zm7 0h4v6a5 5 0 0 1-5 5v-3a2 2 0 0 0 2-2h-1Z" />
+          </svg>
+          <blockquote class="text-lg leading-snug font-semibold text-primary-foreground sm:text-[21px]">
+            «{sneaker.testimonial.quote}»
+          </blockquote>
+          <footer class="text-xs font-extrabold tracking-[0.1em] text-primary-foreground/70 uppercase">
+            {sneaker.testimonial.author} · [TESTIMONIO DE EJEMPLO]
+          </footer>
+        </div>
+      )
+    }
+  </section>
+
+  {
+    related.length > 0 && (
+      <section class="mx-auto flex max-w-[1440px] flex-col gap-7 px-4 pb-16 sm:px-8 lg:px-16">
+        <SectionHeading
+          title="También te puede gustar"
+          linkLabel="Ver el catálogo"
+          linkHref="/sneakers"
+        />
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {related.map((item, index) => (
+            <SneakerCard
+              sneaker={item}
+              tone={index % 2 === 0 ? "tint" : "soft"}
+              imageClass="h-[270px]"
+            />
+          ))}
+        </div>
+      </section>
+    )
+  }
+</StorefrontLayout>

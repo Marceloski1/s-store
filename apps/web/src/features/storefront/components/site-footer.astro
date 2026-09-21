@@ -1,0 +1,110 @@
+---
+import {
+  SOCIAL_LINKS,
+  STORE_ADDRESSES,
+  STORE_HOURS,
+  STORE_NAME,
+  STORE_TAGLINE,
+  WHATSAPP_CONTACTS,
+} from "@/features/storefront/content/store"
+
+const year = new Date().getFullYear()
+---
+
+<footer id="contacto" class="bg-sidebar text-sidebar-foreground">
+  <div class="mx-auto max-w-[1440px] px-4 pt-14 sm:px-8 lg:px-16">
+    <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
+      <div class="flex flex-col gap-3">
+        <span
+          class="font-display text-3xl font-extrabold tracking-[0.22em] text-sidebar-accent-foreground"
+        >
+          {STORE_NAME}
+        </span>
+        <p class="max-w-[300px] text-sm leading-relaxed">
+          Calzado deportivo, elegante y cómodo. {STORE_TAGLINE}.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <span
+          class="text-[11px] font-extrabold tracking-[0.16em] text-sidebar-accent-foreground uppercase"
+        >
+          Tienda
+        </span>
+        {
+          STORE_ADDRESSES.map((address) => (
+            <div class="flex flex-col gap-1">
+              <span class="text-[11px] font-bold tracking-[0.1em] uppercase opacity-70">
+                {address.label}
+              </span>
+              <span class="text-sm leading-relaxed">{address.value}</span>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <span
+          class="text-[11px] font-extrabold tracking-[0.16em] text-sidebar-accent-foreground uppercase"
+        >
+          Contacto
+        </span>
+        {
+          WHATSAPP_CONTACTS.map((contact) => (
+            <a
+              href={contact.href}
+              class="flex items-center gap-2 text-sm hover:underline"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3.5 20.5l1.7-5A8.4 8.4 0 1 1 21 11.5Z" />
+              </svg>
+              WhatsApp {contact.label}
+            </a>
+          ))
+        }
+        <span class="text-sm">Horario: {STORE_HOURS}</span>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <span
+          class="text-[11px] font-extrabold tracking-[0.16em] text-sidebar-accent-foreground uppercase"
+        >
+          Síguenos
+        </span>
+        {
+          SOCIAL_LINKS.map((social) =>
+            social.href ? (
+              <a href={social.href} class="text-sm hover:underline">
+                {social.label}
+              </a>
+            ) : (
+              <span class="text-sm opacity-60">{social.label}</span>
+            )
+          )
+        }
+      </div>
+    </div>
+
+    <div
+      class="mt-12 flex flex-col gap-3 border-t border-sidebar-border py-6 text-xs opacity-70 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <span>© {year} {STORE_NAME} · Todos los derechos reservados</span>
+      <a
+        href="/admin/login"
+        class="font-bold tracking-[0.06em] uppercase hover:underline"
+      >
+        Acceso al panel
+      </a>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,65 @@
+---
+import type { SpecSheet } from "@/features/storefront/api/types"
+
+interface Props {
+  specs: SpecSheet
+}
+
+const { specs } = Astro.props
+
+const entries = [
+  { label: "Material", value: specs.material, icon: "material" },
+  { label: "Tecnología", value: specs.technology, icon: "technology" },
+  { label: "Peso", value: specs.weight, icon: "weight" },
+  { label: "Amortiguación", value: specs.cushioning, icon: "cushioning" },
+] as const
+---
+
+<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+  {
+    entries.map((entry) => (
+      <div class="flex flex-col gap-2.5 border border-border bg-card p-5">
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="text-primary"
+          aria-hidden="true"
+        >
+          {entry.icon === "material" && (
+            <>
+              <path d="M4 8.5 12 4l8 4.5-8 4.5Z" />
+              <path d="M4 8.5v7L12 20l8-4.5v-7" />
+            </>
+          )}
+          {entry.icon === "technology" && (
+            <path d="M13 3 5 13.5h5l-1 7.5 8-10.5h-5Z" />
+          )}
+          {entry.icon === "weight" && (
+            <>
+              <circle cx="12" cy="13" r="7.5" />
+              <path d="M12 13V9M9.5 3.5h5" />
+            </>
+          )}
+          {entry.icon === "cushioning" && (
+            <>
+              <path d="M3 15c2-3 4-3 6 0s4 3 6 0 4-3 6 0" />
+              <path d="M3 9c2-3 4-3 6 0s4 3 6 0 4-3 6 0" />
+            </>
+          )}
+        </svg>
+        <span class="text-[11px] font-extrabold tracking-[0.14em] text-muted-foreground uppercase">
+          {entry.label}
+        </span>
+        <span class="text-base leading-snug font-bold text-foreground">
+          {entry.value}
+        </span>
+      </div>
+    ))
+  }
+</div>
