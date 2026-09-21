@@ -11,8 +11,8 @@ export default defineConfig({
   adapter: node({ mode: "standalone" }),
   env: {
     schema: {
-      PUBLIC_API_URL: envField.string({
-        context: "client",
+      API_URL: envField.string({
+        context: "server",
         access: "public",
         url: true,
       }),
