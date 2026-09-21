@@ -5,24 +5,16 @@ import {
   STORE_HOURS,
   STORE_NAME,
 } from "@/features/storefront/content/store"
+import {
+  STOREFRONT_NAV,
+  type StorefrontSection,
+} from "@/features/storefront/content/nav"
 
 interface Props {
-  active?: "catalogo" | "deportivo" | "elegante" | "diario" | "contacto"
+  active?: StorefrontSection
 }
 
 const { active } = Astro.props
-
-const navItems = [
-  { key: "catalogo", label: "Catálogo", href: "/sneakers" },
-  {
-    key: "deportivo",
-    label: "Deportivo",
-    href: "/sneakers?category=deportivo",
-  },
-  { key: "elegante", label: "Elegante", href: "/sneakers?category=elegante" },
-  { key: "diario", label: "Diario", href: "/sneakers?category=diario" },
-  { key: "contacto", label: "Contacto", href: "/#contacto" },
-] as const
 
 const instagram = SOCIAL_LINKS[0]
 ---
@@ -93,12 +85,12 @@ const instagram = SOCIAL_LINKS[0]
       aria-label="Secciones de la tienda"
     >
       {
-        navItems.map((item) => (
+        STOREFRONT_NAV.map((item) => (
           <a
             href={item.href}
             class:list={[
               "pb-1",
-              active === item.key
+              active === item.section
                 ? "border-b-2 border-primary text-primary"
                 : "border-b-2 border-transparent text-foreground hover:text-primary",
             ]}
@@ -171,12 +163,14 @@ const instagram = SOCIAL_LINKS[0]
     aria-label="Secciones de la tienda"
   >
     {
-      navItems.map((item) => (
+      STOREFRONT_NAV.map((item) => (
         <a
           href={item.href}
           class:list={[
             "shrink-0",
-            active === item.key ? "text-primary underline" : "text-foreground",
+            active === item.section
+              ? "text-primary underline"
+              : "text-foreground",
           ]}
         >
           {item.label}

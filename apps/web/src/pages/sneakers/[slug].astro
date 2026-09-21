@@ -1,4 +1,6 @@
 ---
+import { SneakerBadge } from "@/features/storefront/api/types"
+import { StorefrontSection } from "@/features/storefront/content/nav"
 import {
   getSneakerBySlug,
   listRelated,
@@ -35,7 +37,7 @@ const mainImage = sneaker?.images[0] ?? null
     <StorefrontLayout
       title={sneaker.name}
       description={description}
-      active="catalogo"
+      active={StorefrontSection.CATALOG}
     >
       <div class="mx-auto max-w-[1440px] px-4 pt-6 sm:px-8 lg:px-16">
         <nav
@@ -92,7 +94,7 @@ const mainImage = sneaker?.images[0] ?? null
               glyphClass="w-[72%]"
               label={mainImage ? undefined : "[FOTO PRINCIPAL]"}
             />
-            {sneaker.badge === "new" && (
+            {sneaker.badge === SneakerBadge.NEW && (
               <span class="absolute top-4 left-4 bg-foreground px-3 py-1.5 text-[10px] font-extrabold tracking-[0.12em] text-background uppercase">
                 Nuevo
               </span>
@@ -204,7 +206,7 @@ const mainImage = sneaker?.images[0] ?? null
     <StorefrontLayout
       title="Modelo no encontrado"
       description={description}
-      active="catalogo"
+      active={StorefrontSection.CATALOG}
     >
       <section class="mx-auto flex max-w-[1440px] flex-col items-center gap-4 px-4 py-28 text-center sm:px-8 lg:px-16">
         <span class="text-[11px] font-extrabold tracking-[0.18em] text-primary uppercase">

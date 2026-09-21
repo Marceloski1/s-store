@@ -8,13 +8,12 @@ import type {
   CatalogFacets,
   CatalogPage,
   CatalogQuery,
-  CatalogSort,
   Colorway,
-  SneakerBadge,
   SneakerDetail,
   SneakerImage,
   SneakerSummary,
 } from "@/features/storefront/api/types"
+import { CatalogSort, SneakerBadge } from "@/features/storefront/api/types"
 import type { ApiGender, ApiSneaker } from "@/lib/api/types"
 import { brandService } from "@/services/catalogs-services/brand"
 import { categoryService } from "@/services/catalogs-services/category"
@@ -33,11 +32,11 @@ const SORT_PARAMS: Record<
     descending: boolean
   }
 > = {
-  created_at: { sort: "created_at", descending: true },
-  price_asc: { sort: "price", descending: false },
-  price_desc: { sort: "price", descending: true },
-  name: { sort: "name", descending: false },
-  release_date: { sort: "release_date", descending: true },
+  [CatalogSort.CREATED_AT]: { sort: "created_at", descending: true },
+  [CatalogSort.PRICE_ASC]: { sort: "price", descending: false },
+  [CatalogSort.PRICE_DESC]: { sort: "price", descending: true },
+  [CatalogSort.NAME]: { sort: "name", descending: false },
+  [CatalogSort.RELEASE_DATE]: { sort: "release_date", descending: true },
 }
 
 type ListParams = {
@@ -126,13 +125,13 @@ function badgeFor(
 ): SneakerBadge | null {
   const stock = availableStock(colorways)
   if (stock === 0) {
-    return "sold-out"
+    return SneakerBadge.SOLD_OUT
   }
   if (isNewRelease(sneaker.release_date)) {
-    return "new"
+    return SneakerBadge.NEW
   }
   if (stock <= LAST_SIZES_THRESHOLD) {
-    return "last-sizes"
+    return SneakerBadge.LAST_SIZES
   }
   return null
 }
@@ -193,7 +192,7 @@ function toSummary(detail: SneakerDetail): SneakerSummary {
 }
 
 async function fetchPage({ query = {}, size = CATALOG_PAGE_SIZE }: ListParams) {
-  const { sort, descending } = SORT_PARAMS[query.sort ?? "created_at"]
+  const { sort, descending } = SORT_PARAMS[query.sort ?? CatalogSort.CREATED_AT]
   const hasPriceFilter = Boolean(query.minPrice || query.maxPrice)
   return sneakerService.list({
     page: query.page ?? 1,
@@ -231,7 +230,7 @@ export async function listSneakers(
 
 export async function listFeatured(limit = 4): Promise<SneakerSummary[]> {
   const [page, references] = await Promise.all([
-    fetchPage({ query: { sort: "created_at" }, size: limit }),
+    fetchPage({ query: { sort: CatalogSort.CREATED_AT }, size: limit }),
     loadCatalogReferences(),
   ])
   return page.items.map((item) => toSummary(toDetail(item, references)))

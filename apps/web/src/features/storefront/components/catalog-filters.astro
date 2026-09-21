@@ -1,4 +1,5 @@
 ---
+import { CatalogSort } from "@/features/storefront/api/types"
 import type {
   CatalogFacets,
   CatalogQuery,
@@ -25,7 +26,7 @@ const { facets, selected } = Astro.props
   </span>
   {selected.q && <input type="hidden" name="q" value={selected.q} />}
   {
-    selected.sort !== "created_at" && (
+    selected.sort !== CatalogSort.CREATED_AT && (
       <input type="hidden" name="sort" value={selected.sort} />
     )
   }

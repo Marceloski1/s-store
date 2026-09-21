@@ -1,8 +1,4 @@
-import {
-  CATALOG_SORTS,
-  type CatalogQuery,
-  type CatalogSort,
-} from "@/features/storefront/api/types"
+import { CatalogSort, type CatalogQuery } from "@/features/storefront/api/types"
 
 function optional(params: URLSearchParams, key: string): string | null {
   const value = params.get(key)?.trim()
@@ -10,7 +6,7 @@ function optional(params: URLSearchParams, key: string): string | null {
 }
 
 function isSort(value: string | null): value is CatalogSort {
-  return CATALOG_SORTS.some((sort) => sort === value)
+  return Object.values<string>(CatalogSort).includes(value ?? "")
 }
 
 export function parseCatalogQuery(params: URLSearchParams): CatalogQuery {
@@ -28,7 +24,7 @@ export function parseCatalogQuery(params: URLSearchParams): CatalogQuery {
     inStock: params.get("in_stock") === "true",
     q: optional(params, "q"),
     reference: optional(params, "reference"),
-    sort: isSort(sort) ? sort : "created_at",
+    sort: isSort(sort) ? sort : CatalogSort.CREATED_AT,
     page: Number.isInteger(page) && page > 0 ? page : 1,
   }
 }
@@ -66,7 +62,7 @@ export function catalogHref(
   if (next.inStock) {
     params.set("in_stock", "true")
   }
-  if (next.sort !== "created_at") {
+  if (next.sort !== CatalogSort.CREATED_AT) {
     params.set("sort", next.sort)
   }
   if (next.page > 1) {

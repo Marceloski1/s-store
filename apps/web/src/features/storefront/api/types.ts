@@ -3,7 +3,17 @@ export type Money = {
   currency: string
 }
 
-export type SneakerBadge = "new" | "last-sizes" | "sold-out"
+export enum SneakerBadge {
+  NEW = "NEW",
+  LAST_SIZES = "LAST_SIZES",
+  SOLD_OUT = "SOLD_OUT",
+}
+
+export const SNEAKER_BADGE_LABELS: Record<SneakerBadge, string> = {
+  [SneakerBadge.NEW]: "Nuevo",
+  [SneakerBadge.LAST_SIZES]: "Últimas tallas",
+  [SneakerBadge.SOLD_OUT]: "Sin stock",
+}
 
 export type SneakerImage = {
   id: string
@@ -87,12 +97,21 @@ export type CatalogPage = {
   pages: number
 }
 
-export type CatalogSort =
-  | "created_at"
-  | "price_asc"
-  | "price_desc"
-  | "name"
-  | "release_date"
+export enum CatalogSort {
+  CREATED_AT = "CREATED_AT",
+  PRICE_ASC = "PRICE_ASC",
+  PRICE_DESC = "PRICE_DESC",
+  NAME = "NAME",
+  RELEASE_DATE = "RELEASE_DATE",
+}
+
+export const CATALOG_SORT_LABELS: Record<CatalogSort, string> = {
+  [CatalogSort.CREATED_AT]: "Más recientes",
+  [CatalogSort.PRICE_ASC]: "Precio: de menor a mayor",
+  [CatalogSort.PRICE_DESC]: "Precio: de mayor a menor",
+  [CatalogSort.NAME]: "Nombre: A – Z",
+  [CatalogSort.RELEASE_DATE]: "Fecha de lanzamiento",
+}
 
 export type CatalogQuery = {
   brands: string[]
@@ -109,14 +128,6 @@ export type CatalogQuery = {
   sort: CatalogSort
   page: number
 }
-
-export const CATALOG_SORTS: CatalogSort[] = [
-  "created_at",
-  "price_asc",
-  "price_desc",
-  "name",
-  "release_date",
-]
 
 export function hasSpecs(specs: SpecSheet): boolean {
   return Object.values(specs).some((value) => value.length > 0)

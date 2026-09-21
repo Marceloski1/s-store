@@ -3,12 +3,13 @@ import "@workspace/ui/globals.css"
 
 import SiteFooter from "@/features/storefront/components/site-footer.astro"
 import SiteHeader from "@/features/storefront/components/site-header.astro"
+import type { StorefrontSection } from "@/features/storefront/content/nav"
 import { STORE_NAME, STORE_TAGLINE } from "@/features/storefront/content/store"
 
 interface Props {
   title: string
   description?: string
-  active?: "catalogo" | "deportivo" | "elegante" | "diario" | "contacto"
+  active?: StorefrontSection
 }
 
 const { title, description = STORE_TAGLINE, active } = Astro.props

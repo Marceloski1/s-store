@@ -1,4 +1,9 @@
 ---
+import {
+  CATALOG_SORT_LABELS,
+  CatalogSort,
+} from "@/features/storefront/api/types"
+import { sectionForCategories } from "@/features/storefront/content/nav"
 import { GENDER_LABELS } from "@/features/catalog/api/labels"
 import {
   catalogHref,
@@ -129,13 +134,10 @@ const preservedFields = [
   ...(query.inStock ? [["in_stock", "true"]] : []),
 ]
 
-const sortOptions = [
-  { value: "created_at", label: "Más recientes" },
-  { value: "price_asc", label: "Precio: de menor a mayor" },
-  { value: "price_desc", label: "Precio: de mayor a menor" },
-  { value: "name", label: "Nombre: A – Z" },
-  { value: "release_date", label: "Fecha de lanzamiento" },
-]
+const sortOptions = Object.values(CatalogSort).map((value) => ({
+  value,
+  label: CATALOG_SORT_LABELS[value],
+}))
 
 const firstShown =
   catalog.items.length === 0 ? 0 : (catalog.page - 1) * catalog.size + 1
@@ -147,7 +149,7 @@ const resultsLabel = `Mostrando ${firstShown} – ${lastShown} de ${catalog.tota
 <StorefrontLayout
   title="Catálogo"
   description="Explora el catálogo de ALESA: calzado deportivo, elegante y cómodo. Filtra por marca, talla, precio y tipo de calzado."
-  active="catalogo"
+  active={sectionForCategories(query.categories)}
 >
   <div class="mx-auto max-w-[1440px] px-4 pt-8 sm:px-8 lg:px-16">
     <nav

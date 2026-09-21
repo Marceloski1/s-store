@@ -2,6 +2,8 @@
 import SneakerPhoto from "@/features/storefront/components/sneaker-photo.astro"
 import {
   formatMoney,
+  SNEAKER_BADGE_LABELS,
+  SneakerBadge,
   type SneakerSummary,
 } from "@/features/storefront/api/types"
 
@@ -15,20 +17,19 @@ interface Props {
 
 const { sneaker, tone = "tint", imageClass = "h-[320px]" } = Astro.props
 
-const badges = {
-  new: { label: "Nuevo", class: "bg-foreground text-background" },
-  "last-sizes": {
-    label: "Últimas tallas",
-    class: "bg-primary text-primary-foreground",
-  },
-  "sold-out": {
-    label: "Sin stock",
-    class: "bg-muted-foreground text-background",
-  },
-} as const
+const BADGE_CLASSES: Record<SneakerBadge, string> = {
+  [SneakerBadge.NEW]: "bg-foreground text-background",
+  [SneakerBadge.LAST_SIZES]: "bg-primary text-primary-foreground",
+  [SneakerBadge.SOLD_OUT]: "bg-muted-foreground text-background",
+}
 
-const badge = sneaker.badge ? badges[sneaker.badge] : null
-const soldOut = sneaker.badge === "sold-out"
+const badge = sneaker.badge
+  ? {
+      label: SNEAKER_BADGE_LABELS[sneaker.badge],
+      class: BADGE_CLASSES[sneaker.badge],
+    }
+  : null
+const soldOut = sneaker.badge === SneakerBadge.SOLD_OUT
 ---
 
 <a
