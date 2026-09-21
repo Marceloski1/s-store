@@ -21,7 +21,7 @@ Estados: `Borrador` → `Aprobada` → `En progreso` → `Hecha` · `Diferida`.
 | 004 | [Preparación para producción](./004-production-readiness/spec.md) | Borrador | P2 | 007 |
 | 005 | [Calidad y tooling](./005-quality-tooling/spec.md) | Borrador | P2 | — |
 | 006 | [Adopción completa de TypeScript 7](./006-typescript-7-full-adoption/spec.md) | Diferida | P3 | Upstream (TS 7.1, Astro, typescript-eslint, openapi-typescript) |
-| 007 | [Autenticación y roles del panel](./007-admin-auth/spec.md) | Diferida | P2 | — |
+| 007 | [Autenticación y roles del panel](./007-admin-auth/spec.md) | En progreso | P2 | — |
 
 ## Ya implementado (referencia)
 

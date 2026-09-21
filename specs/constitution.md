@@ -36,9 +36,10 @@ Principios no negociables. Toda spec, plan y tarea debe cumplirlos; cualquier ex
 ## IV. Frontend
 
 1. Patrón **contenedor / presentacional**: hooks y contenedores gestionan datos; componentes presentacionales solo reciben props.
-2. Estructura por feature en `apps/web/src/features/<feature>/{api,hooks,components}`.
-3. El cliente HTTP es tipado a partir del OpenAPI del backend (`pnpm --filter web api:types`); no se escriben tipos de la API a mano.
+2. Estructura por feature en `apps/web/src/features/<feature>/{api,hooks,components}`; `api` contiene solo tipos de UI y mapeos, nunca llamadas HTTP.
+3. Las llamadas HTTP viven en `apps/web/src/services/{admin-services,catalogs-services}/<módulo>.ts` (`brand.ts`, `category.ts`, `sneaker.ts`, …): `admin-services` para el panel y `catalogs-services` para el catálogo público. Usan el cliente tipado a partir del OpenAPI del backend (`pnpm --filter web api:types`); no se escriben tipos de la API a mano.
 4. Variables de entorno declaradas con `astro:env`.
+5. Los formularios usan el componente genérico `Form` de `@workspace/ui` con esquemas Zod y validación `onChange`.
 
 ## V. Código
 
