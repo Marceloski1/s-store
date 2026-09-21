@@ -1,4 +1,5 @@
 import logging
+import re
 from uuid import UUID
 
 from shared.application.unit_of_work import UnitOfWork
@@ -14,16 +15,20 @@ from saury_backend.catalog.application.dtos.sneaker import (
     UpdateSneakerCommand,
 )
 from saury_backend.catalog.application.ports.image_storage import ImageStorage, ImageStorageError
+from saury_backend.catalog.domain.entities.colorway import COLOR_CODE_PATTERN
 from saury_backend.catalog.domain.entities.sneaker import Sneaker
 from saury_backend.catalog.domain.errors import (
     BrandNotFound,
     CategoryNotFound,
     SneakerNotFound,
+    SneakerReferenceAlreadyExists,
     SneakerSlugAlreadyExists,
+    SneakerSlugNotFound,
 )
 from saury_backend.catalog.domain.repositories.brand_repository import BrandRepository
 from saury_backend.catalog.domain.repositories.category_repository import CategoryRepository
 from saury_backend.catalog.domain.repositories.sneaker_repository import (
+    CatalogFacets,
     SneakerFilters,
     SneakerRepository,
     SneakerSort,
@@ -33,6 +38,8 @@ from saury_backend.catalog.domain.value_objects.shoe_size import ShoeSize
 from saury_backend.catalog.domain.value_objects.sneaker_status import SneakerStatus
 
 logger = logging.getLogger(__name__)
+
+_COLOR_CODE_REGEX = re.compile(COLOR_CODE_PATTERN)
 
 
 async def get_sneaker(repository: SneakerRepository, sneaker_id: UUID) -> Sneaker:
@@ -82,8 +89,16 @@ class _SneakerWriter:
         if existing is not None and existing.id != sneaker.id:
             raise SneakerSlugAlreadyExists(sneaker.slug)
 
+    async def _ensure_reference_is_available(self, sneaker: Sneaker) -> None:
+        if sneaker.reference is None:
+            return
+        owner = await self._repository.find_reference_owner(sneaker.reference)
+        if owner is not None and owner != sneaker.id:
+            raise SneakerReferenceAlreadyExists(sneaker.reference)
+
     async def _persist(self, sneaker: Sneaker) -> SneakerDTO:
         await self._ensure_slug_is_available(sneaker)
+        await self._ensure_reference_is_available(sneaker)
         await self._repository.save(sneaker)
         await self._unit_of_work.commit()
         return SneakerDTO.from_entity(sneaker)
@@ -100,6 +115,10 @@ class CreateSneaker(_SneakerWriter):
             base_price=Money.of(command.price, command.currency),
             release_date=command.release_date,
             slug=Slug(command.slug) if command.slug else None,
+            reference=command.reference,
+            specs=command.specs.to_value(),
+            usage=command.usage,
+            testimonial=command.testimonial.to_value() if command.testimonial else None,
         )
         await self._ensure_references_exist(sneaker.brand_id, sneaker.category_id)
         return await self._persist(sneaker)
@@ -117,6 +136,10 @@ class UpdateSneaker(_SneakerWriter):
             base_price=Money.of(command.price, command.currency),
             release_date=command.release_date,
             slug=Slug(command.slug) if command.slug else None,
+            reference=command.reference,
+            specs=command.specs.to_value(),
+            usage=command.usage,
+            testimonial=command.testimonial.to_value() if command.testimonial else None,
         )
         await self._ensure_references_exist(sneaker.brand_id, sneaker.category_id)
         return await self._persist(sneaker)
@@ -128,6 +151,33 @@ class GetSneaker:
 
     async def execute(self, sneaker_id: UUID) -> SneakerDTO:
         return SneakerDTO.from_entity(await get_sneaker(self._repository, sneaker_id))
+
+
+class GetSneakerBySlug:
+    def __init__(self, repository: SneakerRepository) -> None:
+        self._repository = repository
+
+    async def execute(self, slug: str, *, published_only: bool = False) -> SneakerDTO:
+        value = Slug(slug)
+        sneaker = await self._repository.get_by_slug(value)
+        if sneaker is None or (published_only and sneaker.status is not SneakerStatus.ACTIVE):
+            raise SneakerSlugNotFound(value)
+        return SneakerDTO.from_entity(sneaker)
+
+
+class GetCatalogFacets:
+    def __init__(self, repository: SneakerRepository) -> None:
+        self._repository = repository
+
+    async def execute(self, *, published_only: bool = True) -> CatalogFacets:
+        return await self._repository.facets(SneakerStatus.ACTIVE if published_only else None)
+
+
+def _parse_color(value: str) -> str:
+    color = value.strip().upper()
+    if not _COLOR_CODE_REGEX.fullmatch(color):
+        raise ValidationError(f"Invalid color code: '{value}'")
+    return color
 
 
 class ListSneakers:
@@ -144,11 +194,12 @@ class ListSneakers:
         if currency is None and (query.min_price is not None or query.max_price is not None):
             raise ValidationError("currency is required when filtering by price")
         return SneakerFilters(
-            brand=Slug(query.brand) if query.brand else None,
-            category=Slug(query.category) if query.category else None,
-            gender=parse_enum(Gender, query.gender, field="gender") if query.gender else None,
+            brands=tuple(Slug(brand) for brand in query.brands),
+            categories=tuple(Slug(category) for category in query.categories),
+            genders=tuple(parse_enum(Gender, gender, field="gender") for gender in query.genders),
             status=parse_enum(SneakerStatus, query.status, field="status") if query.status else None,
-            size=ShoeSize.of(query.size) if query.size is not None else None,
+            sizes=tuple(ShoeSize.of(size) for size in query.sizes),
+            colors=tuple(_parse_color(color) for color in query.colors),
             min_price=Money.of(query.min_price, currency) if query.min_price is not None and currency else None,
             max_price=Money.of(query.max_price, currency) if query.max_price is not None and currency else None,
             in_stock=query.in_stock,

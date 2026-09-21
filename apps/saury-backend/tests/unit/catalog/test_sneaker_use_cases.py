@@ -9,14 +9,18 @@ from saury_backend.catalog.application.dtos.sneaker import (
     CreateSneakerCommand,
     ListSneakersQuery,
     SneakerDTO,
+    SpecSheetDTO,
     UpdateSneakerCommand,
     UploadSneakerImageCommand,
 )
+from saury_backend.catalog.application.dtos.sneaker import TestimonialDTO as CustomerTestimonialDTO
 from saury_backend.catalog.application.use_cases.image import UploadSneakerImage
 from saury_backend.catalog.application.use_cases.sneaker import (
     CreateSneaker,
     DeleteSneaker,
+    GetCatalogFacets,
     GetSneaker,
+    GetSneakerBySlug,
     ListSneakers,
     UpdateSneaker,
 )
@@ -24,7 +28,9 @@ from saury_backend.catalog.domain.errors import (
     BrandNotFound,
     CategoryNotFound,
     SneakerNotFound,
+    SneakerReferenceAlreadyExists,
     SneakerSlugAlreadyExists,
+    SneakerSlugNotFound,
 )
 from saury_backend.catalog.domain.repositories.sneaker_repository import SneakerSort
 from saury_backend.catalog.domain.value_objects.gender import Gender
@@ -129,10 +135,12 @@ async def test_list_sneakers_translates_query_into_filters(sneaker_repository, c
 
     page = await ListSneakers(sneaker_repository).execute(
         ListSneakersQuery(
-            brand="nike",
-            gender="men",
+            brands=("nike", "adidas"),
+            categories=("running",),
+            genders=("men", "unisex"),
             status="active",
-            size=Decimal("42.5"),
+            sizes=(Decimal("42.5"), Decimal("43")),
+            colors=(" #1b4fc0 ",),
             min_price=Decimal("50"),
             max_price=Decimal("200"),
             currency="EUR",
@@ -146,10 +154,12 @@ async def test_list_sneakers_translates_query_into_filters(sneaker_repository, c
 
     assert [type(item) for item in page.items] == [SneakerDTO]
     filters = sneaker_repository.last_filters
-    assert filters.brand.value == "nike"
-    assert filters.gender is Gender.MEN
+    assert [brand.value for brand in filters.brands] == ["nike", "adidas"]
+    assert [category.value for category in filters.categories] == ["running"]
+    assert filters.genders == (Gender.MEN, Gender.UNISEX)
     assert filters.status is SneakerStatus.ACTIVE
-    assert filters.size == ShoeSize.of("42.5")
+    assert filters.sizes == (ShoeSize.of("42.5"), ShoeSize.of("43"))
+    assert filters.colors == ("#1B4FC0",)
     assert (str(filters.min_price), str(filters.max_price)) == ("50.00 EUR", "200.00 EUR")
     assert (filters.in_stock, filters.q, filters.sort, filters.descending) == (True, "max", SneakerSort.PRICE, True)
 
@@ -161,9 +171,19 @@ async def test_list_sneakers_translates_query_into_filters(sneaker_repository, c
         ListSneakersQuery(max_price=Decimal("100")),
         ListSneakersQuery(sort="popularity"),
         ListSneakersQuery(status="deleted"),
-        ListSneakersQuery(size=Decimal("42.3")),
+        ListSneakersQuery(sizes=(Decimal("42.3"),)),
+        ListSneakersQuery(genders=("aliens",)),
+        ListSneakersQuery(colors=("blue",)),
     ],
-    ids=["min-price-without-currency", "max-price-without-currency", "invalid-sort", "invalid-status", "invalid-size"],
+    ids=[
+        "min-price-without-currency",
+        "max-price-without-currency",
+        "invalid-sort",
+        "invalid-status",
+        "invalid-size",
+        "invalid-gender",
+        "invalid-color",
+    ],
 )
 async def test_list_sneakers_rejects_invalid_queries(sneaker_repository, query) -> None:
     with pytest.raises(ValidationError):
@@ -199,3 +219,71 @@ async def test_delete_sneaker_tolerates_storage_failures(
 
     assert await sneaker_repository.get(created.id) is None
     assert "Failed to delete stored image" in caplog.text
+
+
+async def test_create_sneaker_stores_sales_content(create_sneaker, brand, category) -> None:
+    sneaker = await create_sneaker.execute(
+        create_command(
+            brand,
+            category,
+            reference="als-am90-001",
+            specs=SpecSheetDTO(material="Mesh", technology="Air", weight="310 g", cushioning="Media"),
+            usage="Running diario",
+            testimonial=CustomerTestimonialDTO(quote="Muy cómodas", author="Ana, talla 38"),
+        )
+    )
+
+    assert sneaker.reference == "ALS-AM90-001"
+    assert sneaker.specs == SpecSheetDTO(material="Mesh", technology="Air", weight="310 g", cushioning="Media")
+    assert sneaker.usage == "Running diario"
+    assert sneaker.testimonial == CustomerTestimonialDTO(quote="Muy cómodas", author="Ana, talla 38")
+
+
+async def test_create_sneaker_rejects_duplicated_reference(create_sneaker, brand, category) -> None:
+    await create_sneaker.execute(create_command(brand, category, reference="ALS-001"))
+
+    with pytest.raises(SneakerReferenceAlreadyExists):
+        await create_sneaker.execute(create_command(brand, category, name="Air Max 95", reference="als-001"))
+
+
+async def test_update_sneaker_keeps_its_own_reference(
+    create_sneaker, sneaker_repository, brand_repository, category_repository, unit_of_work, brand, category
+) -> None:
+    created = await create_sneaker.execute(create_command(brand, category, reference="ALS-001"))
+    update = UpdateSneaker(sneaker_repository, brand_repository, category_repository, unit_of_work)
+
+    updated = await update.execute(
+        UpdateSneakerCommand(
+            sneaker_id=created.id,
+            name="Air Max 90",
+            description="",
+            brand_id=brand.id,
+            category_id=category.id,
+            gender="unisex",
+            price=Decimal("130"),
+            currency="USD",
+            reference="ALS-001",
+        )
+    )
+
+    assert updated.reference == "ALS-001"
+
+
+async def test_get_sneaker_by_slug_respects_publication(create_sneaker, sneaker_repository, brand, category) -> None:
+    created = await create_sneaker.execute(create_command(brand, category))
+
+    found = await GetSneakerBySlug(sneaker_repository).execute("air-max-90")
+
+    assert found.id == created.id
+    with pytest.raises(SneakerSlugNotFound):
+        await GetSneakerBySlug(sneaker_repository).execute("air-max-90", published_only=True)
+    with pytest.raises(SneakerSlugNotFound):
+        await GetSneakerBySlug(sneaker_repository).execute("missing")
+
+
+async def test_get_catalog_facets_scopes_to_published_sneakers(sneaker_repository) -> None:
+    await GetCatalogFacets(sneaker_repository).execute()
+    assert sneaker_repository.last_facets_status is SneakerStatus.ACTIVE
+
+    await GetCatalogFacets(sneaker_repository).execute(published_only=False)
+    assert sneaker_repository.last_facets_status is None

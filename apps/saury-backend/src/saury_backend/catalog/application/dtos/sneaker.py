@@ -11,6 +11,8 @@ from saury_backend.catalog.domain.entities.image import Image
 from saury_backend.catalog.domain.entities.size_variant import SizeVariant
 from saury_backend.catalog.domain.entities.sneaker import Sneaker
 from saury_backend.catalog.domain.repositories.sneaker_repository import SneakerSort
+from saury_backend.catalog.domain.value_objects.spec_sheet import SpecSheet
+from saury_backend.catalog.domain.value_objects.testimonial import Testimonial
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,6 +80,44 @@ class ImageDTO:
 
 
 @dataclass(frozen=True, slots=True)
+class SpecSheetDTO:
+    material: str = ""
+    technology: str = ""
+    weight: str = ""
+    cushioning: str = ""
+
+    @classmethod
+    def from_value(cls, specs: SpecSheet) -> Self:
+        return cls(
+            material=specs.material,
+            technology=specs.technology,
+            weight=specs.weight,
+            cushioning=specs.cushioning,
+        )
+
+    def to_value(self) -> SpecSheet:
+        return SpecSheet(
+            material=self.material,
+            technology=self.technology,
+            weight=self.weight,
+            cushioning=self.cushioning,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class TestimonialDTO:
+    quote: str
+    author: str
+
+    @classmethod
+    def from_value(cls, testimonial: Testimonial) -> Self:
+        return cls(quote=testimonial.quote, author=testimonial.author)
+
+    def to_value(self) -> Testimonial:
+        return Testimonial(quote=self.quote, author=self.author)
+
+
+@dataclass(frozen=True, slots=True)
 class SneakerDTO:
     id: UUID
     name: str
@@ -91,6 +131,10 @@ class SneakerDTO:
     release_date: date | None
     created_at: datetime
     updated_at: datetime
+    reference: str | None
+    specs: SpecSheetDTO
+    usage: str
+    testimonial: TestimonialDTO | None
     colorways: list[ColorwayDTO]
     images: list[ImageDTO]
 
@@ -109,6 +153,10 @@ class SneakerDTO:
             release_date=sneaker.release_date,
             created_at=sneaker.created_at,
             updated_at=sneaker.updated_at,
+            reference=sneaker.reference,
+            specs=SpecSheetDTO.from_value(sneaker.specs),
+            usage=sneaker.usage,
+            testimonial=TestimonialDTO.from_value(sneaker.testimonial) if sneaker.testimonial else None,
             colorways=[ColorwayDTO.from_entity(colorway, sneaker.base_price) for colorway in sneaker.colorways],
             images=[ImageDTO.from_entity(image) for image in sneaker.images],
         )
@@ -125,6 +173,10 @@ class CreateSneakerCommand:
     currency: str
     release_date: date | None = None
     slug: str | None = None
+    reference: str | None = None
+    specs: SpecSheetDTO = field(default_factory=SpecSheetDTO)
+    usage: str = ""
+    testimonial: TestimonialDTO | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -139,15 +191,20 @@ class UpdateSneakerCommand:
     currency: str
     release_date: date | None = None
     slug: str | None = None
+    reference: str | None = None
+    specs: SpecSheetDTO = field(default_factory=SpecSheetDTO)
+    usage: str = ""
+    testimonial: TestimonialDTO | None = None
 
 
 @dataclass(frozen=True, slots=True)
 class ListSneakersQuery:
-    brand: str | None = None
-    category: str | None = None
-    gender: str | None = None
+    brands: tuple[str, ...] = ()
+    categories: tuple[str, ...] = ()
+    genders: tuple[str, ...] = ()
     status: str | None = None
-    size: Decimal | None = None
+    sizes: tuple[Decimal, ...] = ()
+    colors: tuple[str, ...] = ()
     min_price: Decimal | None = None
     max_price: Decimal | None = None
     currency: str | None = None

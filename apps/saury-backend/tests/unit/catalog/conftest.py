@@ -9,7 +9,8 @@ from shared.domain.slug import Slug
 from saury_backend.catalog.domain.entities.brand import Brand
 from saury_backend.catalog.domain.entities.category import Category
 from saury_backend.catalog.domain.entities.sneaker import Sneaker
-from saury_backend.catalog.domain.repositories.sneaker_repository import SneakerFilters
+from saury_backend.catalog.domain.repositories.sneaker_repository import CatalogFacets, SneakerFilters
+from saury_backend.catalog.domain.value_objects.sneaker_status import SneakerStatus
 from support.image_storage import InMemoryImageStorage
 
 
@@ -44,6 +45,7 @@ class InMemorySneakerRepository:
     def __init__(self) -> None:
         self._items: dict[UUID, Sneaker] = {}
         self.last_filters: SneakerFilters | None = None
+        self.last_facets_status: SneakerStatus | None = None
 
     async def save(self, sneaker: Sneaker) -> None:
         self._items[sneaker.id] = deepcopy(sneaker)
@@ -60,6 +62,13 @@ class InMemorySneakerRepository:
             (sneaker.id for sneaker in self._items.values() for colorway in sneaker.colorways if colorway.sku == sku),
             None,
         )
+
+    async def find_reference_owner(self, reference: str) -> UUID | None:
+        return next((sneaker.id for sneaker in self._items.values() if sneaker.reference == reference), None)
+
+    async def facets(self, status: SneakerStatus | None) -> CatalogFacets:
+        self.last_facets_status = status
+        return CatalogFacets(brands=[], categories=[], genders=[], sizes=[], colors=[], currencies=[])
 
     async def paginate(self, filters: SneakerFilters, params: PageParams) -> Page[Sneaker]:
         self.last_filters = filters
