@@ -1,6 +1,6 @@
+import type { ColorwayInput, SneakerForm } from "@/features/admin/api/schemas"
 import type {
   ApiColorway,
-  ApiGender,
   ApiSneaker,
   ApiSneakerStatus,
 } from "@/lib/api/types"
@@ -59,32 +59,7 @@ export type PublishCheck = {
   state: "ok" | "pending"
 }
 
-export type SneakerForm = {
-  name: string
-  slug: string
-  reference: string
-  description: string
-  brandId: string
-  categoryId: string
-  gender: ApiGender
-  price: string
-  currency: string
-  releaseDate: string
-  material: string
-  technology: string
-  weight: string
-  cushioning: string
-  usage: string
-  testimonialQuote: string
-  testimonialAuthor: string
-}
-
-export type ColorwayInput = {
-  name: string
-  colorCode: string
-  sku: string
-  priceOverride: string
-}
+export type { ColorwayInput, SneakerForm } from "@/features/admin/api/schemas"
 
 export const STATUS_LABELS: Record<SneakerStatus, string> = {
   draft: "Borrador",

@@ -1,5 +1,9 @@
 import { useState } from "react"
 
+import { Form } from "@workspace/ui/components/form"
+
+import { colorwayFormSchema } from "@/features/admin/api/schemas"
+
 import {
   colorwayStock,
   colorwayToInput,
@@ -9,9 +13,11 @@ import {
 } from "@/features/admin/api/types"
 import {
   fieldClass,
+  invalidClass,
   sectionClass,
   smallLabelClass,
 } from "@/features/admin/components/editor-styles"
+import { ColorwayField } from "@/features/admin/components/form-fields"
 import type { ApiColorway } from "@/lib/api/types"
 
 type ColorwaysSectionProps = {
@@ -169,88 +175,98 @@ export function ColorwaysSection({
 
 type ColorwayFieldsProps = {
   idPrefix: string
-  value: ColorwayInput
   basePrice: AdminMoney
-  disabled: boolean
-  onChange: (value: ColorwayInput) => void
   onCommit?: () => void
 }
 
 function ColorwayFields({
   idPrefix,
-  value,
   basePrice,
-  disabled,
-  onChange,
   onCommit,
 }: ColorwayFieldsProps) {
   return (
     <>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={`${idPrefix}-color`} className={smallLabelClass}>
-          Color
-        </label>
-        <input
-          id={`${idPrefix}-color`}
-          type="color"
-          value={value.colorCode.toLowerCase()}
-          disabled={disabled}
-          onChange={(event) =>
-            onChange({ ...value, colorCode: event.target.value.toUpperCase() })
-          }
-          onBlur={onCommit}
-          className="h-11 w-14 cursor-pointer border border-input bg-background p-1"
-        />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={`${idPrefix}-name`} className={smallLabelClass}>
-          Nombre del color
-        </label>
-        <input
-          id={`${idPrefix}-name`}
-          type="text"
-          required
-          value={value.name}
-          disabled={disabled}
-          onChange={(event) => onChange({ ...value, name: event.target.value })}
-          onBlur={onCommit}
-          className={fieldClass}
-        />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={`${idPrefix}-sku`} className={smallLabelClass}>
-          SKU (único)
-        </label>
-        <input
-          id={`${idPrefix}-sku`}
-          type="text"
-          required
-          value={value.sku}
-          disabled={disabled}
-          onChange={(event) => onChange({ ...value, sku: event.target.value })}
-          onBlur={onCommit}
-          className={`${fieldClass} uppercase`}
-        />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={`${idPrefix}-price`} className={smallLabelClass}>
-          Precio propio
-        </label>
-        <input
-          id={`${idPrefix}-price`}
-          type="number"
-          min="0"
-          step="0.01"
-          value={value.priceOverride}
-          placeholder={`${basePrice.amount} heredado`}
-          disabled={disabled}
-          onChange={(event) =>
-            onChange({ ...value, priceOverride: event.target.value })
-          }
-          onBlur={onCommit}
-          className={fieldClass}
-        />
-      </div>
+      <ColorwayField
+        name="colorCode"
+        id={`${idPrefix}-color`}
+        label="Color"
+        labelClassName={smallLabelClass}
+        render={({ field, control }) => (
+          <input
+            {...control}
+            {...field}
+            type="color"
+            value={field.value.toLowerCase()}
+            onChange={(event) =>
+              field.onChange(event.target.value.toUpperCase())
+            }
+            onBlur={() => {
+              field.onBlur()
+              onCommit?.()
+            }}
+            className="h-11 w-14 cursor-pointer border border-input bg-background p-1"
+          />
+        )}
+      />
+      <ColorwayField
+        name="name"
+        id={`${idPrefix}-name`}
+        label="Nombre del color"
+        labelClassName={smallLabelClass}
+        render={({ field, fieldState, control }) => (
+          <input
+            {...control}
+            {...field}
+            type="text"
+            onBlur={() => {
+              field.onBlur()
+              onCommit?.()
+            }}
+            className={invalidClass(fieldClass, fieldState.invalid)}
+          />
+        )}
+      />
+      <ColorwayField
+        name="sku"
+        id={`${idPrefix}-sku`}
+        label="SKU (único)"
+        labelClassName={smallLabelClass}
+        render={({ field, fieldState, control }) => (
+          <input
+            {...control}
+            {...field}
+            type="text"
+            onBlur={() => {
+              field.onBlur()
+              onCommit?.()
+            }}
+            className={invalidClass(
+              `${fieldClass} uppercase`,
+              fieldState.invalid
+            )}
+          />
+        )}
+      />
+      <ColorwayField
+        name="priceOverride"
+        id={`${idPrefix}-price`}
+        label="Precio propio"
+        labelClassName={smallLabelClass}
+        render={({ field, fieldState, control }) => (
+          <input
+            {...control}
+            {...field}
+            type="text"
+            inputMode="decimal"
+            placeholder={`${basePrice.amount} heredado`}
+            onBlur={() => {
+              field.onBlur()
+              onCommit?.()
+            }}
+            className={invalidClass(fieldClass, fieldState.invalid)}
+          />
+        )}
+      />
     </>
   )
 }
@@ -259,7 +275,7 @@ type ColorwayFormProps = {
   initial: ColorwayInput
   basePrice: AdminMoney
   disabled: boolean
-  onSubmit: (input: ColorwayInput) => void
+  onSubmit: (input: ColorwayInput) => Promise<void>
   onCancel: () => void
 }
 
@@ -270,25 +286,17 @@ function ColorwayForm({
   onSubmit,
   onCancel,
 }: ColorwayFormProps) {
-  const [value, setValue] = useState(initial)
-
   return (
-    <form
+    <Form
+      schema={colorwayFormSchema}
+      defaultValues={initial}
+      disabled={disabled}
+      onSubmit={onSubmit}
       className="border border-primary bg-accent/40"
-      onSubmit={(event) => {
-        event.preventDefault()
-        onSubmit(value)
-      }}
     >
-      <div className="grid items-end gap-3.5 p-4 sm:grid-cols-[56px_1.3fr_1fr_1fr_auto]">
-        <ColorwayFields
-          idPrefix="new-cw"
-          value={value}
-          basePrice={basePrice}
-          disabled={disabled}
-          onChange={setValue}
-        />
-        <div className="flex gap-1.5">
+      <div className="grid items-start gap-3.5 p-4 sm:grid-cols-[56px_1.3fr_1fr_1fr_auto]">
+        <ColorwayFields idPrefix="new-cw" basePrice={basePrice} />
+        <div className="flex gap-1.5 sm:pt-[22px]">
           <button
             type="submit"
             disabled={disabled}
@@ -305,7 +313,7 @@ function ColorwayForm({
           </button>
         </div>
       </div>
-    </form>
+    </Form>
   )
 }
 
@@ -340,12 +348,10 @@ function ColorwayCard({
   onRemoveSize,
 }: ColorwayCardProps) {
   const saved = colorwayToInput(colorway)
-  const [draft, setDraft] = useState(saved)
   const [newSize, setNewSize] = useState<string | null>(null)
 
-  function commit() {
-    if (!draft.name.trim() || !draft.sku.trim()) return
-    if (!isSameColorway(draft, saved)) void onUpdate(draft)
+  async function commit(input: ColorwayInput) {
+    if (!isSameColorway(input, saved)) await onUpdate(input)
   }
 
   function submitNewSize() {
@@ -358,64 +364,73 @@ function ColorwayCard({
 
   return (
     <div className="border border-input bg-muted/40">
-      <div className="grid items-end gap-3.5 p-4 sm:grid-cols-[56px_1.3fr_1fr_1fr_84px]">
-        <ColorwayFields
-          idPrefix={`cw-${colorway.id}`}
-          value={draft}
-          basePrice={basePrice}
-          disabled={disabled}
-          onChange={setDraft}
-          onCommit={commit}
-        />
-        <div className="flex justify-end gap-1.5">
-          <button
-            type="button"
-            aria-label="Duplicar este color"
-            disabled={disabled}
-            onClick={onDuplicate}
-            className="flex h-11 w-9 items-center justify-center border border-input bg-card hover:bg-muted disabled:opacity-60"
-          >
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <rect x="8.5" y="8.5" width="11" height="11" rx="1.5" />
-              <path d="M15.5 5.5H6A1.5 1.5 0 0 0 4.5 7v9.5" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            aria-label="Eliminar este color"
-            disabled={disabled}
-            onClick={() => {
-              if (window.confirm(`¿Eliminar el color «${colorway.name}»?`)) {
-                void onRemove()
-              }
-            }}
-            className="flex h-11 w-9 items-center justify-center border border-input bg-card text-destructive hover:bg-muted disabled:opacity-60"
-          >
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13" />
-            </svg>
-          </button>
-        </div>
-      </div>
+      <Form
+        schema={colorwayFormSchema}
+        defaultValues={saved}
+        disabled={disabled}
+        onSubmit={commit}
+        className="grid items-start gap-3.5 p-4 sm:grid-cols-[56px_1.3fr_1fr_1fr_84px]"
+      >
+        {(form) => (
+          <>
+            <ColorwayFields
+              idPrefix={`cw-${colorway.id}`}
+              basePrice={basePrice}
+              onCommit={() => void form.handleSubmit(commit)()}
+            />
+            <div className="flex justify-end gap-1.5 sm:pt-[22px]">
+              <button
+                type="button"
+                aria-label="Duplicar este color"
+                disabled={disabled}
+                onClick={onDuplicate}
+                className="flex h-11 w-9 items-center justify-center border border-input bg-card hover:bg-muted disabled:opacity-60"
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="8.5" y="8.5" width="11" height="11" rx="1.5" />
+                  <path d="M15.5 5.5H6A1.5 1.5 0 0 0 4.5 7v9.5" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                aria-label="Eliminar este color"
+                disabled={disabled}
+                onClick={() => {
+                  if (
+                    window.confirm(`¿Eliminar el color «${colorway.name}»?`)
+                  ) {
+                    void onRemove()
+                  }
+                }}
+                className="flex h-11 w-9 items-center justify-center border border-input bg-card text-destructive hover:bg-muted disabled:opacity-60"
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13" />
+                </svg>
+              </button>
+            </div>
+          </>
+        )}
+      </Form>
 
       <div className="flex flex-col gap-3 border-t border-dashed border-input p-4">
         <span className="text-[10px] font-extrabold tracking-[0.12em] text-muted-foreground uppercase">

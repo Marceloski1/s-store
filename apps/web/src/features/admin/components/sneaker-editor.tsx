@@ -1,3 +1,6 @@
+import { Form } from "@workspace/ui/components/form"
+
+import { sneakerFormSchema } from "@/features/admin/api/schemas"
 import {
   publishChecks,
   sneakerStock,
@@ -13,6 +16,8 @@ import { SneakerGeneralSection } from "@/features/admin/components/sneaker-gener
 import { SummaryPanel } from "@/features/admin/components/summary-panel"
 import { useSneakerEditor } from "@/features/admin/hooks/use-sneaker-editor"
 import type { ApiSneaker } from "@/lib/api/types"
+
+const SNEAKER_FORM_ID = "sneaker-form"
 
 type SneakerEditorProps = {
   initialSneaker: ApiSneaker | null
@@ -31,17 +36,17 @@ export function SneakerEditor({
   genders,
   currencies,
 }: SneakerEditorProps) {
-  const editor = useSneakerEditor(initialSneaker, initialForm)
-  const { sneaker, form, isSaving } = editor
+  const editor = useSneakerEditor(initialSneaker)
+  const { sneaker, isSaving } = editor
 
   return (
     <div className="flex flex-col gap-5">
       <SneakerEditorHeader
-        title={sneaker?.name ?? (form.name.trim() || "Nuevo sneaker")}
+        title={sneaker?.name ?? "Nuevo sneaker"}
         status={sneaker?.status ?? null}
         isSaving={isSaving}
+        formId={SNEAKER_FORM_ID}
         onArchive={() => void editor.changeStatus("archived")}
-        onSave={() => void editor.save()}
       />
 
       {(editor.error || editor.notice) && (
@@ -59,32 +64,28 @@ export function SneakerEditor({
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
         <div className="flex min-w-0 flex-col gap-5">
-          <form
+          <Form
+            id={SNEAKER_FORM_ID}
+            schema={sneakerFormSchema}
+            defaultValues={initialForm}
+            disabled={isSaving}
+            onSubmit={editor.save}
             className="flex flex-col gap-5"
-            onSubmit={(event) => {
-              event.preventDefault()
-              void editor.save()
-            }}
           >
-            <SneakerGeneralSection
-              form={form}
-              brands={brands}
-              categories={categories}
-              genders={genders}
-              currencies={currencies}
-              disabled={isSaving}
-              onChange={editor.setField}
-              onRegenerateSlug={editor.regenerateSlug}
-            />
-            <SneakerContentSection
-              form={form}
-              disabled={isSaving}
-              onChange={editor.setField}
-            />
-            <button type="submit" className="sr-only">
-              Guardar
-            </button>
-          </form>
+            {(form) => (
+              <>
+                <SneakerGeneralSection
+                  brands={brands}
+                  categories={categories}
+                  genders={genders}
+                  currencies={currencies}
+                  disabled={isSaving}
+                  onRegenerateSlug={() => editor.regenerateSlug(form)}
+                />
+                <SneakerContentSection />
+              </>
+            )}
+          </Form>
           {sneaker && (
             <ColorwaysSection
               colorways={sneaker.colorways}

@@ -1,16 +1,12 @@
 import type { SneakerForm } from "@/features/admin/api/types"
 import {
   fieldClass,
+  invalidClass,
   labelClass,
   sectionClass,
   textareaClass,
 } from "@/features/admin/components/editor-styles"
-
-type SneakerContentSectionProps = {
-  form: SneakerForm
-  disabled: boolean
-  onChange: <K extends keyof SneakerForm>(key: K, value: SneakerForm[K]) => void
-}
+import { SneakerField } from "@/features/admin/components/form-fields"
 
 const SPEC_FIELDS = [
   { key: "material", label: "Material" },
@@ -19,11 +15,7 @@ const SPEC_FIELDS = [
   { key: "cushioning", label: "Amortiguación" },
 ] as const satisfies readonly { key: keyof SneakerForm; label: string }[]
 
-export function SneakerContentSection({
-  form,
-  disabled,
-  onChange,
-}: SneakerContentSectionProps) {
+export function SneakerContentSection() {
   return (
     <section className={sectionClass}>
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-4">
@@ -36,74 +28,71 @@ export function SneakerContentSection({
       </div>
       <div className="flex flex-col gap-5 px-6 py-5">
         <div className="grid gap-4 sm:grid-cols-2">
-          {SPEC_FIELDS.map((field) => (
-            <div key={field.key} className="flex flex-col gap-1.5">
-              <label htmlFor={field.key} className={labelClass}>
-                {field.label}
-              </label>
-              <input
-                id={field.key}
-                type="text"
-                maxLength={100}
-                value={form[field.key]}
-                disabled={disabled}
-                onChange={(event) => onChange(field.key, event.target.value)}
-                className={fieldClass}
-              />
-            </div>
+          {SPEC_FIELDS.map((spec) => (
+            <SneakerField
+              key={spec.key}
+              name={spec.key}
+              id={spec.key}
+              label={spec.label}
+              labelClassName={labelClass}
+              render={({ field, fieldState, control }) => (
+                <input
+                  {...control}
+                  {...field}
+                  type="text"
+                  className={invalidClass(fieldClass, fieldState.invalid)}
+                />
+              )}
+            />
           ))}
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="usage" className={labelClass}>
-            Recomendación de uso o estilo
-          </label>
-          <textarea
-            id="usage"
-            rows={2}
-            maxLength={500}
-            value={form.usage}
-            disabled={disabled}
-            onChange={(event) => onChange("usage", event.target.value)}
-            className={textareaClass}
-          />
-        </div>
+        <SneakerField
+          name="usage"
+          id="usage"
+          label="Recomendación de uso o estilo"
+          labelClassName={labelClass}
+          render={({ field, fieldState, control }) => (
+            <textarea
+              {...control}
+              {...field}
+              rows={2}
+              className={invalidClass(textareaClass, fieldState.invalid)}
+            />
+          )}
+        />
 
         <div className="grid gap-4 sm:grid-cols-[1.7fr_1fr]">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="testimonial" className={labelClass}>
-              Testimonio de cliente
-            </label>
-            <textarea
-              id="testimonial"
-              rows={2}
-              maxLength={500}
-              placeholder="Todavía sin testimonio"
-              value={form.testimonialQuote}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange("testimonialQuote", event.target.value)
-              }
-              className={textareaClass}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="testimonial-author" className={labelClass}>
-              Quién lo dice
-            </label>
-            <input
-              id="testimonial-author"
-              type="text"
-              maxLength={100}
-              placeholder="Nombre y talla"
-              value={form.testimonialAuthor}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange("testimonialAuthor", event.target.value)
-              }
-              className={fieldClass}
-            />
-          </div>
+          <SneakerField
+            name="testimonialQuote"
+            id="testimonial"
+            label="Testimonio de cliente"
+            labelClassName={labelClass}
+            render={({ field, fieldState, control }) => (
+              <textarea
+                {...control}
+                {...field}
+                rows={2}
+                placeholder="Todavía sin testimonio"
+                className={invalidClass(textareaClass, fieldState.invalid)}
+              />
+            )}
+          />
+          <SneakerField
+            name="testimonialAuthor"
+            id="testimonial-author"
+            label="Quién lo dice"
+            labelClassName={labelClass}
+            render={({ field, fieldState, control }) => (
+              <input
+                {...control}
+                {...field}
+                type="text"
+                placeholder="Nombre y talla"
+                className={invalidClass(fieldClass, fieldState.invalid)}
+              />
+            )}
+          />
         </div>
       </div>
     </section>

@@ -1,5 +1,7 @@
 import { useRef, useState } from "react"
 
+import type { FormApi } from "@workspace/ui/components/form"
+
 import { colorwayRequest, formToRequest } from "@/features/admin/api/sneakers"
 import {
   MAX_IMAGE_BYTES,
@@ -23,28 +25,8 @@ function editorUrl(slug: string): string {
   return `/admin/sneakers/${slug}`
 }
 
-function validateForm(form: SneakerForm): string | null {
-  if (!form.name.trim()) return "El nombre del modelo es obligatorio"
-  if (!form.brandId || !form.categoryId) {
-    return "Elige una marca y una categoría"
-  }
-  if (form.price.trim() === "" || Number(form.price) < 0) {
-    return "Indica un precio base válido"
-  }
-  const hasQuote = form.testimonialQuote.trim() !== ""
-  const hasAuthor = form.testimonialAuthor.trim() !== ""
-  if (hasQuote !== hasAuthor) {
-    return "El testimonio necesita el texto y quién lo dice, o ninguno de los dos"
-  }
-  return null
-}
-
-export function useSneakerEditor(
-  initialSneaker: ApiSneaker | null,
-  initialForm: SneakerForm
-) {
+export function useSneakerEditor(initialSneaker: ApiSneaker | null) {
   const [sneaker, setSneaker] = useState(initialSneaker)
-  const [form, setForm] = useState(initialForm)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
@@ -86,24 +68,8 @@ export function useSneakerEditor(
     })
   }
 
-  function setField<K extends keyof SneakerForm>(
-    key: K,
-    value: SneakerForm[K]
-  ) {
-    setForm((current) => ({ ...current, [key]: value }))
-  }
-
-  function regenerateSlug() {
-    setField("slug", slugify(form.name))
-  }
-
-  async function save() {
-    const invalid = validateForm(form)
-    if (invalid) {
-      setError(invalid)
-      return
-    }
-    const request = formToRequest(form)
+  async function save(values: SneakerForm, form: FormApi<SneakerForm>) {
+    const request = formToRequest(values)
     if (!sneaker) {
       setIsSaving(true)
       try {
@@ -121,10 +87,17 @@ export function useSneakerEditor(
       "Cambios guardados"
     )
     if (!updated) return
-    setForm(sneakerToForm(updated))
+    form.reset(sneakerToForm(updated))
     if (updated.slug !== previousSlug) {
       window.location.assign(editorUrl(updated.slug))
     }
+  }
+
+  function regenerateSlug(form: FormApi<SneakerForm>) {
+    form.setValue("slug", slugify(form.getValues("name")), {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
   }
 
   function canChangeStatus(target: SneakerStatus): boolean {
@@ -246,11 +219,9 @@ export function useSneakerEditor(
 
   return {
     sneaker,
-    form,
     isSaving,
     error,
     notice,
-    setField,
     regenerateSlug,
     save,
     canChangeStatus,

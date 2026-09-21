@@ -1,34 +1,31 @@
 import {
   DESCRIPTION_MAX_LENGTH,
   type AdminOption,
-  type SneakerForm,
 } from "@/features/admin/api/types"
 import {
   fieldClass,
+  invalidClass,
   labelClass,
   sectionClass,
   textareaClass,
 } from "@/features/admin/components/editor-styles"
+import { SneakerField } from "@/features/admin/components/form-fields"
 
 type SneakerGeneralSectionProps = {
-  form: SneakerForm
   brands: AdminOption[]
   categories: AdminOption[]
   genders: AdminOption[]
   currencies: readonly string[]
   disabled: boolean
-  onChange: <K extends keyof SneakerForm>(key: K, value: SneakerForm[K]) => void
   onRegenerateSlug: () => void
 }
 
 export function SneakerGeneralSection({
-  form,
   brands,
   categories,
   genders,
   currencies,
   disabled,
-  onChange,
   onRegenerateSlug,
 }: SneakerGeneralSectionProps) {
   return (
@@ -38,185 +35,189 @@ export function SneakerGeneralSection({
       </div>
       <div className="flex flex-col gap-5 px-6 py-5">
         <div className="grid gap-4 sm:grid-cols-[1.4fr_1fr]">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="name" className={labelClass}>
-              Nombre del modelo
-            </label>
-            <input
-              id="name"
-              type="text"
-              required
-              value={form.name}
-              disabled={disabled}
-              onChange={(event) => onChange("name", event.target.value)}
-              className={fieldClass}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="slug" className={labelClass}>
-              Slug (URL)
-            </label>
-            <div className="flex gap-2">
+          <SneakerField
+            name="name"
+            id="name"
+            label="Nombre del modelo"
+            labelClassName={labelClass}
+            render={({ field, fieldState, control }) => (
               <input
-                id="slug"
+                {...control}
+                {...field}
                 type="text"
-                value={form.slug}
-                placeholder="Se genera a partir del nombre"
-                disabled={disabled}
-                onChange={(event) => onChange("slug", event.target.value)}
-                className={`${fieldClass} min-w-0 grow bg-muted text-muted-foreground`}
+                className={invalidClass(fieldClass, fieldState.invalid)}
               />
-              <button
-                type="button"
-                disabled={disabled}
-                onClick={onRegenerateSlug}
-                className="h-11 shrink-0 border border-input bg-card px-3 text-[11px] font-extrabold tracking-[0.04em] uppercase hover:bg-muted disabled:opacity-60"
-              >
-                Regenerar
-              </button>
-            </div>
-          </div>
+            )}
+          />
+          <SneakerField
+            name="slug"
+            id="slug"
+            label="Slug (URL)"
+            labelClassName={labelClass}
+            render={({ field, fieldState, control }) => (
+              <div className="flex gap-2">
+                <input
+                  {...control}
+                  {...field}
+                  type="text"
+                  placeholder="Se genera a partir del nombre"
+                  className={invalidClass(
+                    `${fieldClass} min-w-0 grow bg-muted text-muted-foreground`,
+                    fieldState.invalid
+                  )}
+                />
+                <button
+                  type="button"
+                  disabled={disabled}
+                  onClick={onRegenerateSlug}
+                  className="h-11 shrink-0 border border-input bg-card px-3 text-[11px] font-extrabold tracking-[0.04em] uppercase hover:bg-muted disabled:opacity-60"
+                >
+                  Regenerar
+                </button>
+              </div>
+            )}
+          />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="description" className={labelClass}>
-            Descripción
-          </label>
-          <textarea
-            id="description"
-            rows={3}
-            maxLength={DESCRIPTION_MAX_LENGTH}
-            value={form.description}
-            disabled={disabled}
-            onChange={(event) => onChange("description", event.target.value)}
-            className={textareaClass}
-          />
-          <span className="text-[11px] text-muted-foreground">
-            {form.description.length} / {DESCRIPTION_MAX_LENGTH} caracteres
-          </span>
-        </div>
+        <SneakerField
+          name="description"
+          id="description"
+          label="Descripción"
+          labelClassName={labelClass}
+          render={({ field, fieldState, control }) => (
+            <>
+              <textarea
+                {...control}
+                {...field}
+                rows={3}
+                className={invalidClass(textareaClass, fieldState.invalid)}
+              />
+              <span className="text-[11px] text-muted-foreground">
+                {field.value.length} / {DESCRIPTION_MAX_LENGTH} caracteres
+              </span>
+            </>
+          )}
+        />
 
         <div className="grid gap-4 sm:grid-cols-3">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="brand" className={labelClass}>
-              Marca
-            </label>
-            <select
-              id="brand"
-              value={form.brandId}
-              disabled={disabled}
-              onChange={(event) => onChange("brandId", event.target.value)}
-              className={fieldClass}
-            >
-              {brands.map((brand) => (
-                <option key={brand.value} value={brand.value}>
-                  {brand.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="category" className={labelClass}>
-              Categoría
-            </label>
-            <select
-              id="category"
-              value={form.categoryId}
-              disabled={disabled}
-              onChange={(event) => onChange("categoryId", event.target.value)}
-              className={fieldClass}
-            >
-              {categories.map((category) => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="gender" className={labelClass}>
-              Para quién
-            </label>
-            <select
-              id="gender"
-              value={form.gender}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange("gender", event.target.value as SneakerForm["gender"])
-              }
-              className={fieldClass}
-            >
-              {genders.map((gender) => (
-                <option key={gender.value} value={gender.value}>
-                  {gender.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <SneakerField
+            name="brandId"
+            id="brand"
+            label="Marca"
+            labelClassName={labelClass}
+            render={({ field, fieldState, control }) => (
+              <select
+                {...control}
+                {...field}
+                className={invalidClass(fieldClass, fieldState.invalid)}
+              >
+                {brands.map((brand) => (
+                  <option key={brand.value} value={brand.value}>
+                    {brand.label}
+                  </option>
+                ))}
+              </select>
+            )}
+          />
+          <SneakerField
+            name="categoryId"
+            id="category"
+            label="Categoría"
+            labelClassName={labelClass}
+            render={({ field, fieldState, control }) => (
+              <select
+                {...control}
+                {...field}
+                className={invalidClass(fieldClass, fieldState.invalid)}
+              >
+                {categories.map((category) => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </select>
+            )}
+          />
+          <SneakerField
+            name="gender"
+            id="gender"
+            label="Para quién"
+            labelClassName={labelClass}
+            render={({ field, control }) => (
+              <select {...control} {...field} className={fieldClass}>
+                {genders.map((gender) => (
+                  <option key={gender.value} value={gender.value}>
+                    {gender.label}
+                  </option>
+                ))}
+              </select>
+            )}
+          />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-[1fr_0.7fr_1fr_1fr]">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="price" className={labelClass}>
-              Precio base
-            </label>
-            <input
-              id="price"
-              type="number"
-              min="0"
-              step="0.01"
-              required
-              value={form.price}
-              disabled={disabled}
-              onChange={(event) => onChange("price", event.target.value)}
-              className={fieldClass}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="currency" className={labelClass}>
-              Moneda
-            </label>
-            <select
-              id="currency"
-              value={form.currency}
-              disabled={disabled}
-              onChange={(event) => onChange("currency", event.target.value)}
-              className={fieldClass}
-            >
-              {currencies.map((currency) => (
-                <option key={currency} value={currency}>
-                  {currency}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="release" className={labelClass}>
-              Fecha de lanzamiento
-            </label>
-            <input
-              id="release"
-              type="date"
-              value={form.releaseDate}
-              disabled={disabled}
-              onChange={(event) => onChange("releaseDate", event.target.value)}
-              className={fieldClass}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="reference" className={labelClass}>
-              Referencia
-            </label>
-            <input
-              id="reference"
-              type="text"
-              value={form.reference}
-              placeholder="ALS-XXX-000"
-              disabled={disabled}
-              onChange={(event) => onChange("reference", event.target.value)}
-              className={`${fieldClass} uppercase`}
-            />
-          </div>
+          <SneakerField
+            name="price"
+            id="price"
+            label="Precio base"
+            labelClassName={labelClass}
+            render={({ field, fieldState, control }) => (
+              <input
+                {...control}
+                {...field}
+                type="text"
+                inputMode="decimal"
+                className={invalidClass(fieldClass, fieldState.invalid)}
+              />
+            )}
+          />
+          <SneakerField
+            name="currency"
+            id="currency"
+            label="Moneda"
+            labelClassName={labelClass}
+            render={({ field, control }) => (
+              <select {...control} {...field} className={fieldClass}>
+                {currencies.map((currency) => (
+                  <option key={currency} value={currency}>
+                    {currency}
+                  </option>
+                ))}
+              </select>
+            )}
+          />
+          <SneakerField
+            name="releaseDate"
+            id="release"
+            label="Fecha de lanzamiento"
+            labelClassName={labelClass}
+            render={({ field, control }) => (
+              <input
+                {...control}
+                {...field}
+                type="date"
+                className={fieldClass}
+              />
+            )}
+          />
+          <SneakerField
+            name="reference"
+            id="reference"
+            label="Referencia"
+            labelClassName={labelClass}
+            render={({ field, fieldState, control }) => (
+              <input
+                {...control}
+                {...field}
+                type="text"
+                placeholder="ALS-XXX-000"
+                className={invalidClass(
+                  `${fieldClass} uppercase`,
+                  fieldState.invalid
+                )}
+              />
+            )}
+          />
         </div>
       </div>
     </section>

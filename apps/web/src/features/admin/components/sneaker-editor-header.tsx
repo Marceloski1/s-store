@@ -5,16 +5,16 @@ type SneakerEditorHeaderProps = {
   title: string
   status: SneakerStatus | null
   isSaving: boolean
+  formId: string
   onArchive: () => void
-  onSave: () => void
 }
 
 export function SneakerEditorHeader({
   title,
   status,
   isSaving,
+  formId,
   onArchive,
-  onSave,
 }: SneakerEditorHeaderProps) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
@@ -58,18 +58,18 @@ export function SneakerEditorHeader({
         )}
         {status === null ? (
           <button
-            type="button"
+            type="submit"
+            form={formId}
             disabled={isSaving}
-            onClick={onSave}
             className="h-11 bg-primary px-6 text-xs font-extrabold tracking-[0.06em] text-primary-foreground uppercase hover:bg-primary/90 disabled:opacity-60"
           >
             Guardar borrador
           </button>
         ) : (
           <button
-            type="button"
+            type="submit"
+            form={formId}
             disabled={isSaving}
-            onClick={onSave}
             className="h-11 bg-primary px-6 text-xs font-extrabold tracking-[0.06em] text-primary-foreground uppercase hover:bg-primary/90 disabled:opacity-60"
           >
             {isSaving ? "Guardando…" : "Guardar cambios"}
