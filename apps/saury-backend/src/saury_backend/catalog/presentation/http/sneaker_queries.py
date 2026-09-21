@@ -5,6 +5,7 @@ from fastapi import Query
 
 from saury_backend.catalog.application.dtos.sneaker import ListSneakersQuery
 from saury_backend.catalog.domain.repositories.sneaker_repository import SneakerSort
+from saury_backend.catalog.domain.value_objects.currency import Currency
 from saury_backend.catalog.domain.value_objects.gender import Gender
 
 
@@ -16,7 +17,7 @@ def list_sneakers_query(
     color: Annotated[list[str], Query()] = [],
     min_price: Decimal | None = None,
     max_price: Decimal | None = None,
-    currency: str | None = None,
+    currency: Currency | None = None,
     in_stock: bool = False,
     q: str | None = None,
     sort: SneakerSort = SneakerSort.CREATED_AT,
@@ -30,7 +31,7 @@ def list_sneakers_query(
         colors=tuple(color),
         min_price=min_price,
         max_price=max_price,
-        currency=currency,
+        currency=currency.value if currency else None,
         in_stock=in_stock,
         q=q,
         sort=sort.value,

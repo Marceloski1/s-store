@@ -4,7 +4,6 @@ from typing import Annotated
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
-from shared.domain.money import CURRENCY_PATTERN
 from shared.presentation.http.schemas import SlugStr
 
 from saury_backend.catalog.domain.entities.brand import BRAND_NAME_MAX_LENGTH
@@ -22,6 +21,7 @@ from saury_backend.catalog.domain.entities.sneaker import (
     SNEAKER_REFERENCE_MAX_LENGTH,
     SNEAKER_USAGE_MAX_LENGTH,
 )
+from saury_backend.catalog.domain.value_objects.currency import Currency
 from saury_backend.catalog.domain.value_objects.gender import Gender
 from saury_backend.catalog.domain.value_objects.sneaker_status import SneakerStatus
 from saury_backend.catalog.domain.value_objects.spec_sheet import SPEC_FIELD_MAX_LENGTH
@@ -30,7 +30,6 @@ from saury_backend.catalog.domain.value_objects.testimonial import (
     TESTIMONIAL_QUOTE_MAX_LENGTH,
 )
 
-CurrencyStr = Annotated[str, StringConstraints(pattern=CURRENCY_PATTERN)]
 ColorCodeStr = Annotated[str, StringConstraints(strip_whitespace=True, to_upper=True, pattern=CASE_INSENSITIVE_COLOR_CODE_PATTERN)]
 SkuStr = Annotated[
     str,
@@ -104,7 +103,7 @@ class SneakerRequest(BaseModel):
     category_id: UUID
     gender: Gender
     price: Annotated[Decimal, Field(ge=0)]
-    currency: CurrencyStr
+    currency: Currency
     release_date: date | None = None
     slug: SlugStr | None = None
     reference: ReferenceStr | None = None

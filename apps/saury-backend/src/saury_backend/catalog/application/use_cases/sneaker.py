@@ -33,6 +33,7 @@ from saury_backend.catalog.domain.repositories.sneaker_repository import (
     SneakerRepository,
     SneakerSort,
 )
+from saury_backend.catalog.domain.value_objects.currency import Currency
 from saury_backend.catalog.domain.value_objects.gender import Gender
 from saury_backend.catalog.domain.value_objects.shoe_size import ShoeSize
 from saury_backend.catalog.domain.value_objects.sneaker_status import SneakerStatus
@@ -57,7 +58,7 @@ async def delete_stored_images(storage: ImageStorage, public_ids: list[str]) -> 
             logger.exception("Failed to delete stored image %s", public_id)
 
 
-def parse_enum[E: (Gender, SneakerStatus, SneakerSort)](enum: type[E], value: str, *, field: str) -> E:
+def parse_enum[E: (Currency, Gender, SneakerStatus, SneakerSort)](enum: type[E], value: str, *, field: str) -> E:
     try:
         return enum(value)
     except ValueError as error:
@@ -112,7 +113,7 @@ class CreateSneaker(_SneakerWriter):
             brand_id=command.brand_id,
             category_id=command.category_id,
             gender=parse_enum(Gender, command.gender, field="gender"),
-            base_price=Money.of(command.price, command.currency),
+            base_price=Money.of(command.price, parse_enum(Currency, command.currency, field="currency")),
             release_date=command.release_date,
             slug=Slug(command.slug) if command.slug else None,
             reference=command.reference,
@@ -133,7 +134,7 @@ class UpdateSneaker(_SneakerWriter):
             brand_id=command.brand_id,
             category_id=command.category_id,
             gender=parse_enum(Gender, command.gender, field="gender"),
-            base_price=Money.of(command.price, command.currency),
+            base_price=Money.of(command.price, parse_enum(Currency, command.currency, field="currency")),
             release_date=command.release_date,
             slug=Slug(command.slug) if command.slug else None,
             reference=command.reference,
@@ -190,7 +191,7 @@ class ListSneakers:
 
     @staticmethod
     def _build_filters(query: ListSneakersQuery) -> SneakerFilters:
-        currency = query.currency
+        currency = parse_enum(Currency, query.currency, field="currency") if query.currency else None
         if currency is None and (query.min_price is not None or query.max_price is not None):
             raise ValidationError("currency is required when filtering by price")
         return SneakerFilters(

@@ -337,7 +337,7 @@ async def test_facets_count_sneakers_in_scope(repository, session, catalog) -> N
 
     assert [(facet.value, facet.label, facet.count) for facet in published.brands] == [("nike", "Nike", 2)]
     assert [(facet.value, facet.count) for facet in published.categories] == [("lifestyle", 1), ("running", 1)]
-    assert [(facet.value, facet.count) for facet in published.genders] == [("men", 1), ("women", 1)]
+    assert [(facet.value, facet.count) for facet in published.genders] == [("MEN", 1), ("WOMEN", 1)]
     assert [(facet.value, facet.count) for facet in published.sizes] == [("40", 2), ("42", 1)]
     assert [(facet.value, facet.label, facet.count) for facet in published.colors] == [("#000000", "Default", 2)]
     assert published.currencies == ["USD"]

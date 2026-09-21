@@ -20,7 +20,7 @@ def sneaker_payload(references: dict[str, str], **overrides: Any) -> dict[str, A
     payload = {
         "name": "Air Max 90",
         "description": "Classic runner",
-        "gender": "unisex",
+        "gender": "UNISEX",
         "price": "130.00",
         "currency": "USD",
         **references,
@@ -62,7 +62,7 @@ def test_sneaker_crud_flow(client: TestClient, references: dict[str, str]) -> No
     sneaker = create_sneaker(client, references)
 
     assert sneaker["slug"] == "air-max-90"
-    assert sneaker["status"] == "draft"
+    assert sneaker["status"] == "DRAFT"
     assert sneaker["base_price"] == {"amount": "130.00", "currency": "USD"}
     assert client.get(f"/sneakers/{sneaker['id']}").json() == sneaker
 
@@ -162,10 +162,10 @@ def test_publish_without_primary_image_returns_conflict(client: TestClient, refe
 def test_publication_lifecycle(client: TestClient, references: dict[str, str]) -> None:
     sneaker = make_publishable(client, references)
 
-    assert client.post(f"/sneakers/{sneaker['id']}/publish").json()["status"] == "active"
+    assert client.post(f"/sneakers/{sneaker['id']}/publish").json()["status"] == "ACTIVE"
     assert client.post(f"/sneakers/{sneaker['id']}/publish").status_code == 409
-    assert client.post(f"/sneakers/{sneaker['id']}/archive").json()["status"] == "archived"
-    assert client.post(f"/sneakers/{sneaker['id']}/unarchive").json()["status"] == "draft"
+    assert client.post(f"/sneakers/{sneaker['id']}/archive").json()["status"] == "ARCHIVED"
+    assert client.post(f"/sneakers/{sneaker['id']}/unarchive").json()["status"] == "DRAFT"
 
 
 def test_image_flow_uses_injected_storage(
@@ -217,18 +217,18 @@ def test_delete_sneaker_removes_its_images_from_storage(
 def test_filters_and_pagination(client: TestClient, references: dict[str, str]) -> None:
     make_publishable(client, references)
     create_sneaker(client, references, name="Pegasus", price="80.00")
-    create_sneaker(client, references, name="Vomero", price="90.00", gender="men")
+    create_sneaker(client, references, name="Vomero", price="90.00", gender="MEN")
 
     listed = client.get("/sneakers", params={"q": "air", "in_stock": True, "shoe_size": "42"}).json()
     assert [item["name"] for item in listed["items"]] == ["Air Max 90"]
 
-    by_price = client.get("/sneakers", params={"min_price": "100", "currency": "USD", "sort": "price"}).json()
+    by_price = client.get("/sneakers", params={"min_price": "100", "currency": "USD", "sort": "PRICE"}).json()
     assert [item["name"] for item in by_price["items"]] == ["Air Max 90"]
 
-    by_gender = client.get("/sneakers", params={"gender": "men"}).json()
+    by_gender = client.get("/sneakers", params={"gender": "MEN"}).json()
     assert [item["name"] for item in by_gender["items"]] == ["Vomero"]
 
-    paginated = client.get("/sneakers", params={"sort": "name", "page": 2, "size": 2}).json()
+    paginated = client.get("/sneakers", params={"sort": "NAME", "page": 2, "size": 2}).json()
     assert (paginated["total"], paginated["pages"], len(paginated["items"])) == (3, 2, 1)
 
 
@@ -288,11 +288,11 @@ def test_get_sneaker_by_slug(client: TestClient, references: dict[str, str]) -> 
 
 
 def test_list_sneakers_accepts_repeated_filters(client: TestClient, references: dict[str, str]) -> None:
-    create_sneaker(client, references, gender="men")
-    create_sneaker(client, references, name="Cortez", gender="women")
-    create_sneaker(client, references, name="Kids Run", gender="kids")
+    create_sneaker(client, references, gender="MEN")
+    create_sneaker(client, references, name="Cortez", gender="WOMEN")
+    create_sneaker(client, references, name="Kids Run", gender="KIDS")
 
-    listed = client.get("/sneakers", params=[("gender", "men"), ("gender", "women"), ("sort", "name")]).json()
+    listed = client.get("/sneakers", params=[("gender", "MEN"), ("gender", "WOMEN"), ("sort", "NAME")]).json()
 
     assert [item["name"] for item in listed["items"]] == ["Air Max 90", "Cortez"]
     assert client.get("/sneakers", params={"color": "blue"}).status_code == 422
@@ -303,10 +303,10 @@ def test_public_catalog_only_exposes_published_sneakers(client: TestClient, refe
     client.post(f"/sneakers/{published['id']}/publish")
     create_sneaker(client, references, name="Draft Runner")
 
-    listed = client.get("/catalog/sneakers", params={"status": "draft"}).json()
+    listed = client.get("/catalog/sneakers", params={"status": "DRAFT"}).json()
 
     assert [item["slug"] for item in listed["items"]] == ["air-max-90"]
-    assert client.get("/catalog/sneakers/air-max-90").json()["status"] == "active"
+    assert client.get("/catalog/sneakers/air-max-90").json()["status"] == "ACTIVE"
     assert client.get("/catalog/sneakers/draft-runner").status_code == 404
 
 
@@ -320,8 +320,17 @@ def test_public_catalog_facets(client: TestClient, references: dict[str, str]) -
     assert facets == {
         "brands": [{"value": "nike", "label": "Nike", "count": 1}],
         "categories": [{"value": "running", "label": "Running", "count": 1}],
-        "genders": [{"value": "unisex", "label": "unisex", "count": 1}],
+        "genders": [{"value": "UNISEX", "label": "UNISEX", "count": 1}],
         "sizes": [{"value": "42", "label": "42", "count": 1}],
         "colors": [{"value": "#FF0000", "label": "Infrared", "count": 1}],
         "currencies": ["USD"],
     }
+
+
+def test_sneaker_currency_must_be_a_supported_currency(client: TestClient, references: dict[str, str]) -> None:
+    response = client.post("/sneakers", json=sneaker_payload(references, currency="GBP"))
+
+    assert response.status_code == 422
+    assert client.get("/sneakers", params={"min_price": "10", "currency": "GBP"}).status_code == 422
+    assert client.get("/catalog/sneakers", params={"min_price": "10", "currency": "GBP"}).status_code == 422
+    assert create_sneaker(client, references, currency="CUP")["base_price"]["currency"] == "CUP"
