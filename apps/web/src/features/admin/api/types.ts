@@ -1,9 +1,5 @@
 import type { ColorwayInput, SneakerForm } from "@/features/admin/api/schemas"
-import type {
-  ApiColorway,
-  ApiSneaker,
-  ApiSneakerStatus,
-} from "@/lib/api/types"
+import type { ApiColorway, ApiSneaker, ApiSneakerStatus } from "@/lib/api/types"
 
 export type SneakerStatus = ApiSneakerStatus
 

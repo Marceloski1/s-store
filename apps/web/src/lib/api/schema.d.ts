@@ -4,6 +4,93 @@
  */
 
 export interface paths {
+  "/auth/login": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Login */
+    post: operations["login_auth_login_post"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/auth/logout": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Logout */
+    post: operations["logout_auth_logout_post"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/auth/me": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Me */
+    get: operations["me_auth_me_get"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/users": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** List Users */
+    get: operations["list_users_users_get"]
+    put?: never
+    /** Create User */
+    post: operations["create_user_users_post"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/users/{user_id}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    /** Delete User */
+    delete: operations["delete_user_users__user_id__delete"]
+    options?: never
+    head?: never
+    /** Update User */
+    patch: operations["update_user_users__user_id__patch"]
+    trace?: never
+  }
   "/brands": {
     parameters: {
       query?: never
@@ -468,6 +555,15 @@ export interface components {
       /** Sizes */
       sizes: components["schemas"]["SizeVariantResponse"][]
     }
+    /** CreateUserRequest */
+    CreateUserRequest: {
+      /** Email */
+      email: string
+      /** Name */
+      name: string
+      /** Password */
+      password: string
+    }
     /** ErrorResponse */
     ErrorResponse: {
       /** Detail */
@@ -515,6 +611,13 @@ export interface components {
       /** Is Primary */
       is_primary: boolean
     }
+    /** LoginRequest */
+    LoginRequest: {
+      /** Email */
+      email: string
+      /** Password */
+      password: string
+    }
     /** MoneyResponse */
     MoneyResponse: {
       /** Amount */
@@ -561,6 +664,24 @@ export interface components {
       /** Pages */
       pages: number
     }
+    /** PageResponse[UserResponse] */
+    PageResponse_UserResponse_: {
+      /** Items */
+      items: components["schemas"]["UserResponse"][]
+      /** Total */
+      total: number
+      /** Page */
+      page: number
+      /** Size */
+      size: number
+      /** Pages */
+      pages: number
+    }
+    /**
+     * Role
+     * @enum {string}
+     */
+    Role: "ADMIN" | "SUPER_ADMIN"
     /** SizeStockRequest */
     SizeStockRequest: {
       /** Stock */
@@ -700,6 +821,40 @@ export interface components {
       /** Author */
       author: string
     }
+    /** UpdateUserRequest */
+    UpdateUserRequest: {
+      /** Name */
+      name?: string | null
+      /** Is Active */
+      is_active?: boolean | null
+      /** Password */
+      password?: string | null
+    }
+    /** UserResponse */
+    UserResponse: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string
+      /** Email */
+      email: string
+      /** Name */
+      name: string
+      role: components["schemas"]["Role"]
+      /** Is Active */
+      is_active: boolean
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string
+      /**
+       * Updated At
+       * Format: date-time
+       */
+      updated_at: string
+    }
     /** ValidationError */
     ValidationError: {
       /** Location */
@@ -722,6 +877,341 @@ export interface components {
 }
 export type $defs = Record<string, never>
 export interface operations {
+  login_auth_login_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LoginRequest"]
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["UserResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  logout_auth_logout_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  me_auth_me_get: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["UserResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+    }
+  }
+  list_users_users_get: {
+    parameters: {
+      query?: {
+        page?: number
+        size?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["PageResponse_UserResponse_"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  create_user_users_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateUserRequest"]
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["UserResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  delete_user_users__user_id__delete: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        user_id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  update_user_users__user_id__patch: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        user_id: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateUserRequest"]
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["UserResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Conflict */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
   list_brands_brands_get: {
     parameters: {
       query?: {
@@ -774,6 +1264,24 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["BrandResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
         }
       }
       /** @description Conflict */
@@ -860,6 +1368,24 @@ export interface operations {
           "application/json": components["schemas"]["BrandResponse"]
         }
       }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Not Found */
       404: {
         headers: {
@@ -906,6 +1432,24 @@ export interface operations {
           [name: string]: unknown
         }
         content?: never
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
       }
       /** @description Not Found */
       404: {
@@ -988,6 +1532,24 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["CategoryResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
         }
       }
       /** @description Conflict */
@@ -1074,6 +1636,24 @@ export interface operations {
           "application/json": components["schemas"]["CategoryResponse"]
         }
       }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Not Found */
       404: {
         headers: {
@@ -1120,6 +1700,24 @@ export interface operations {
           [name: string]: unknown
         }
         content?: never
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
       }
       /** @description Not Found */
       404: {
@@ -1184,6 +1782,24 @@ export interface operations {
           "application/json": components["schemas"]["PageResponse_SneakerResponse_"]
         }
       }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Unprocessable Content */
       422: {
         headers: {
@@ -1215,6 +1831,24 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
         }
       }
       /** @description Not Found */
@@ -1266,6 +1900,24 @@ export interface operations {
           "application/json": components["schemas"]["SneakerResponse"]
         }
       }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Not Found */
       404: {
         headers: {
@@ -1304,6 +1956,24 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
         }
       }
       /** @description Not Found */
@@ -1348,6 +2018,24 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
         }
       }
       /** @description Not Found */
@@ -1397,6 +2085,24 @@ export interface operations {
         }
         content?: never
       }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Not Found */
       404: {
         headers: {
@@ -1435,6 +2141,24 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
         }
       }
       /** @description Not Found */
@@ -1486,6 +2210,24 @@ export interface operations {
           "application/json": components["schemas"]["SneakerResponse"]
         }
       }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Not Found */
       404: {
         headers: {
@@ -1533,6 +2275,24 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
         }
       }
       /** @description Not Found */
@@ -1586,6 +2346,24 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
         }
       }
       /** @description Not Found */
@@ -1642,6 +2420,24 @@ export interface operations {
           "application/json": components["schemas"]["SneakerResponse"]
         }
       }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Not Found */
       404: {
         headers: {
@@ -1692,6 +2488,24 @@ export interface operations {
           "application/json": components["schemas"]["SneakerResponse"]
         }
       }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Not Found */
       404: {
         headers: {
@@ -1738,6 +2552,24 @@ export interface operations {
           "application/json": components["schemas"]["SneakerResponse"]
         }
       }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Not Found */
       404: {
         headers: {
@@ -1778,6 +2610,24 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
         }
       }
       /** @description Not Found */
@@ -1822,6 +2672,24 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
         }
       }
       /** @description Not Found */
@@ -1877,6 +2745,24 @@ export interface operations {
           "application/json": components["schemas"]["SneakerResponse"]
         }
       }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Not Found */
       404: {
         headers: {
@@ -1918,6 +2804,24 @@ export interface operations {
           "application/json": components["schemas"]["SneakerResponse"]
         }
       }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
       /** @description Not Found */
       404: {
         headers: {
@@ -1957,6 +2861,24 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["SneakerResponse"]
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
         }
       }
       /** @description Not Found */
