@@ -43,6 +43,6 @@ El objetivo original del proyecto es un catálogo interactivo de sneakers para c
 
 ## Preguntas abiertas
 
-- **PA-01** ¿Modo de salida de Astro: SSR con adaptador (¿cuál? Vercel/Node) o estático con revalidación?
-- **PA-02** ¿Diseño visual de referencia o se usa el tema actual de `@workspace/ui`?
+- **PA-01** ~~¿Modo de salida de Astro?~~ Resuelto: SSR (`output: "server"`) con `@astrojs/node` en modo `standalone` mientras no se decida el hosting (004 PA-01); cambiar de adaptador no afecta al código de las páginas.
+- **PA-02** ~~¿Diseño visual?~~ Resuelto: la maquetación de `features/storefront` es la referencia y la fuente de verdad del contrato de datos.
 - **PA-03** ¿Cambio de colorway en la ficha también cambia la galería? (requiere `colorway_id` opcional en `Image`, ver 001).

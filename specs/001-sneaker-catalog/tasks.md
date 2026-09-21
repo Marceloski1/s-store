@@ -42,10 +42,10 @@
 
 ## Fase 5 · UI de pruebas
 
-- [ ] T050 Regenerar tipos (`pnpm --filter web api:types`)
-- [ ] T051 Gateway y hooks de sneakers en `features/catalog`
-- [ ] T052 Formularios y tablas de sneakers, colorways, tallas e imágenes (contenedor/presentacional)
-- [ ] T053 Validación en navegador del flujo completo (CA-06)
+- [x] T050 Regenerar tipos (`pnpm --filter web api:types`)
+- [x] T051 Gateway y hooks de sneakers en `features/admin`
+- [x] T052 Formularios y tablas de sneakers, colorways, tallas e imágenes (contenedor/presentacional)
+- [ ] T053 Validación en navegador del flujo completo (CA-06) — validado todo salvo la subida de imágenes, pendiente de credenciales de Cloudinary en desarrollo (002-T001)
 
 ## Cierre
 

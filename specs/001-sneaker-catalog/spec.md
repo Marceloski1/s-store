@@ -30,7 +30,7 @@ Brand 1───* Sneaker *───1 Category
 
 | Entidad | Campos |
 |---|---|
-| **Sneaker** | `id`, `name`, `slug`, `description`, `brand_id`, `category_id`, `gender` (`men`/`women`/`unisex`/`kids`), `base_price` (Money), `status` (`draft`/`active`/`archived`), `release_date?`, `created_at`, `updated_at` |
+| **Sneaker** | `id`, `name`, `slug`, `description`, `brand_id`, `category_id`, `gender` (`men`/`women`/`unisex`/`kids`), `base_price` (Money), `status` (`draft`/`active`/`archived`), `release_date?`, `reference?` (código del modelo, único), `specs` (material, tecnología, peso, amortiguación), `usage`, `testimonial?` (cita + autor), `created_at`, `updated_at` |
 | **Image** | `id`, `sneaker_id`, `public_id` (Cloudinary), `url`, `alt`, `position`, `is_primary` |
 | **Colorway** | `id`, `sneaker_id`, `name`, `color_code`, `sku`, `price_override?` |
 | **SizeVariant** | `id`, `colorway_id`, `size` (talla EU, p. ej. `42` o `42.5`), `stock` |
@@ -39,13 +39,15 @@ Brand 1───* Sneaker *───1 Category
 
 - **RF-01** CRUD de sneakers con validación de nombre, slug, descripción, precio y referencias a `Brand` y `Category` existentes.
 - **RF-02** El slug se genera a partir del nombre si no se envía y es único.
-- **RF-03** Listado paginado con filtros combinables: `brand`, `category`, `gender`, `status`, `shoe_size`, `min_price`, `max_price`, `currency`, `in_stock`, búsqueda por texto (`q`) y ordenación (`name`, `price`, `release_date`, `created_at`). El listado de gestión incluye los sneakers `archived`; se excluyen solo filtrando por `status`.
+- **RF-03** Listado paginado con filtros combinables: `brand`, `category`, `gender`, `shoe_size` y `color` (repetibles, se combinan con OR dentro del mismo filtro), `status`, `min_price`, `max_price`, `currency`, `in_stock`, búsqueda por texto (`q`, sobre nombre, descripción y referencia) y ordenación (`name`, `price`, `release_date`, `created_at`). El listado de gestión incluye los sneakers `archived`; se excluyen solo filtrando por `status`.
 - **RF-09** Multi-moneda: cada sneaker define la moneda de su `base_price` (código ISO 4217 de 3 letras mayúsculas). `min_price`/`max_price` filtran sobre `base_price` y exigen `currency`; solo devuelven sneakers en esa moneda. Ordenar por `price` agrupa por moneda y después por importe.
 - **RF-04** CRUD de colorways dentro de un sneaker; el `sku` es único globalmente.
 - **RF-05** Alta, baja y ajuste de stock de tallas por colorway; talla única por colorway.
 - **RF-06** Gestión de imágenes del sneaker: subir (multipart), reordenar, marcar principal y borrar.
 - **RF-07** Transiciones de estado: `draft → active`, `active → archived`, `archived → draft`.
 - **RF-08** El precio efectivo de un colorway es `price_override` si existe, si no `base_price`.
+- **RF-10** Contenido de venta del sneaker (ficha técnica, recomendación de uso, testimonio y referencia) editable desde el admin y expuesto en la API; la referencia es única y el testimonio exige cita y autor juntos.
+- **RF-11** Búsqueda de un sneaker por slug para el admin (`GET /sneakers/by-slug/{slug}`).
 
 ## Reglas de negocio
 
