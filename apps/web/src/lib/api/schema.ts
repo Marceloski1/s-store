@@ -569,10 +569,20 @@ export interface components {
      * @enum {string}
      */
     Currency: Currency
+    /**
+     * ErrorCode
+     * @enum {string}
+     */
+    ErrorCode: ErrorCode
     /** ErrorResponse */
     ErrorResponse: {
       /** Detail */
       detail: string
+      code: components["schemas"]["ErrorCode"]
+      /** Params */
+      params?: {
+        [key: string]: string | number
+      }
     }
     /** FacetCountResponse */
     FacetCountResponse: {
@@ -583,16 +593,24 @@ export interface components {
       /** Count */
       count: number
     }
+    /** FieldError */
+    FieldError: {
+      /** Field */
+      field: string
+      /** Location */
+      location: string
+      /** Type */
+      type: string
+      /** Ctx */
+      ctx?: {
+        [key: string]: string | number | boolean
+      }
+    }
     /**
      * Gender
      * @enum {string}
      */
     Gender: Gender
-    /** HTTPValidationError */
-    HTTPValidationError: {
-      /** Detail */
-      detail?: components["schemas"]["ValidationError"][]
-    }
     /** ImageOrderRequest */
     ImageOrderRequest: {
       /** Image Ids */
@@ -859,18 +877,17 @@ export interface components {
        */
       updated_at: string
     }
-    /** ValidationError */
-    ValidationError: {
-      /** Location */
-      loc: (string | number)[]
-      /** Message */
-      msg: string
-      /** Error Type */
-      type: string
-      /** Input */
-      input?: unknown
-      /** Context */
-      ctx?: Record<string, never>
+    /** ValidationErrorResponse */
+    ValidationErrorResponse: {
+      /** Detail */
+      detail: string
+      code: components["schemas"]["ErrorCode"]
+      /** Params */
+      params?: {
+        [key: string]: string | number
+      }
+      /** Errors */
+      errors?: components["schemas"]["FieldError"][]
     }
   }
   responses: never
@@ -912,13 +929,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -938,6 +955,15 @@ export interface operations {
           [name: string]: unknown
         }
         content?: never
+      }
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ValidationErrorResponse"]
+        }
       }
     }
   }
@@ -966,6 +992,15 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1009,13 +1044,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1069,13 +1104,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1134,13 +1169,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1205,13 +1240,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1237,13 +1272,13 @@ export interface operations {
           "application/json": components["schemas"]["PageResponse_BrandResponse_"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1297,13 +1332,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1337,13 +1372,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1408,13 +1443,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1473,13 +1508,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1505,13 +1540,13 @@ export interface operations {
           "application/json": components["schemas"]["PageResponse_CategoryResponse_"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1565,13 +1600,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1605,13 +1640,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1676,13 +1711,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1741,13 +1776,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1810,7 +1845,7 @@ export interface operations {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["ErrorResponse"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1873,13 +1908,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1931,13 +1966,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -1989,13 +2024,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2060,13 +2095,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2116,13 +2151,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2183,13 +2218,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2250,13 +2285,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2317,13 +2352,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2388,13 +2423,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2460,13 +2495,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2519,13 +2554,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2583,13 +2618,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2643,13 +2678,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2720,6 +2755,15 @@ export interface operations {
           [name: string]: unknown
         }
         content: {
+          "application/json": components["schemas"]["ValidationErrorResponse"]
+        }
+      }
+      /** @description Bad Gateway */
+      502: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
@@ -2782,7 +2826,7 @@ export interface operations {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["ErrorResponse"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2835,13 +2879,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2894,13 +2938,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2944,7 +2988,7 @@ export interface operations {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["ErrorResponse"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -2978,13 +3022,13 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Validation Error */
+      /** @description Unprocessable Content */
       422: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
+          "application/json": components["schemas"]["ValidationErrorResponse"]
         }
       }
     }
@@ -3007,6 +3051,15 @@ export interface operations {
           "application/json": components["schemas"]["CatalogFacetsResponse"]
         }
       }
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ValidationErrorResponse"]
+        }
+      }
     }
   }
   hello__get: {
@@ -3027,6 +3080,15 @@ export interface operations {
           "text/plain": string
         }
       }
+      /** @description Unprocessable Content */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "text/plain": components["schemas"]["ValidationErrorResponse"]
+        }
+      }
     }
   }
 }
@@ -3034,6 +3096,67 @@ export enum Currency {
   USD = "USD",
   CUP = "CUP",
   EUR = "EUR",
+}
+export enum ErrorCode {
+  VALIDATION_ERROR = "VALIDATION_ERROR",
+  NOT_FOUND = "NOT_FOUND",
+  CONFLICT = "CONFLICT",
+  UNAUTHORIZED = "UNAUTHORIZED",
+  FORBIDDEN = "FORBIDDEN",
+  EXTERNAL_SERVICE_ERROR = "EXTERNAL_SERVICE_ERROR",
+  HTTP_ERROR = "HTTP_ERROR",
+  INTERNAL_ERROR = "INTERNAL_ERROR",
+  TEXT_REQUIRED = "TEXT_REQUIRED",
+  TEXT_TOO_LONG = "TEXT_TOO_LONG",
+  INVALID_SLUG = "INVALID_SLUG",
+  INVALID_CURRENCY = "INVALID_CURRENCY",
+  INVALID_AMOUNT = "INVALID_AMOUNT",
+  NEGATIVE_AMOUNT = "NEGATIVE_AMOUNT",
+  AMOUNT_TOO_LARGE = "AMOUNT_TOO_LARGE",
+  TOO_MANY_DECIMALS = "TOO_MANY_DECIMALS",
+  MONEY_CURRENCY_MISMATCH = "MONEY_CURRENCY_MISMATCH",
+  INVALID_PAGE = "INVALID_PAGE",
+  INVALID_PAGE_SIZE = "INVALID_PAGE_SIZE",
+  BRAND_NOT_FOUND = "BRAND_NOT_FOUND",
+  BRAND_SLUG_ALREADY_EXISTS = "BRAND_SLUG_ALREADY_EXISTS",
+  BRAND_IN_USE = "BRAND_IN_USE",
+  CATEGORY_NOT_FOUND = "CATEGORY_NOT_FOUND",
+  CATEGORY_SLUG_ALREADY_EXISTS = "CATEGORY_SLUG_ALREADY_EXISTS",
+  CATEGORY_IN_USE = "CATEGORY_IN_USE",
+  SNEAKER_NOT_FOUND = "SNEAKER_NOT_FOUND",
+  SNEAKER_SLUG_ALREADY_EXISTS = "SNEAKER_SLUG_ALREADY_EXISTS",
+  SNEAKER_REFERENCE_ALREADY_EXISTS = "SNEAKER_REFERENCE_ALREADY_EXISTS",
+  SNEAKER_NEEDS_PRIMARY_IMAGE = "SNEAKER_NEEDS_PRIMARY_IMAGE",
+  SNEAKER_NEEDS_SIZED_COLORWAY = "SNEAKER_NEEDS_SIZED_COLORWAY",
+  INVALID_STATUS_TRANSITION = "INVALID_STATUS_TRANSITION",
+  COLORWAY_NOT_FOUND = "COLORWAY_NOT_FOUND",
+  SKU_ALREADY_EXISTS = "SKU_ALREADY_EXISTS",
+  SIZE_NOT_FOUND = "SIZE_NOT_FOUND",
+  IMAGE_NOT_FOUND = "IMAGE_NOT_FOUND",
+  IMAGE_LIMIT_EXCEEDED = "IMAGE_LIMIT_EXCEEDED",
+  IMAGE_INVALID = "IMAGE_INVALID",
+  IMAGE_STORAGE_ERROR = "IMAGE_STORAGE_ERROR",
+  INVALID_IMAGE_ORDER = "INVALID_IMAGE_ORDER",
+  INVALID_IMAGE_POSITION = "INVALID_IMAGE_POSITION",
+  CURRENCY_MISMATCH = "CURRENCY_MISMATCH",
+  CURRENCY_REQUIRED = "CURRENCY_REQUIRED",
+  INVALID_PRICE_RANGE = "INVALID_PRICE_RANGE",
+  INVALID_OPTION = "INVALID_OPTION",
+  INVALID_SKU = "INVALID_SKU",
+  INVALID_COLOR_CODE = "INVALID_COLOR_CODE",
+  INVALID_SHOE_SIZE = "INVALID_SHOE_SIZE",
+  INVALID_REFERENCE = "INVALID_REFERENCE",
+  NEGATIVE_STOCK = "NEGATIVE_STOCK",
+  USER_NOT_FOUND = "USER_NOT_FOUND",
+  EMAIL_ALREADY_EXISTS = "EMAIL_ALREADY_EXISTS",
+  INVALID_CREDENTIALS = "INVALID_CREDENTIALS",
+  INACTIVE_USER = "INACTIVE_USER",
+  NOT_AUTHENTICATED = "NOT_AUTHENTICATED",
+  INSUFFICIENT_ROLE = "INSUFFICIENT_ROLE",
+  CANNOT_MANAGE_USER = "CANNOT_MANAGE_USER",
+  INVALID_EMAIL = "INVALID_EMAIL",
+  PASSWORD_TOO_SHORT = "PASSWORD_TOO_SHORT",
+  PASSWORD_TOO_LONG = "PASSWORD_TOO_LONG",
 }
 export enum Gender {
   MEN = "MEN",

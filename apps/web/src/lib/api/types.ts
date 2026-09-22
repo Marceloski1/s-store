@@ -9,6 +9,7 @@ import type {
 
 export {
   Currency,
+  ErrorCode,
   Gender,
   Role,
   SneakerSort,
