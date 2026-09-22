@@ -1,4 +1,5 @@
 ---
+import { AccentTone, SurfaceTone } from "@workspace/ui/lib/tones"
 import { AdminSection } from "@/features/admin/content/nav"
 import { getAdminStats, listAdminSneakers } from "@/features/admin/api/sneakers"
 import {
@@ -138,25 +139,25 @@ const hasNext = listing.page < listing.pages
       label="Total"
       value={stats.total}
       detail="modelos registrados"
-      tone="primary"
+      tone={AccentTone.PRIMARY}
     />
     <StatTile
       label="Publicados"
       value={stats.published}
       detail="visibles en la tienda"
-      tone="success"
+      tone={AccentTone.SUCCESS}
     />
     <StatTile
       label="Borradores"
       value={stats.drafts}
       detail="falta foto o tallas"
-      tone="warning"
+      tone={AccentTone.WARNING}
     />
     <StatTile
       label="Sin stock"
       value={stats.outOfStock}
       detail="para reponer o archivar"
-      tone="muted"
+      tone={AccentTone.MUTED}
     />
   </div>
 
@@ -279,8 +280,8 @@ const hasNext = listing.page < listing.pages
                       <ImagePlaceholder
                         tone={
                           row.status === SneakerStatus.ARCHIVED
-                            ? "soft"
-                            : "tint"
+                            ? SurfaceTone.SOFT
+                            : SurfaceTone.TINT
                         }
                         class="size-11 shrink-0"
                         glyphClass="w-[68%]"

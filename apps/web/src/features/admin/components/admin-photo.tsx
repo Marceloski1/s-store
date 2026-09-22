@@ -1,9 +1,15 @@
 import { cn } from "cn"
 
+import {
+  SURFACE_GLYPH_CLASSES,
+  SURFACE_TONE_CLASSES,
+  SurfaceTone,
+} from "@workspace/ui/lib/tones"
+
 type AdminPhotoProps = {
   url: string | null
   alt: string
-  tone?: "tint" | "soft"
+  tone?: SurfaceTone
   className?: string
   glyphClassName?: string
 }
@@ -11,7 +17,7 @@ type AdminPhotoProps = {
 export function AdminPhoto({
   url,
   alt,
-  tone = "tint",
+  tone = SurfaceTone.TINT,
   className,
   glyphClassName = "w-1/2",
 }: AdminPhotoProps) {
@@ -29,17 +35,13 @@ export function AdminPhoto({
     <div
       className={cn(
         "relative flex items-center justify-center overflow-hidden",
-        tone === "tint" ? "bg-accent" : "bg-muted",
+        SURFACE_TONE_CLASSES[tone],
         className
       )}
     >
       <svg
         viewBox="0 0 240 140"
-        className={cn(
-          "h-auto",
-          tone === "tint" ? "text-primary/25" : "text-foreground/15",
-          glyphClassName
-        )}
+        className={cn("h-auto", SURFACE_GLYPH_CLASSES[tone], glyphClassName)}
         fill="currentColor"
         aria-hidden="true"
       >

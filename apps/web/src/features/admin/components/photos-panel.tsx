@@ -1,3 +1,4 @@
+import { SurfaceTone } from "@workspace/ui/lib/tones"
 import { useRef, useState } from "react"
 
 import { MAX_IMAGES } from "@/features/admin/api/types"
@@ -61,7 +62,7 @@ export function PhotosPanel({
                 <AdminPhoto
                   url={image.url}
                   alt={image.alt || `Foto ${index + 1}`}
-                  tone={image.is_primary ? "tint" : "soft"}
+                  tone={image.is_primary ? SurfaceTone.TINT : SurfaceTone.SOFT}
                   className={
                     image.is_primary
                       ? "h-[122px] w-full border-2 border-primary"

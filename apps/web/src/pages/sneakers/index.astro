@@ -1,4 +1,5 @@
 ---
+import { alternatingTone } from "@workspace/ui/lib/tones"
 import {
   CATALOG_SORT_LABELS,
   CatalogSort,
@@ -344,10 +345,7 @@ const resultsLabel = `Mostrando ${firstShown} – ${lastShown} de ${catalog.tota
       ) : (
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {catalog.items.map((sneaker, index) => (
-            <SneakerCard
-              sneaker={sneaker}
-              tone={index % 2 === 0 ? "tint" : "soft"}
-            />
+            <SneakerCard sneaker={sneaker} tone={alternatingTone(index)} />
           ))}
         </div>
       )

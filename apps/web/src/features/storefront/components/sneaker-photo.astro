@@ -1,4 +1,5 @@
 ---
+import { SURFACE_TONE_CLASSES, SurfaceTone } from "@workspace/ui/lib/tones"
 import { optimizedImageUrl } from "@/features/storefront/api/images"
 import type { SneakerImage } from "@/features/storefront/api/types"
 import ImagePlaceholder from "@/features/storefront/components/image-placeholder.astro"
@@ -6,7 +7,7 @@ import ImagePlaceholder from "@/features/storefront/components/image-placeholder
 interface Props {
   image: SneakerImage | null
   width?: number
-  tone?: "tint" | "soft" | "none"
+  tone?: SurfaceTone
   class?: string
   glyphClass?: string
   label?: string
@@ -16,18 +17,12 @@ interface Props {
 const {
   image,
   width = 640,
-  tone = "tint",
+  tone = SurfaceTone.TINT,
   class: className = "",
   glyphClass,
   label,
   eager = false,
 } = Astro.props
-
-const surfaces = {
-  tint: "bg-accent",
-  soft: "bg-muted",
-  none: "",
-} as const
 ---
 
 {
@@ -35,7 +30,7 @@ const surfaces = {
     <div
       class:list={[
         "relative flex items-center justify-center overflow-hidden",
-        surfaces[tone],
+        SURFACE_TONE_CLASSES[tone],
         className,
       ]}
     >

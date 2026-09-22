@@ -1,4 +1,5 @@
 ---
+import { SurfaceTone } from "@workspace/ui/lib/tones"
 import SneakerPhoto from "@/features/storefront/components/sneaker-photo.astro"
 import {
   formatMoney,
@@ -7,15 +8,17 @@ import {
   type SneakerSummary,
 } from "@/features/storefront/api/types"
 
-type Tone = "tint" | "soft"
-
 interface Props {
   sneaker: SneakerSummary
-  tone?: Tone
+  tone?: SurfaceTone
   imageClass?: string
 }
 
-const { sneaker, tone = "tint", imageClass = "h-[320px]" } = Astro.props
+const {
+  sneaker,
+  tone = SurfaceTone.TINT,
+  imageClass = "h-[320px]",
+} = Astro.props
 
 const BADGE_CLASSES: Record<SneakerBadge, string> = {
   [SneakerBadge.NEW]: "bg-foreground text-background",

@@ -1,4 +1,5 @@
 ---
+import { SurfaceTone, alternatingTone } from "@workspace/ui/lib/tones"
 import { SneakerBadge } from "@/features/storefront/api/types"
 import { StorefrontSection } from "@/features/storefront/content/nav"
 import {
@@ -89,7 +90,7 @@ const mainImage = sneaker?.images[0] ?? null
               image={mainImage}
               width={1100}
               eager
-              tone="tint"
+              tone={SurfaceTone.TINT}
               class="h-[380px] sm:h-[520px] lg:h-[560px]"
               glyphClass="w-[72%]"
               label={mainImage ? undefined : "[FOTO PRINCIPAL]"}
@@ -105,7 +106,7 @@ const mainImage = sneaker?.images[0] ?? null
               <SneakerPhoto
                 image={image}
                 width={280}
-                tone={index === 0 ? "tint" : "soft"}
+                tone={index === 0 ? SurfaceTone.TINT : SurfaceTone.SOFT}
                 class={`h-[90px] sm:h-[140px] ${
                   index === 0
                     ? "border-2 border-primary"
@@ -194,7 +195,7 @@ const mainImage = sneaker?.images[0] ?? null
             {related.map((item, index) => (
               <SneakerCard
                 sneaker={item}
-                tone={index % 2 === 0 ? "tint" : "soft"}
+                tone={alternatingTone(index)}
                 imageClass="h-[270px]"
               />
             ))}

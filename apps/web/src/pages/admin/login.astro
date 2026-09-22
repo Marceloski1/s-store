@@ -1,4 +1,5 @@
 ---
+import { SurfaceTone } from "@workspace/ui/lib/tones"
 import "@workspace/ui/globals.css"
 
 import { safeNextPath } from "@/features/auth/api/permissions"
@@ -45,7 +46,7 @@ const currentAddress = STORE_ADDRESSES[0]
           class="pointer-events-none absolute top-60 -right-10 w-[330px] opacity-[0.14]"
         >
           <ImagePlaceholder
-            tone="none"
+            tone={SurfaceTone.NONE}
             class="h-48 text-primary-foreground"
             glyphClass="w-full"
           />

@@ -1,27 +1,20 @@
 ---
-type Tone = "primary" | "success" | "warning" | "muted"
+import { ACCENT_TONE_BORDER_CLASSES, AccentTone } from "@workspace/ui/lib/tones"
 
 interface Props {
   label: string
   value: number | string
   detail: string
-  tone?: Tone
+  tone?: AccentTone
 }
 
-const { label, value, detail, tone = "primary" } = Astro.props
-
-const accents = {
-  primary: "border-t-primary",
-  success: "border-t-success",
-  warning: "border-t-warning",
-  muted: "border-t-muted-foreground",
-} as const
+const { label, value, detail, tone = AccentTone.PRIMARY } = Astro.props
 ---
 
 <div
   class:list={[
     "flex flex-col gap-1.5 border border-t-[3px] border-border bg-card p-5",
-    accents[tone],
+    ACCENT_TONE_BORDER_CLASSES[tone],
   ]}
 >
   <span
