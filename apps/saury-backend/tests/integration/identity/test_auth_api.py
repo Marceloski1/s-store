@@ -43,7 +43,11 @@ def test_login_rejects_invalid_credentials(http_client: TestClient) -> None:
     unknown = http_client.post("/auth/login", json={"email": "ghost@test.local", "password": PASSWORD})
 
     assert (wrong_password.status_code, unknown.status_code) == (401, 401)
-    assert wrong_password.json() == unknown.json() == {"detail": "Invalid email or password"}
+    assert wrong_password.json() == unknown.json() == {
+        "detail": "Invalid email or password",
+        "code": "INVALID_CREDENTIALS",
+        "params": {},
+    }
     assert "set-cookie" not in wrong_password.headers
 
 

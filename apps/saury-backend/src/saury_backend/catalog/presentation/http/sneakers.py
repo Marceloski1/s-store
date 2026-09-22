@@ -4,13 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 from shared.presentation.http.dependencies import PageParamsDep, UnitOfWorkDep
-from shared.presentation.http.schemas import (
-    AUTH_RESPONSES,
-    CONFLICT_RESPONSE,
-    NOT_FOUND_RESPONSE,
-    UNPROCESSABLE_RESPONSE,
-    PageResponse,
-)
+from shared.presentation.http.schemas import PageResponse
 
 from saury_backend.catalog.application.dtos.sneaker import (
     CreateSneakerCommand,
@@ -42,6 +36,12 @@ from saury_backend.catalog.presentation.http.dependencies import (
 from saury_backend.catalog.presentation.http.schemas import SneakerRequest, SneakerResponse
 from saury_backend.catalog.presentation.http.sneaker_queries import list_sneakers_query
 from saury_backend.identity.presentation.http.dependencies import require_admin
+from saury_backend.presentation.http.errors import (
+    AUTH_RESPONSES,
+    CONFLICT_RESPONSE,
+    NOT_FOUND_RESPONSE,
+    UNPROCESSABLE_RESPONSE,
+)
 
 router = APIRouter(
     prefix="/sneakers",

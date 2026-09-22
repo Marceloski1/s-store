@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Response, status
-from shared.presentation.http.schemas import UNAUTHORIZED_RESPONSE
 
 from saury_backend.identity.application.dtos.user import LoginCommand
 from saury_backend.identity.application.use_cases.auth import Login
@@ -12,6 +11,7 @@ from saury_backend.identity.presentation.http.dependencies import (
     UserRepositoryDep,
 )
 from saury_backend.identity.presentation.http.schemas import LoginRequest, UserResponse
+from saury_backend.presentation.http.errors import UNAUTHORIZED_RESPONSE
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

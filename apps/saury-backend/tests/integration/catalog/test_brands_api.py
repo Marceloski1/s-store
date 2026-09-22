@@ -38,7 +38,11 @@ def test_create_brand_with_duplicated_slug_returns_conflict(client: TestClient) 
     response = client.post("/brands", json={"name": "Nike"})
 
     assert response.status_code == 409
-    assert response.json() == {"detail": "Brand slug 'nike' already exists"}
+    assert response.json() == {
+        "detail": "Brand slug 'nike' already exists",
+        "code": "BRAND_SLUG_ALREADY_EXISTS",
+        "params": {"slug": "nike"},
+    }
 
 
 def test_create_brand_with_invalid_payload_returns_unprocessable(client: TestClient) -> None:

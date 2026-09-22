@@ -3,12 +3,6 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Form, status
 from shared.presentation.http.dependencies import UnitOfWorkDep
-from shared.presentation.http.schemas import (
-    AUTH_RESPONSES,
-    CONFLICT_RESPONSE,
-    NOT_FOUND_RESPONSE,
-    UNPROCESSABLE_RESPONSE,
-)
 
 from saury_backend.catalog.application.dtos.sneaker import (
     ReorderSneakerImagesCommand,
@@ -28,6 +22,13 @@ from saury_backend.catalog.presentation.http.dependencies import (
 from saury_backend.catalog.presentation.http.image_upload import ImageUploadDep
 from saury_backend.catalog.presentation.http.schemas import AltStr, ImageOrderRequest, SneakerResponse
 from saury_backend.identity.presentation.http.dependencies import require_admin
+from saury_backend.presentation.http.errors import (
+    AUTH_RESPONSES,
+    BAD_GATEWAY_RESPONSE,
+    CONFLICT_RESPONSE,
+    NOT_FOUND_RESPONSE,
+    UNPROCESSABLE_RESPONSE,
+)
 
 router = APIRouter(
     prefix="/sneakers/{sneaker_id}/images",
@@ -40,7 +41,7 @@ router = APIRouter(
 @router.post(
     "",
     status_code=status.HTTP_201_CREATED,
-    responses=NOT_FOUND_RESPONSE | CONFLICT_RESPONSE | UNPROCESSABLE_RESPONSE,
+    responses=NOT_FOUND_RESPONSE | CONFLICT_RESPONSE | UNPROCESSABLE_RESPONSE | BAD_GATEWAY_RESPONSE,
 )
 async def upload_sneaker_image(
     sneaker_id: UUID,

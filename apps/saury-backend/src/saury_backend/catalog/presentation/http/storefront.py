@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from shared.presentation.http.dependencies import PageParamsDep
-from shared.presentation.http.schemas import NOT_FOUND_RESPONSE, UNPROCESSABLE_RESPONSE, PageResponse
+from shared.presentation.http.schemas import PageResponse
 
 from saury_backend.catalog.application.dtos.sneaker import ListSneakersQuery
 from saury_backend.catalog.application.use_cases.sneaker import GetCatalogFacets, GetSneakerBySlug, ListSneakers
@@ -11,6 +11,7 @@ from saury_backend.catalog.domain.value_objects.sneaker_status import SneakerSta
 from saury_backend.catalog.presentation.http.dependencies import SneakerRepositoryDep
 from saury_backend.catalog.presentation.http.schemas import CatalogFacetsResponse, SneakerResponse
 from saury_backend.catalog.presentation.http.sneaker_queries import list_sneakers_query
+from saury_backend.presentation.http.errors import NOT_FOUND_RESPONSE, UNPROCESSABLE_RESPONSE
 
 router = APIRouter(prefix="/catalog", tags=["catalog"])
 

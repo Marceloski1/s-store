@@ -2,12 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 from shared.presentation.http.dependencies import PageParamsDep, UnitOfWorkDep
-from shared.presentation.http.schemas import (
-    AUTH_RESPONSES,
-    CONFLICT_RESPONSE,
-    NOT_FOUND_RESPONSE,
-    PageResponse,
-)
+from shared.presentation.http.schemas import PageResponse
 
 from saury_backend.identity.application.dtos.user import CreateUserCommand, UpdateAdminUserCommand
 from saury_backend.identity.application.use_cases.user import (
@@ -23,6 +18,7 @@ from saury_backend.identity.presentation.http.dependencies import (
     require_super_admin,
 )
 from saury_backend.identity.presentation.http.schemas import CreateUserRequest, UpdateUserRequest, UserResponse
+from saury_backend.presentation.http.errors import AUTH_RESPONSES, CONFLICT_RESPONSE, NOT_FOUND_RESPONSE
 
 router = APIRouter(
     prefix="/users",

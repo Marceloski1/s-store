@@ -3,7 +3,6 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from shared.presentation.http.dependencies import UnitOfWorkDep
-from shared.presentation.http.schemas import AUTH_RESPONSES, CONFLICT_RESPONSE, NOT_FOUND_RESPONSE
 
 from saury_backend.catalog.application.dtos.sneaker import (
     CreateColorwayCommand,
@@ -16,6 +15,7 @@ from saury_backend.catalog.application.use_cases.size_variant import RemoveSize,
 from saury_backend.catalog.presentation.http.dependencies import SneakerRepositoryDep
 from saury_backend.catalog.presentation.http.schemas import ColorwayRequest, SizeStockRequest, SneakerResponse
 from saury_backend.identity.presentation.http.dependencies import require_admin
+from saury_backend.presentation.http.errors import AUTH_RESPONSES, CONFLICT_RESPONSE, NOT_FOUND_RESPONSE
 
 router = APIRouter(
     prefix="/sneakers/{sneaker_id}/colorways",

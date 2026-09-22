@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, UploadFile, status
+from fastapi import Depends, UploadFile
+
+from saury_backend.catalog.domain.errors import InvalidImage
 
 MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
 ALLOWED_IMAGE_TYPES = frozenset({"image/jpeg", "image/png", "image/webp"})
@@ -24,20 +26,18 @@ def _detect_image_type(content: bytes) -> str | None:
     return None
 
 
-def _reject(detail: str) -> HTTPException:
-    return HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=detail)
 
 
 async def read_image_upload(file: UploadFile) -> ImageUpload:
     if file.content_type not in ALLOWED_IMAGE_TYPES:
-        raise _reject(f"Unsupported image type: {file.content_type}")
+        raise InvalidImage(f"Unsupported image type: {file.content_type}", reason="UNSUPPORTED_TYPE")
     content = await file.read(MAX_IMAGE_SIZE_BYTES + 1)
     if not content:
-        raise _reject("Image file is empty")
+        raise InvalidImage("Image file is empty", reason="EMPTY")
     if len(content) > MAX_IMAGE_SIZE_BYTES:
-        raise _reject(f"Image exceeds the maximum size of {MAX_IMAGE_SIZE_BYTES} bytes")
+        raise InvalidImage(f"Image exceeds the maximum size of {MAX_IMAGE_SIZE_BYTES} bytes", reason="TOO_LARGE")
     if _detect_image_type(content) != file.content_type:
-        raise _reject("Image content does not match its declared type")
+        raise InvalidImage("Image content does not match its declared type", reason="CONTENT_MISMATCH")
     return ImageUpload(content=content, filename=file.filename or "image", content_type=file.content_type)
 
 

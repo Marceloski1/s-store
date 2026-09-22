@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 from shared.presentation.http.dependencies import PageParamsDep, UnitOfWorkDep
-from shared.presentation.http.schemas import AUTH_RESPONSES, CONFLICT_RESPONSE, NOT_FOUND_RESPONSE, PageResponse
+from shared.presentation.http.schemas import PageResponse
 
 from saury_backend.catalog.application.dtos.category import CreateCategoryCommand, UpdateCategoryCommand
 from saury_backend.catalog.application.use_cases.category import (
@@ -15,6 +15,7 @@ from saury_backend.catalog.application.use_cases.category import (
 from saury_backend.catalog.presentation.http.dependencies import CategoryRepositoryDep, SneakerRepositoryDep
 from saury_backend.catalog.presentation.http.schemas import CategoryRequest, CategoryResponse
 from saury_backend.identity.presentation.http.dependencies import require_admin
+from saury_backend.presentation.http.errors import AUTH_RESPONSES, CONFLICT_RESPONSE, NOT_FOUND_RESPONSE
 
 ADMIN_ONLY = [Depends(require_admin)]
 

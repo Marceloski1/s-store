@@ -11,6 +11,7 @@ from shared.presentation.http.errors import register_error_handlers
 from saury_backend.catalog.presentation.http.router import router as catalog_router
 from saury_backend.config.settings import Settings, get_settings
 from saury_backend.identity.presentation.http.router import router as identity_router
+from saury_backend.presentation.http.errors import DEFAULT_ERROR_RESPONSES
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -23,7 +24,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         yield
         await engine.dispose()
 
-    app = FastAPI(title="Saury Backend", lifespan=lifespan)
+    app = FastAPI(title="Saury Backend", lifespan=lifespan, responses=DEFAULT_ERROR_RESPONSES)
     app.state.settings = resolved_settings
     # TODO(cors): restrict allowed methods and headers before production
     app.add_middleware(
