@@ -4,12 +4,13 @@ from datetime import UTC, date, datetime
 from typing import Self
 from uuid import UUID, uuid7
 
-from shared.domain.errors import ValidationError
+from shared.domain.errors import CommonErrorCode, ValidationError
 from shared.domain.money import Money
 from shared.domain.slug import Slug
 from shared.domain.validation import require_text
 
 from saury_backend.catalog.domain.entities.colorway import SKU_PATTERN, Colorway, normalize_sku
+from saury_backend.catalog.domain.error_codes import CatalogErrorCode
 from saury_backend.catalog.domain.entities.image import Image
 from saury_backend.catalog.domain.entities.size_variant import SizeVariant
 from saury_backend.catalog.domain.errors import (
@@ -19,7 +20,8 @@ from saury_backend.catalog.domain.errors import (
     ImageNotFound,
     InvalidSneakerStatusTransition,
     SkuAlreadyExists,
-    SneakerNotPublishable,
+    SneakerNeedsPrimaryImage,
+    SneakerNeedsSizedColorway,
 )
 from saury_backend.catalog.domain.value_objects.gender import Gender
 from saury_backend.catalog.domain.value_objects.shoe_size import ShoeSize
@@ -49,14 +51,22 @@ def _now() -> datetime:
 def _clean_description(description: str) -> str:
     cleaned = description.strip()
     if len(cleaned) > SNEAKER_DESCRIPTION_MAX_LENGTH:
-        raise ValidationError(f"description must be at most {SNEAKER_DESCRIPTION_MAX_LENGTH} characters")
+        raise ValidationError(
+            f"description must be at most {SNEAKER_DESCRIPTION_MAX_LENGTH} characters",
+            code=CommonErrorCode.TEXT_TOO_LONG,
+            params={"field": "description", "max": SNEAKER_DESCRIPTION_MAX_LENGTH},
+        )
     return cleaned
 
 
 def _clean_usage(usage: str) -> str:
     cleaned = usage.strip()
     if len(cleaned) > SNEAKER_USAGE_MAX_LENGTH:
-        raise ValidationError(f"usage must be at most {SNEAKER_USAGE_MAX_LENGTH} characters")
+        raise ValidationError(
+            f"usage must be at most {SNEAKER_USAGE_MAX_LENGTH} characters",
+            code=CommonErrorCode.TEXT_TOO_LONG,
+            params={"field": "usage", "max": SNEAKER_USAGE_MAX_LENGTH},
+        )
     return cleaned
 
 
@@ -65,7 +75,11 @@ def normalize_reference(reference: str | None) -> str | None:
         return None
     value = reference.strip().upper()
     if len(value) > SNEAKER_REFERENCE_MAX_LENGTH or not _REFERENCE_REGEX.fullmatch(value):
-        raise ValidationError(f"Invalid reference: '{reference}'")
+        raise ValidationError(
+            f"Invalid reference: '{reference}'",
+            code=CatalogErrorCode.INVALID_REFERENCE,
+            params={"value": reference, "max": SNEAKER_REFERENCE_MAX_LENGTH},
+        )
     return value
 
 
@@ -226,7 +240,10 @@ class Sneaker:
 
     def reorder_images(self, image_ids: list[UUID]) -> None:
         if len(image_ids) != len(self.images) or set(image_ids) != {image.id for image in self.images}:
-            raise ValidationError("Image order must contain every image of the sneaker exactly once")
+            raise ValidationError(
+                "Image order must contain every image of the sneaker exactly once",
+                code=CatalogErrorCode.INVALID_IMAGE_ORDER,
+            )
         by_id = {image.id: image for image in self.images}
         self.images = [by_id[image_id] for image_id in image_ids]
         self._renumber_images()
@@ -252,9 +269,9 @@ class Sneaker:
     def publish(self) -> None:
         self._ensure_transition(SneakerStatus.ACTIVE)
         if self.primary_image is None:
-            raise SneakerNotPublishable("it needs a primary image")
+            raise SneakerNeedsPrimaryImage()
         if not any(colorway.has_sizes for colorway in self.colorways):
-            raise SneakerNotPublishable("it needs at least one colorway with a size")
+            raise SneakerNeedsSizedColorway()
         self._change_status(SneakerStatus.ACTIVE)
 
     def archive(self) -> None:

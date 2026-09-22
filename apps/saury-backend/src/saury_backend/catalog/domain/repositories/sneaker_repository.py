@@ -3,12 +3,13 @@ from enum import StrEnum
 from typing import Protocol
 from uuid import UUID
 
-from shared.domain.errors import ValidationError
+from shared.domain.errors import CommonErrorCode, ValidationError
 from shared.domain.money import Money
 from shared.domain.pagination import Page, PageParams
 from shared.domain.slug import Slug
 
 from saury_backend.catalog.domain.entities.sneaker import Sneaker
+from saury_backend.catalog.domain.error_codes import CatalogErrorCode
 from saury_backend.catalog.domain.value_objects.gender import Gender
 from saury_backend.catalog.domain.value_objects.shoe_size import ShoeSize
 from saury_backend.catalog.domain.value_objects.sneaker_status import SneakerStatus
@@ -40,11 +41,17 @@ class SneakerFilters:
 
     def __post_init__(self) -> None:
         if self.min_price is not None and self.max_price is not None and self.min_price > self.max_price:
-            raise ValidationError("min_price must be less than or equal to max_price")
+            raise ValidationError(
+                "min_price must be less than or equal to max_price", code=CatalogErrorCode.INVALID_PRICE_RANGE
+            )
         if self.q is not None:
             query = self.q.strip()
             if len(query) > SEARCH_QUERY_MAX_LENGTH:
-                raise ValidationError(f"q must be at most {SEARCH_QUERY_MAX_LENGTH} characters")
+                raise ValidationError(
+                    f"q must be at most {SEARCH_QUERY_MAX_LENGTH} characters",
+                    code=CommonErrorCode.TEXT_TOO_LONG,
+                    params={"field": "q", "max": SEARCH_QUERY_MAX_LENGTH},
+                )
             object.__setattr__(self, "q", query or None)
 
     @property

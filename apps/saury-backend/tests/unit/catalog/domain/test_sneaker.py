@@ -14,7 +14,8 @@ from saury_backend.catalog.domain.errors import (
     InvalidSneakerStatusTransition,
     SizeVariantNotFound,
     SkuAlreadyExists,
-    SneakerNotPublishable,
+    SneakerNeedsPrimaryImage,
+    SneakerNeedsSizedColorway,
 )
 from saury_backend.catalog.domain.value_objects.gender import Gender
 from saury_backend.catalog.domain.value_objects.shoe_size import ShoeSize
@@ -251,7 +252,7 @@ class TestStatusTransitions:
         colorway = sneaker.add_colorway("Black", "#000000", "AM90-BLK")
         sneaker.set_size_stock(colorway.id, ShoeSize.of("42"), 1)
 
-        with pytest.raises(SneakerNotPublishable, match="primary image"):
+        with pytest.raises(SneakerNeedsPrimaryImage):
             sneaker.publish()
         assert sneaker.status is SneakerStatus.DRAFT
 
@@ -260,7 +261,7 @@ class TestStatusTransitions:
         sneaker.add_image("p/1", "https://images.test/1")
         sneaker.add_colorway("Black", "#000000", "AM90-BLK")
 
-        with pytest.raises(SneakerNotPublishable, match="colorway with a size"):
+        with pytest.raises(SneakerNeedsSizedColorway):
             sneaker.publish()
 
     @pytest.mark.parametrize(

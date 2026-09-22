@@ -2,8 +2,10 @@ from dataclasses import dataclass
 from typing import Self
 from uuid import UUID, uuid7
 
-from shared.domain.errors import ValidationError
+from shared.domain.errors import CommonErrorCode, ValidationError
 from shared.domain.validation import require_text
+
+from saury_backend.catalog.domain.error_codes import CatalogErrorCode
 
 IMAGE_ALT_MAX_LENGTH = 200
 IMAGE_URL_MAX_LENGTH = 500
@@ -13,7 +15,11 @@ IMAGE_PUBLIC_ID_MAX_LENGTH = 255
 def _clean_alt(alt: str) -> str:
     cleaned = alt.strip()
     if len(cleaned) > IMAGE_ALT_MAX_LENGTH:
-        raise ValidationError(f"alt must be at most {IMAGE_ALT_MAX_LENGTH} characters")
+        raise ValidationError(
+            f"alt must be at most {IMAGE_ALT_MAX_LENGTH} characters",
+            code=CommonErrorCode.TEXT_TOO_LONG,
+            params={"field": "alt", "max": IMAGE_ALT_MAX_LENGTH},
+        )
     return cleaned
 
 
@@ -31,7 +37,7 @@ class Image:
         self.url = require_text(self.url, field="url", max_length=IMAGE_URL_MAX_LENGTH)
         self.alt = _clean_alt(self.alt)
         if self.position < 0:
-            raise ValidationError("position must not be negative")
+            raise ValidationError("position must not be negative", code=CatalogErrorCode.INVALID_IMAGE_POSITION)
 
     @classmethod
     def create(cls, public_id: str, url: str, alt: str, position: int) -> Self:

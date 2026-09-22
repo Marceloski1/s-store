@@ -18,7 +18,7 @@ from saury_backend.catalog.domain.errors import (
     ImageNotFound,
     InvalidSneakerStatusTransition,
     SneakerNotFound,
-    SneakerNotPublishable,
+    SneakerNeedsPrimaryImage,
 )
 from saury_backend.catalog.domain.value_objects.gender import Gender
 from saury_backend.catalog.domain.value_objects.shoe_size import ShoeSize
@@ -148,7 +148,7 @@ async def test_publication_lifecycle(upload, sneaker, sneaker_repository, unit_o
 
 
 async def test_publish_without_primary_image_is_rejected(sneaker, sneaker_repository, unit_of_work) -> None:
-    with pytest.raises(SneakerNotPublishable, match="primary image"):
+    with pytest.raises(SneakerNeedsPrimaryImage):
         await PublishSneaker(sneaker_repository, unit_of_work).execute(sneaker.id)
 
     assert (await GetSneaker(sneaker_repository).execute(sneaker.id)).status == "DRAFT"

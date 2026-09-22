@@ -4,12 +4,13 @@ from uuid import UUID, uuid7
 
 from shared.domain.errors import ValidationError
 
+from saury_backend.catalog.domain.error_codes import CatalogErrorCode
 from saury_backend.catalog.domain.value_objects.shoe_size import ShoeSize
 
 
 def _require_stock(stock: int) -> int:
     if stock < 0:
-        raise ValidationError("stock must not be negative")
+        raise ValidationError("stock must not be negative", code=CatalogErrorCode.NEGATIVE_STOCK)
     return stock
 
 

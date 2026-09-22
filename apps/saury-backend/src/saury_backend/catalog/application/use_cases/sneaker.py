@@ -16,6 +16,7 @@ from saury_backend.catalog.application.dtos.sneaker import (
 )
 from saury_backend.catalog.application.ports.image_storage import ImageStorage, ImageStorageError
 from saury_backend.catalog.domain.entities.colorway import COLOR_CODE_PATTERN
+from saury_backend.catalog.domain.error_codes import CatalogErrorCode
 from saury_backend.catalog.domain.entities.sneaker import Sneaker
 from saury_backend.catalog.domain.errors import (
     BrandNotFound,
@@ -63,7 +64,11 @@ def parse_enum[E: (Currency, Gender, SneakerStatus, SneakerSort)](enum: type[E],
         return enum(value)
     except ValueError as error:
         allowed = ", ".join(member.value for member in enum)
-        raise ValidationError(f"{field} must be one of: {allowed}") from error
+        raise ValidationError(
+            f"{field} must be one of: {allowed}",
+            code=CatalogErrorCode.INVALID_OPTION,
+            params={"field": field, "value": value, "allowed": allowed},
+        ) from error
 
 
 class _SneakerWriter:
@@ -177,7 +182,9 @@ class GetCatalogFacets:
 def _parse_color(value: str) -> str:
     color = value.strip().upper()
     if not _COLOR_CODE_REGEX.fullmatch(color):
-        raise ValidationError(f"Invalid color code: '{value}'")
+        raise ValidationError(
+            f"Invalid color code: '{value}'", code=CatalogErrorCode.INVALID_COLOR_CODE, params={"value": value}
+        )
     return color
 
 
@@ -193,7 +200,9 @@ class ListSneakers:
     def _build_filters(query: ListSneakersQuery) -> SneakerFilters:
         currency = parse_enum(Currency, query.currency, field="currency") if query.currency else None
         if currency is None and (query.min_price is not None or query.max_price is not None):
-            raise ValidationError("currency is required when filtering by price")
+            raise ValidationError(
+                "currency is required when filtering by price", code=CatalogErrorCode.CURRENCY_REQUIRED
+            )
         return SneakerFilters(
             brands=tuple(Slug(brand) for brand in query.brands),
             categories=tuple(Slug(category) for category in query.categories),

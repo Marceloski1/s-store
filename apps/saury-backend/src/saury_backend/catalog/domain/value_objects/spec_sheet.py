@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from shared.domain.errors import ValidationError
+from shared.domain.errors import CommonErrorCode, ValidationError
 
 SPEC_FIELD_MAX_LENGTH = 100
 
@@ -8,7 +8,11 @@ SPEC_FIELD_MAX_LENGTH = 100
 def _clean_spec(value: str, field: str) -> str:
     cleaned = value.strip()
     if len(cleaned) > SPEC_FIELD_MAX_LENGTH:
-        raise ValidationError(f"{field} must be at most {SPEC_FIELD_MAX_LENGTH} characters")
+        raise ValidationError(
+            f"{field} must be at most {SPEC_FIELD_MAX_LENGTH} characters",
+            code=CommonErrorCode.TEXT_TOO_LONG,
+            params={"field": field, "max": SPEC_FIELD_MAX_LENGTH},
+        )
     return cleaned
 
 

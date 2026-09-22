@@ -7,6 +7,7 @@ from shared.domain.errors import ValidationError
 from shared.domain.money import Money
 from shared.domain.validation import require_text
 
+from saury_backend.catalog.domain.error_codes import CatalogErrorCode
 from saury_backend.catalog.domain.entities.size_variant import SizeVariant
 from saury_backend.catalog.domain.errors import SizeVariantNotFound
 from saury_backend.catalog.domain.value_objects.shoe_size import ShoeSize
@@ -25,14 +26,20 @@ _COLOR_CODE_REGEX = re.compile(COLOR_CODE_PATTERN)
 def normalize_sku(sku: str) -> str:
     value = sku.strip().upper()
     if len(value) > SKU_MAX_LENGTH or not _SKU_REGEX.fullmatch(value):
-        raise ValidationError(f"Invalid SKU: '{sku}'")
+        raise ValidationError(
+            f"Invalid SKU: '{sku}'", code=CatalogErrorCode.INVALID_SKU, params={"value": sku, "max": SKU_MAX_LENGTH}
+        )
     return value
 
 
 def _normalize_color_code(color_code: str) -> str:
     value = color_code.strip().upper()
     if not _COLOR_CODE_REGEX.fullmatch(value):
-        raise ValidationError(f"Invalid color code: '{color_code}'")
+        raise ValidationError(
+            f"Invalid color code: '{color_code}'",
+            code=CatalogErrorCode.INVALID_COLOR_CODE,
+            params={"value": color_code},
+        )
     return value
 
 

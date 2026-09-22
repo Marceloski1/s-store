@@ -1,9 +1,13 @@
 from dataclasses import dataclass
 from typing import Protocol
 
+from shared.domain.errors import ExternalServiceError
 
-class ImageStorageError(Exception):
-    pass
+from saury_backend.catalog.domain.error_codes import CatalogErrorCode
+
+
+class ImageStorageError(ExternalServiceError):
+    code = CatalogErrorCode.IMAGE_STORAGE_ERROR
 
 
 @dataclass(frozen=True, slots=True)
