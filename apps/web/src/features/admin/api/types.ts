@@ -75,11 +75,7 @@ export type PublishCheck = {
 
 export type { ColorwayInput, SneakerForm } from "@/features/admin/api/schemas"
 
-export const STATUS_LABELS: Record<SneakerStatus, string> = {
-  [SneakerStatus.DRAFT]: "Borrador",
-  [SneakerStatus.ACTIVE]: "Publicado",
-  [SneakerStatus.ARCHIVED]: "Archivado",
-}
+export { SNEAKER_STATUS_LABELS as STATUS_LABELS } from "@/lib/i18n/labels"
 
 export const STATUS_TRANSITIONS: Record<SneakerStatus, SneakerStatus[]> = {
   [SneakerStatus.DRAFT]: [SneakerStatus.ACTIVE],

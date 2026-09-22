@@ -9,10 +9,7 @@ export const ROLE_HOME: Record<ApiRole, string> = {
   [Role.SUPER_ADMIN]: "/admin/usuarios",
 }
 
-export const ROLE_LABELS: Record<ApiRole, string> = {
-  [Role.ADMIN]: "Administrador",
-  [Role.SUPER_ADMIN]: "Superadministrador",
-}
+export { ROLE_LABELS } from "@/lib/i18n/labels"
 
 type RouteRule = {
   prefix: string
