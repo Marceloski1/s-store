@@ -6,6 +6,7 @@ from shared.domain.pagination import Page, PageParams
 from saury_backend.identity.application.dtos.user import CreateUserCommand, UpdateAdminUserCommand, UserDTO
 from saury_backend.identity.application.ports.password_hasher import PasswordHasher
 from saury_backend.identity.domain.entities.user import User
+from saury_backend.identity.domain.error_codes import CannotManageUserReason
 from saury_backend.identity.domain.errors import CannotManageUser, EmailAlreadyExists, UserNotFound
 from saury_backend.identity.domain.repositories.user_repository import UserRepository
 from saury_backend.identity.domain.value_objects.email import Email
@@ -23,7 +24,7 @@ async def _get_user(repository: UserRepository, user_id: UUID) -> User:
 async def _get_admin(repository: UserRepository, user_id: UUID) -> User:
     user = await _get_user(repository, user_id)
     if user.role is not Role.ADMIN:
-        raise CannotManageUser("only ADMIN users can be managed")
+        raise CannotManageUser(CannotManageUserReason.SUPER_ADMIN)
     return user
 
 
@@ -89,7 +90,7 @@ class DeleteAdminUser:
 
     async def execute(self, user_id: UUID, acting_user_id: UUID) -> None:
         if user_id == acting_user_id:
-            raise CannotManageUser("you cannot delete yourself")
+            raise CannotManageUser(CannotManageUserReason.SELF)
         user = await _get_admin(self._repository, user_id)
         await self._repository.delete(user)
         await self._unit_of_work.commit()
