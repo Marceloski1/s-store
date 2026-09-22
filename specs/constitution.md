@@ -46,6 +46,7 @@ Principios no negociables. Toda spec, plan y tarea debe cumplirlos; cualquier ex
 1. **Sin comentarios** en el código, salvo marcadores `TODO(...)` para trabajo pendiente.
 2. Código, identificadores y mensajes de commit en inglés; documentación y textos de UI en español.
 3. **Enums en MAYÚSCULAS** (nombre y valor, p. ej. `DAILY = "DAILY"`) en backend y frontend; las etiquetas visibles salen de un `Record<Enum, string>` (`"Diario"`). Los enums de la API se generan desde el OpenAPI (`--enum`), nunca a mano; los valores de configuración que nombran archivos (`APP_ENV`) quedan fuera.
+4. **Errores con código**: la API responde `{ detail, code, params }` (y `errors` en los 422). `detail` queda en inglés para logs; la UI nunca lo muestra y traduce `code`/`params` con `Record<ErrorCode, …>` en `apps/web/src/lib/i18n`.
 
 ## VI. Entornos y secretos
 
