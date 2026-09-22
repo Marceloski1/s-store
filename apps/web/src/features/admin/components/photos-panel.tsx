@@ -1,5 +1,10 @@
-import { SurfaceTone } from "@workspace/ui/lib/tones"
 import { useRef, useState } from "react"
+
+import { ChevronLeftIcon } from "@workspace/ui/components/icons/chevron-left"
+import { ChevronRightIcon } from "@workspace/ui/components/icons/chevron-right"
+import { CloseIcon } from "@workspace/ui/components/icons/close"
+import { UploadIcon } from "@workspace/ui/components/icons/upload"
+import { SurfaceTone } from "@workspace/ui/lib/tones"
 
 import { MAX_IMAGES } from "@/features/admin/api/types"
 import { AdminPhoto } from "@/features/admin/components/admin-photo"
@@ -95,18 +100,7 @@ export function PhotosPanel({
                   }}
                   className="absolute top-1.5 right-1.5 flex size-7 items-center justify-center border border-input bg-background text-destructive hover:bg-muted disabled:opacity-60"
                 >
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M6 6l12 12M18 6 6 18" />
-                  </svg>
+                  <CloseIcon />
                 </button>
                 <div className="absolute right-1.5 bottom-1.5 flex gap-1">
                   <button
@@ -116,19 +110,7 @@ export function PhotosPanel({
                     onClick={() => onMove(image.id, index - 1)}
                     className={smallButtonClass}
                   >
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.4"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="m14.5 6-6 6 6 6" />
-                    </svg>
+                    <ChevronLeftIcon size={12} strokeWidth={2.4} />
                   </button>
                   <button
                     type="button"
@@ -137,19 +119,7 @@ export function PhotosPanel({
                     onClick={() => onMove(image.id, index + 1)}
                     className={smallButtonClass}
                   >
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.4"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="m9.5 6 6 6-6 6" />
-                    </svg>
+                    <ChevronRightIcon size={12} strokeWidth={2.4} />
                   </button>
                 </div>
               </div>
@@ -180,21 +150,7 @@ export function PhotosPanel({
           onClick={() => fileInput.current?.click()}
           className="flex h-24 flex-col items-center justify-center gap-1.5 border-[1.5px] border-dashed border-muted-foreground bg-muted/40 hover:bg-muted disabled:opacity-60"
         >
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.9"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-primary"
-            aria-hidden="true"
-          >
-            <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5" />
-            <path d="M4 16v2.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V16" />
-          </svg>
+          <UploadIcon className="text-primary" />
           <span className="text-xs font-extrabold tracking-[0.06em] text-primary uppercase">
             Subir fotos
           </span>

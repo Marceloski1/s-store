@@ -1,9 +1,11 @@
 import { useState } from "react"
 
+import { PlusIcon } from "@workspace/ui/components/icons/plus"
+import { CopyIcon } from "@workspace/ui/components/icons/copy"
+import { TrashIcon } from "@workspace/ui/components/icons/trash"
 import { Form } from "@workspace/ui/components/form"
 
 import { colorwayFormSchema } from "@/features/admin/api/schemas"
-
 import {
   colorwayStock,
   colorwayToInput,
@@ -37,23 +39,6 @@ const EMPTY_COLORWAY: ColorwayInput = {
   colorCode: "#1B4FC0",
   sku: "",
   priceOverride: "",
-}
-
-function PlusIcon({ size = 14 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.3"
-      strokeLinecap="round"
-      aria-hidden="true"
-    >
-      <path d="M12 5v14M5 12h14" />
-    </svg>
-  )
 }
 
 export function ColorwaysSection({
@@ -96,7 +81,7 @@ export function ColorwaysSection({
           onClick={() => setNewColorway(EMPTY_COLORWAY)}
           className="flex h-10 items-center gap-2 border border-primary px-3.5 text-[11px] font-extrabold tracking-[0.06em] text-primary uppercase hover:bg-accent disabled:opacity-60"
         >
-          <PlusIcon />
+          <PlusIcon size={14} strokeWidth={2.3} />
           Añadir color
         </button>
       </div>
@@ -386,19 +371,7 @@ function ColorwayCard({
                 onClick={onDuplicate}
                 className="flex h-11 w-9 items-center justify-center border border-input bg-card hover:bg-muted disabled:opacity-60"
               >
-                <svg
-                  width="15"
-                  height="15"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <rect x="8.5" y="8.5" width="11" height="11" rx="1.5" />
-                  <path d="M15.5 5.5H6A1.5 1.5 0 0 0 4.5 7v9.5" />
-                </svg>
+                <CopyIcon />
               </button>
               <button
                 type="button"
@@ -413,19 +386,7 @@ function ColorwayCard({
                 }}
                 className="flex h-11 w-9 items-center justify-center border border-input bg-card text-destructive hover:bg-muted disabled:opacity-60"
               >
-                <svg
-                  width="15"
-                  height="15"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13" />
-                </svg>
+                <TrashIcon />
               </button>
             </div>
           </>
@@ -491,7 +452,7 @@ function ColorwayCard({
             onClick={() => setNewSize("")}
             className="flex h-10 w-fit items-center gap-2 border border-dashed border-muted-foreground px-3 text-[11px] font-extrabold tracking-[0.06em] text-muted-foreground uppercase hover:text-foreground disabled:opacity-60"
           >
-            <PlusIcon size={13} />
+            <PlusIcon size={13} strokeWidth={2.3} />
             Añadir talla
           </button>
         ) : (

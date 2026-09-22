@@ -1,0 +1,58 @@
+---
+import { ChevronLeftIcon } from "@workspace/ui/components/icons/chevron-left"
+import { ChevronRightIcon } from "@workspace/ui/components/icons/chevron-right"
+
+interface Props {
+  page: number
+  pages: number
+  total: number
+  shown: number
+  previousHref: string | null
+  nextHref: string | null
+}
+
+const { page, pages, total, shown, previousHref, nextHref } = Astro.props
+
+const linkClass =
+  "flex size-9 items-center justify-center border border-border bg-card text-foreground hover:border-primary"
+const disabledClass =
+  "flex size-9 items-center justify-center border border-border bg-muted text-muted-foreground"
+---
+
+<div
+  class="flex flex-wrap items-center justify-between gap-3 border-t border-border p-4"
+>
+  <span class="text-[13px] text-muted-foreground">
+    {shown} de {total} modelos · página {page} de {pages}
+  </span>
+  <div class="flex items-center gap-2">
+    {
+      previousHref ? (
+        <a href={previousHref} aria-label="Página anterior" class={linkClass}>
+          <ChevronLeftIcon />
+        </a>
+      ) : (
+        <span aria-hidden="true" class={disabledClass}>
+          <ChevronLeftIcon />
+        </span>
+      )
+    }
+    <span
+      aria-current="page"
+      class="flex size-9 items-center justify-center border border-primary bg-primary text-[13px] font-extrabold text-primary-foreground"
+    >
+      {page}
+    </span>
+    {
+      nextHref ? (
+        <a href={nextHref} aria-label="Página siguiente" class={linkClass}>
+          <ChevronRightIcon size={15} />
+        </a>
+      ) : (
+        <span aria-hidden="true" class={disabledClass}>
+          <ChevronRightIcon size={15} />
+        </span>
+      )
+    }
+  </div>
+</div>

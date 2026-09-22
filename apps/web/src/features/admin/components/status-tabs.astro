@@ -1,0 +1,28 @@
+---
+import type { SneakerStatus, StatusTab } from "@/features/admin/api/types"
+
+interface Props {
+  tabs: StatusTab[]
+  active: SneakerStatus | null
+}
+
+const { tabs, active } = Astro.props
+---
+
+<div class="flex flex-wrap items-center gap-2 border-b border-border p-4">
+  {
+    tabs.map((tab) => (
+      <a
+        href={tab.value ? `/admin?estado=${tab.value}` : "/admin"}
+        class:list={[
+          "flex h-9 items-center px-3.5 text-xs font-bold tracking-[0.04em]",
+          tab.value === active
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:text-foreground",
+        ]}
+      >
+        {tab.label} {tab.count}
+      </a>
+    ))
+  }
+</div>

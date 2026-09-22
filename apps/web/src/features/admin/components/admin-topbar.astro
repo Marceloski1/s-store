@@ -1,4 +1,8 @@
 ---
+import { ChevronRightIcon } from "@workspace/ui/components/icons/chevron-right"
+import { ExternalLinkIcon } from "@workspace/ui/components/icons/external-link"
+import { SearchIcon } from "@workspace/ui/components/icons/search"
+
 import { navFor, type AdminSection } from "@/features/admin/content/nav"
 
 interface Props {
@@ -18,22 +22,7 @@ const { active, breadcrumb } = Astro.props
       {
         breadcrumb.map((crumb, index) => (
           <>
-            {index > 0 && (
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="text-border"
-                aria-hidden="true"
-              >
-                <path d="m9.5 6 6 6-6 6" />
-              </svg>
-            )}
+            {index > 0 && <ChevronRightIcon className="text-border" />}
             {crumb.href ? (
               <a
                 href={crumb.href}
@@ -55,20 +44,7 @@ const { active, breadcrumb } = Astro.props
         <div
           class="flex h-11 w-[300px] items-center gap-2 border border-border bg-muted px-3"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.9"
-            stroke-linecap="round"
-            class="text-muted-foreground"
-            aria-hidden="true"
-          >
-            <circle cx="11" cy="11" r="7"></circle>
-            <path d="M16.4 16.4 21 21"></path>
-          </svg>
+          <SearchIcon size={16} className="text-muted-foreground" />
           <input
             id="admin-search"
             type="search"
@@ -82,22 +58,7 @@ const { active, breadcrumb } = Astro.props
         href="/"
         class="flex h-11 items-center gap-2 border border-border px-3 text-xs font-bold text-foreground hover:bg-muted"
       >
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.9"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M14 4h6v6M20 4l-8.5 8.5"></path>
-          <path
-            d="M18 14v5a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 19V7.5A1.5 1.5 0 0 1 5.5 6H10"
-          ></path>
-        </svg>
+        <ExternalLinkIcon />
         <span class="hidden sm:inline">Ver la tienda</span>
       </a>
     </div>

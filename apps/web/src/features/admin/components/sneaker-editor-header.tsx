@@ -1,3 +1,5 @@
+import { ChevronLeftIcon } from "@workspace/ui/components/icons/chevron-left"
+
 import { SneakerStatus } from "@/features/admin/api/types"
 import { StatusPill } from "@/features/admin/components/status-pill"
 
@@ -23,19 +25,7 @@ export function SneakerEditorHeader({
           href="/admin"
           className="flex items-center gap-2 text-xs font-bold tracking-[0.06em] text-muted-foreground uppercase hover:text-primary"
         >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="m14.5 6-6 6 6 6" />
-          </svg>
+          <ChevronLeftIcon size={14} />
           Volver a sneakers
         </a>
         <div className="flex flex-wrap items-center gap-3">

@@ -1,3 +1,6 @@
+import { AlertCircleIcon } from "@workspace/ui/components/icons/alert-circle"
+import { CheckIcon } from "@workspace/ui/components/icons/check"
+
 import {
   PublishCheckState,
   STATUS_LABELS,
@@ -48,35 +51,9 @@ export function PublicationPanel({
               }
             >
               {check.state === PublishCheckState.OK ? (
-                <svg
-                  width="17"
-                  height="17"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-success"
-                  aria-hidden="true"
-                >
-                  <path d="m5 12.5 4.5 4.5L19 7.5" />
-                </svg>
+                <CheckIcon className="text-success" />
               ) : (
-                <svg
-                  width="17"
-                  height="17"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <circle cx="12" cy="12" r="8.5" />
-                  <path d="M12 8v4.5M12 16h0" />
-                </svg>
+                <AlertCircleIcon />
               )}
               {check.label}
             </span>

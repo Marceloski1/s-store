@@ -1,0 +1,65 @@
+---
+import type { AdminSneakerRow } from "@/features/admin/api/types"
+import SneakerTableRow from "@/features/admin/components/sneaker-table-row.astro"
+
+interface Props {
+  rows: AdminSneakerRow[]
+  showEmpty: boolean
+}
+
+const { rows, showEmpty } = Astro.props
+
+const headerClass =
+  "px-3 py-3 text-[11px] font-extrabold tracking-[0.1em] text-muted-foreground uppercase"
+
+const columns = [
+  { label: "Modelo", class: `min-w-[240px] ${headerClass}` },
+  { label: "Marca", class: `w-28 ${headerClass}` },
+  { label: "Categoría", class: `w-26 ${headerClass}` },
+  { label: "Precio", class: `w-36 text-right ${headerClass}` },
+  { label: "Colores", class: `w-20 text-center ${headerClass}` },
+  { label: "Stock", class: `w-16 text-center ${headerClass}` },
+  { label: "Estado", class: `w-28 ${headerClass}` },
+  { label: "Actualizado", class: `w-30 ${headerClass}` },
+]
+---
+
+<div class="overflow-x-auto">
+  <table class="w-full min-w-[1060px] table-fixed border-collapse">
+    <thead>
+      <tr class="bg-muted text-left">
+        <th class="w-12 py-3 pr-0 pl-5">
+          <label for="select-all" class="sr-only">
+            Seleccionar todos los modelos
+          </label>
+          <input
+            id="select-all"
+            type="checkbox"
+            class="size-4 accent-primary"
+          />
+        </th>
+        {columns.map((column) => <th class={column.class}>{column.label}</th>)}
+        <th
+          class="w-16 py-3 pr-5 pl-3 text-right text-[11px] font-extrabold tracking-[0.1em] text-muted-foreground uppercase"
+        >
+          Editar
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        showEmpty && (
+          <tr class="border-t border-border/60">
+            <td
+              colspan="10"
+              class="px-5 py-10 text-center text-sm text-muted-foreground"
+            >
+              No hay modelos en esta vista.
+            </td>
+          </tr>
+        )
+      }
+      {rows.map((row) => <SneakerTableRow row={row} />)}
+    </tbody>
+  </table>
+</div>

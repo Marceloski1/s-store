@@ -1,0 +1,39 @@
+---
+import { AccentTone } from "@workspace/ui/lib/tones"
+
+import type { AdminStats } from "@/features/admin/api/types"
+import StatTile from "@/features/admin/components/stat-tile.astro"
+
+interface Props {
+  stats: AdminStats
+}
+
+const { stats } = Astro.props
+---
+
+<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <StatTile
+    label="Total"
+    value={stats.total}
+    detail="modelos registrados"
+    tone={AccentTone.PRIMARY}
+  />
+  <StatTile
+    label="Publicados"
+    value={stats.published}
+    detail="visibles en la tienda"
+    tone={AccentTone.SUCCESS}
+  />
+  <StatTile
+    label="Borradores"
+    value={stats.drafts}
+    detail="falta foto o tallas"
+    tone={AccentTone.WARNING}
+  />
+  <StatTile
+    label="Sin stock"
+    value={stats.outOfStock}
+    detail="para reponer o archivar"
+    tone={AccentTone.MUTED}
+  />
+</div>

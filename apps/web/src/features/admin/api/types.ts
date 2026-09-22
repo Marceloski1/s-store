@@ -62,6 +62,12 @@ export enum PublishCheckState {
   PENDING = "PENDING",
 }
 
+export type StatusTab = {
+  value: SneakerStatus | null
+  label: string
+  count: number
+}
+
 export type PublishCheck = {
   label: string
   state: PublishCheckState
