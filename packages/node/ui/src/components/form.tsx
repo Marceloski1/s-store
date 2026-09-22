@@ -54,6 +54,7 @@ function Form<TInput extends FieldValues, TOutput extends FieldValues>({
   return (
     <FormProvider {...form}>
       <form
+        method="post"
         noValidate
         data-slot="form"
         onSubmit={form.handleSubmit((values) => onSubmit(values, form))}
