@@ -1,35 +1,25 @@
 ---
-import { alternatingTone } from "@workspace/ui/lib/tones"
 import {
-  CATALOG_SORT_LABELS,
-  CatalogSort,
-} from "@/features/storefront/api/types"
-import { sectionForCategories } from "@/features/storefront/content/nav"
-import { GENDER_LABELS } from "@/features/catalog/api/labels"
-import {
+  activeFilterChips,
   catalogHref,
   parseCatalogQuery,
+  preservedSearchFields,
 } from "@/features/storefront/api/catalog-query"
 import { getFacets, listSneakers } from "@/features/storefront/api/sneakers"
 import type {
-  CatalogFacet,
   CatalogFacets,
   CatalogPage,
 } from "@/features/storefront/api/types"
+import ActiveFilters from "@/features/storefront/components/active-filters.astro"
+import Breadcrumb from "@/features/storefront/components/breadcrumb.astro"
 import CatalogFilters from "@/features/storefront/components/catalog-filters.astro"
-import SneakerCard from "@/features/storefront/components/sneaker-card.astro"
+import CatalogPagination from "@/features/storefront/components/catalog-pagination.astro"
+import CatalogResults from "@/features/storefront/components/catalog-results.astro"
+import CatalogSearchBar from "@/features/storefront/components/catalog-search-bar.astro"
+import { sectionForCategories } from "@/features/storefront/content/nav"
 import StorefrontLayout from "@/layouts/storefront.astro"
 
 const query = parseCatalogQuery(Astro.url.searchParams)
-
-const emptyFacets: CatalogFacets = {
-  brands: [],
-  categories: [],
-  genders: [],
-  sizes: [],
-  colors: [],
-  currencies: [],
-}
 
 let catalog: CatalogPage = {
   items: [],
@@ -38,7 +28,14 @@ let catalog: CatalogPage = {
   size: 0,
   pages: 1,
 }
-let facets = emptyFacets
+let facets: CatalogFacets = {
+  brands: [],
+  categories: [],
+  genders: [],
+  sizes: [],
+  colors: [],
+  currencies: [],
+}
 let loadFailed = false
 
 try {
@@ -48,103 +45,14 @@ try {
   Astro.response.status = 503
 }
 
-function labelFor(options: { value: string; label: string }[], value: string) {
-  return options.find((option) => option.value === value)?.label ?? value
-}
-
-type ListFilter = "brands" | "categories" | "genders" | "sizes" | "colors"
-
-function without(key: ListFilter, value: string): string {
-  return catalogHref(query, {
-    [key]: query[key].filter((item) => item !== value),
-    page: 1,
-  })
-}
-
-const genderOptions: CatalogFacet[] = Object.entries(GENDER_LABELS).map(
-  ([value, label]) => ({ value, label, count: 0 })
-)
-
-const priceLabel =
-  query.minPrice || query.maxPrice
-    ? `Precio ${query.minPrice ?? "0"} – ${query.maxPrice ?? "∞"}${query.currency ? ` ${query.currency}` : ""}`
-    : null
-
-const activeFilters = [
-  ...query.brands.map((value) => ({
-    label: labelFor(facets.brands, value),
-    href: without("brands", value),
-  })),
-  ...query.categories.map((value) => ({
-    label: labelFor(facets.categories, value),
-    href: without("categories", value),
-  })),
-  ...query.genders.map((value) => ({
-    label: labelFor(genderOptions, value),
-    href: without("genders", value),
-  })),
-  ...query.sizes.map((value) => ({
-    label: `Talla EU ${value}`,
-    href: without("sizes", value),
-  })),
-  ...query.colors.map((value) => ({
-    label: `Color ${labelFor(facets.colors, value)}`,
-    href: without("colors", value),
-  })),
-  ...(priceLabel
-    ? [
-        {
-          label: priceLabel,
-          href: catalogHref(query, {
-            minPrice: null,
-            maxPrice: null,
-            currency: null,
-            page: 1,
-          }),
-        },
-      ]
-    : []),
-  ...(query.reference
-    ? [
-        {
-          label: `Ref. ${query.reference}`,
-          href: catalogHref(query, { reference: null, page: 1 }),
-        },
-      ]
-    : []),
-  ...(query.inStock
-    ? [
-        {
-          label: "Solo con stock",
-          href: catalogHref(query, { inStock: false, page: 1 }),
-        },
-      ]
-    : []),
-]
-
-const preservedFields = [
-  ...query.brands.map((value) => ["brand", value]),
-  ...query.categories.map((value) => ["category", value]),
-  ...query.genders.map((value) => ["gender", value]),
-  ...query.sizes.map((value) => ["size", value]),
-  ...query.colors.map((value) => ["color", value]),
-  ...(query.minPrice ? [["min_price", query.minPrice]] : []),
-  ...(query.maxPrice ? [["max_price", query.maxPrice]] : []),
-  ...(query.currency ? [["currency", query.currency]] : []),
-  ...(query.reference ? [["reference", query.reference]] : []),
-  ...(query.inStock ? [["in_stock", "true"]] : []),
-]
-
-const sortOptions = Object.values(CatalogSort).map((value) => ({
-  value,
-  label: CATALOG_SORT_LABELS[value],
-}))
-
 const firstShown =
   catalog.items.length === 0 ? 0 : (catalog.page - 1) * catalog.size + 1
 const lastShown =
   catalog.items.length === 0 ? 0 : firstShown + catalog.items.length - 1
-const resultsLabel = `Mostrando ${firstShown} – ${lastShown} de ${catalog.total} modelos`
+const pages = Array.from({ length: catalog.pages }, (_, index) => ({
+  number: index + 1,
+  href: catalogHref(query, { page: index + 1 }),
+}))
 ---
 
 <StorefrontLayout
@@ -153,27 +61,9 @@ const resultsLabel = `Mostrando ${firstShown} – ${lastShown} de ${catalog.tota
   active={sectionForCategories(query.categories)}
 >
   <div class="mx-auto max-w-[1440px] px-4 pt-8 sm:px-8 lg:px-16">
-    <nav
-      aria-label="Ruta de navegación"
-      class="flex items-center gap-2 text-xs font-semibold"
-    >
-      <a href="/" class="text-muted-foreground hover:text-primary">Inicio</a>
-      <svg
-        width="13"
-        height="13"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="text-border"
-        aria-hidden="true"
-      >
-        <path d="m9.5 6 6 6-6 6"></path>
-      </svg>
-      <span class="text-foreground">Catálogo</span>
-    </nav>
+    <Breadcrumb
+      items={[{ label: "Inicio", href: "/" }, { label: "Catálogo" }]}
+    />
 
     <div class="mt-3 flex flex-wrap items-end justify-between gap-4">
       <h1
@@ -187,117 +77,13 @@ const resultsLabel = `Mostrando ${firstShown} – ${lastShown} de ${catalog.tota
     </div>
   </div>
 
-  <div
-    class="mx-auto flex max-w-[1440px] flex-col gap-4 px-4 pt-6 sm:px-8 lg:flex-row lg:items-center lg:px-16"
-  >
-    <form
-      action="/sneakers"
-      method="get"
-      class="flex grow flex-col gap-3 sm:flex-row sm:items-center"
-    >
-      {
-        preservedFields.map(([name, value]) => (
-          <input type="hidden" name={name} value={value} />
-        ))
-      }
-      <div
-        class="flex h-12 grow items-center gap-2.5 border border-border bg-muted px-4"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.9"
-          stroke-linecap="round"
-          class="text-muted-foreground"
-          aria-hidden="true"
-        >
-          <circle cx="11" cy="11" r="7"></circle>
-          <path d="M16.4 16.4 21 21"></path>
-        </svg>
-        <label for="catalog-search" class="sr-only">
-          Buscar por marca, modelo o referencia
-        </label>
-        <input
-          id="catalog-search"
-          type="search"
-          name="q"
-          value={query.q ?? ""}
-          placeholder="Marca, modelo o #referencia"
-          class="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
-        />
-      </div>
-      <div class="flex w-full items-center gap-3 sm:w-auto">
-        <label
-          for="catalog-sort"
-          class="text-xs font-extrabold tracking-[0.08em] text-muted-foreground uppercase"
-        >
-          Ordenar
-        </label>
-        <select
-          id="catalog-sort"
-          name="sort"
-          class="h-12 w-full min-w-0 grow border border-border bg-background px-3 text-sm font-semibold outline-none focus-visible:border-ring sm:w-[240px] sm:grow-0"
-        >
-          {
-            sortOptions.map((option) => (
-              <option
-                value={option.value}
-                selected={option.value === query.sort}
-              >
-                {option.label}
-              </option>
-            ))
-          }
-        </select>
-        <button
-          type="submit"
-          class="h-12 shrink-0 border-[1.5px] border-foreground px-4 text-xs font-extrabold tracking-[0.08em] text-foreground uppercase hover:bg-muted"
-        >
-          Buscar
-        </button>
-      </div>
-    </form>
-  </div>
+  <CatalogSearchBar
+    q={query.q}
+    sort={query.sort}
+    preservedFields={preservedSearchFields(query)}
+  />
 
-  {
-    activeFilters.length > 0 && (
-      <div class="mx-auto flex max-w-[1440px] flex-wrap items-center gap-2.5 px-4 pt-5 sm:px-8 lg:px-16">
-        <span class="text-[11px] font-extrabold tracking-[0.14em] text-muted-foreground uppercase">
-          Filtros activos
-        </span>
-        {activeFilters.map((filter) => (
-          <a
-            href={filter.href}
-            aria-label={`Quitar filtro ${filter.label}`}
-            class="flex h-9 items-center gap-2 border border-accent bg-accent px-3 text-[13px] font-bold text-primary hover:border-primary"
-          >
-            {filter.label}
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.6"
-              stroke-linecap="round"
-              aria-hidden="true"
-            >
-              <path d="M6 6l12 12M18 6 6 18" />
-            </svg>
-          </a>
-        ))}
-        <a
-          href="/sneakers"
-          class="text-xs font-extrabold tracking-[0.06em] text-muted-foreground uppercase underline"
-        >
-          Limpiar todo
-        </a>
-      </div>
-    )
-  }
+  <ActiveFilters filters={activeFilterChips(query, facets)} />
 
   <div
     class="mx-auto grid max-w-[1440px] items-start gap-10 px-4 py-8 sm:px-8 lg:grid-cols-[264px_minmax(0,1fr)] lg:px-16"
@@ -305,80 +91,16 @@ const resultsLabel = `Mostrando ${firstShown} – ${lastShown} de ${catalog.tota
     <aside>
       <CatalogFilters facets={facets} selected={query} />
     </aside>
-
-    {
-      loadFailed ? (
-        <div
-          role="alert"
-          class="flex flex-col items-center gap-3 border border-dashed border-destructive/50 py-24 text-center"
-        >
-          <span class="font-display text-2xl font-extrabold uppercase">
-            No pudimos cargar el catálogo
-          </span>
-          <p class="max-w-[360px] text-sm text-muted-foreground">
-            Hubo un problema al consultar los modelos. Vuelve a intentarlo en
-            unos minutos.
-          </p>
-          <a
-            href={catalogHref(query)}
-            class="mt-2 flex h-12 items-center bg-primary px-6 text-xs font-extrabold tracking-[0.08em] text-primary-foreground uppercase"
-          >
-            Reintentar
-          </a>
-        </div>
-      ) : catalog.items.length === 0 ? (
-        <div class="flex flex-col items-center gap-3 border border-dashed border-border py-24 text-center">
-          <span class="font-display text-2xl font-extrabold uppercase">
-            Sin resultados
-          </span>
-          <p class="max-w-[360px] text-sm text-muted-foreground">
-            No encontramos modelos con esos filtros. Prueba con menos criterios
-            o escríbenos y te ayudamos a buscar.
-          </p>
-          <a
-            href="/sneakers"
-            class="mt-2 flex h-12 items-center bg-primary px-6 text-xs font-extrabold tracking-[0.08em] text-primary-foreground uppercase"
-          >
-            Ver todo el catálogo
-          </a>
-        </div>
-      ) : (
-        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {catalog.items.map((sneaker, index) => (
-            <SneakerCard sneaker={sneaker} tone={alternatingTone(index)} />
-          ))}
-        </div>
-      )
-    }
+    <CatalogResults
+      items={catalog.items}
+      loadFailed={loadFailed}
+      retryHref={catalogHref(query)}
+    />
   </div>
 
-  <div class="mx-auto max-w-[1440px] px-4 pb-16 sm:px-8 lg:px-16">
-    <div
-      class="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6"
-    >
-      <span class="text-[13px] font-semibold text-muted-foreground">
-        {resultsLabel}
-      </span>
-      <nav aria-label="Paginación" class="flex items-center gap-2">
-        {
-          Array.from({ length: catalog.pages }, (_, index) => index + 1).map(
-            (number) => (
-              <a
-                href={catalogHref(query, { page: number })}
-                aria-current={number === catalog.page ? "page" : undefined}
-                class:list={[
-                  "flex h-11 min-w-11 items-center justify-center border text-sm font-bold",
-                  number === catalog.page
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-background text-foreground hover:border-primary",
-                ]}
-              >
-                {number}
-              </a>
-            )
-          )
-        }
-      </nav>
-    </div>
-  </div>
+  <CatalogPagination
+    label={`Mostrando ${firstShown} – ${lastShown} de ${catalog.total} modelos`}
+    current={catalog.page}
+    pages={pages}
+  />
 </StorefrontLayout>

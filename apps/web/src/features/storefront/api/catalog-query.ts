@@ -1,6 +1,11 @@
+import { GENDER_LABELS } from "@/features/catalog/api/labels"
 import { Currency, Gender } from "@/lib/api/types"
 import { toEnum, toEnums } from "@/lib/enums"
-import { CatalogSort, type CatalogQuery } from "@/features/storefront/api/types"
+import {
+  CatalogSort,
+  type CatalogFacets,
+  type CatalogQuery,
+} from "@/features/storefront/api/types"
 
 function optional(params: URLSearchParams, key: string): string | null {
   const value = params.get(key)?.trim()
@@ -72,4 +77,109 @@ export function catalogHref(
   }
   const search = params.toString()
   return search ? `/sneakers?${search}` : "/sneakers"
+}
+
+export type FilterChip = {
+  label: string
+  href: string
+}
+
+type ListFilter = "brands" | "categories" | "genders" | "sizes" | "colors"
+
+function labelFor(options: { value: string; label: string }[], value: string) {
+  return options.find((option) => option.value === value)?.label ?? value
+}
+
+function without(query: CatalogQuery, key: ListFilter, value: string) {
+  return catalogHref(query, {
+    [key]: query[key].filter((item) => item !== value),
+    page: 1,
+  })
+}
+
+function priceLabel(query: CatalogQuery): string | null {
+  if (!query.minPrice && !query.maxPrice) return null
+  const currency = query.currency ? ` ${query.currency}` : ""
+  return `Precio ${query.minPrice ?? "0"} – ${query.maxPrice ?? "∞"}${currency}`
+}
+
+export function activeFilterChips(
+  query: CatalogQuery,
+  facets: CatalogFacets
+): FilterChip[] {
+  const price = priceLabel(query)
+  return [
+    ...query.brands.map((value) => ({
+      label: labelFor(facets.brands, value),
+      href: without(query, "brands", value),
+    })),
+    ...query.categories.map((value) => ({
+      label: labelFor(facets.categories, value),
+      href: without(query, "categories", value),
+    })),
+    ...query.genders.map((value) => ({
+      label: GENDER_LABELS[value],
+      href: without(query, "genders", value),
+    })),
+    ...query.sizes.map((value) => ({
+      label: `Talla EU ${value}`,
+      href: without(query, "sizes", value),
+    })),
+    ...query.colors.map((value) => ({
+      label: `Color ${labelFor(facets.colors, value)}`,
+      href: without(query, "colors", value),
+    })),
+    ...(price
+      ? [
+          {
+            label: price,
+            href: catalogHref(query, {
+              minPrice: null,
+              maxPrice: null,
+              currency: null,
+              page: 1,
+            }),
+          },
+        ]
+      : []),
+    ...(query.reference
+      ? [
+          {
+            label: `Ref. ${query.reference}`,
+            href: catalogHref(query, { reference: null, page: 1 }),
+          },
+        ]
+      : []),
+    ...(query.inStock
+      ? [
+          {
+            label: "Solo con stock",
+            href: catalogHref(query, { inStock: false, page: 1 }),
+          },
+        ]
+      : []),
+  ]
+}
+
+export function preservedSearchFields(query: CatalogQuery): [string, string][] {
+  return [
+    ...query.brands.map((value): [string, string] => ["brand", value]),
+    ...query.categories.map((value): [string, string] => ["category", value]),
+    ...query.genders.map((value): [string, string] => ["gender", value]),
+    ...query.sizes.map((value): [string, string] => ["size", value]),
+    ...query.colors.map((value): [string, string] => ["color", value]),
+    ...(query.minPrice
+      ? [["min_price", query.minPrice] as [string, string]]
+      : []),
+    ...(query.maxPrice
+      ? [["max_price", query.maxPrice] as [string, string]]
+      : []),
+    ...(query.currency
+      ? [["currency", query.currency] as [string, string]]
+      : []),
+    ...(query.reference
+      ? [["reference", query.reference] as [string, string]]
+      : []),
+    ...(query.inStock ? [["in_stock", "true"] as [string, string]] : []),
+  ]
 }

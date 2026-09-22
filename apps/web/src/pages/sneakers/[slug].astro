@@ -1,17 +1,16 @@
 ---
-import { SurfaceTone, alternatingTone } from "@workspace/ui/lib/tones"
-import { SneakerBadge } from "@/features/storefront/api/types"
-import { StorefrontSection } from "@/features/storefront/content/nav"
 import {
   getSneakerBySlug,
   listRelated,
 } from "@/features/storefront/api/sneakers"
-import { hasSpecs } from "@/features/storefront/api/types"
-import SneakerPhoto from "@/features/storefront/components/sneaker-photo.astro"
-import SectionHeading from "@/features/storefront/components/section-heading.astro"
-import SneakerCard from "@/features/storefront/components/sneaker-card.astro"
-import SneakerSpecSheet from "@/features/storefront/components/sneaker-spec-sheet.astro"
+import Breadcrumb from "@/features/storefront/components/breadcrumb.astro"
+import RelatedSneakers from "@/features/storefront/components/related-sneakers.astro"
+import SneakerFeatures from "@/features/storefront/components/sneaker-features.astro"
+import SneakerGallery from "@/features/storefront/components/sneaker-gallery.astro"
+import SneakerNotFound from "@/features/storefront/components/sneaker-not-found.astro"
 import { SneakerPurchasePanel } from "@/features/storefront/components/sneaker-purchase-panel"
+import SneakerUsage from "@/features/storefront/components/sneaker-usage.astro"
+import { StorefrontSection } from "@/features/storefront/content/nav"
 import StorefrontLayout from "@/layouts/storefront.astro"
 
 const { slug } = Astro.params
@@ -30,203 +29,38 @@ const description = sneaker
       .filter(Boolean)
       .join(" ")
   : "El modelo que buscas no está disponible en el catálogo."
-const mainImage = sneaker?.images[0] ?? null
 ---
 
-{
-  sneaker ? (
-    <StorefrontLayout
-      title={sneaker.name}
-      description={description}
-      active={StorefrontSection.CATALOG}
-    >
-      <div class="mx-auto max-w-[1440px] px-4 pt-6 sm:px-8 lg:px-16">
-        <nav
-          aria-label="Ruta de navegación"
-          class="flex flex-wrap items-center gap-2 text-xs font-semibold"
-        >
-          <a href="/" class="text-muted-foreground hover:text-primary">
-            Inicio
-          </a>
-          <svg
-            width="13"
-            height="13"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="text-border"
-            aria-hidden="true"
-          >
-            <path d="m9.5 6 6 6-6 6" />
-          </svg>
-          <a href="/sneakers" class="text-muted-foreground hover:text-primary">
-            Catálogo
-          </a>
-          <svg
-            width="13"
-            height="13"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="text-border"
-            aria-hidden="true"
-          >
-            <path d="m9.5 6 6 6-6 6" />
-          </svg>
-          <span class="text-foreground">{sneaker.name}</span>
-        </nav>
-      </div>
-
-      <section class="mx-auto grid max-w-[1440px] items-start gap-14 px-4 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_470px] lg:px-16">
-        <div class="flex flex-col gap-5">
-          <div class="relative">
-            <SneakerPhoto
-              image={mainImage}
-              width={1100}
-              eager
-              tone={SurfaceTone.TINT}
-              class="h-[380px] sm:h-[520px] lg:h-[560px]"
-              glyphClass="w-[72%]"
-              label={mainImage ? undefined : "[FOTO PRINCIPAL]"}
-            />
-            {sneaker.badge === SneakerBadge.NEW && (
-              <span class="absolute top-4 left-4 bg-foreground px-3 py-1.5 text-[10px] font-extrabold tracking-[0.12em] text-background uppercase">
-                Nuevo
-              </span>
-            )}
-          </div>
-          <div class="grid grid-cols-4 gap-4">
-            {sneaker.images.map((image, index) => (
-              <SneakerPhoto
-                image={image}
-                width={280}
-                tone={index === 0 ? SurfaceTone.TINT : SurfaceTone.SOFT}
-                class={`h-[90px] sm:h-[140px] ${
-                  index === 0
-                    ? "border-2 border-primary"
-                    : "border border-border"
-                }`}
-                glyphClass="w-[70%]"
-              />
-            ))}
-          </div>
-        </div>
-
-        <SneakerPurchasePanel sneaker={sneaker} client:load />
-      </section>
-
-      {(hasSpecs(sneaker.specs) || sneaker.description) && (
-        <section class="border-y border-border bg-muted">
-          <div class="mx-auto flex max-w-[1440px] flex-col gap-7 px-4 py-14 sm:px-8 lg:px-16">
-            <div class="flex flex-wrap items-center gap-4">
-              <h2 class="font-display text-3xl leading-none font-extrabold tracking-tight text-foreground uppercase sm:text-4xl">
-                Características principales
-              </h2>
-            </div>
-            {hasSpecs(sneaker.specs) && (
-              <SneakerSpecSheet specs={sneaker.specs} />
-            )}
-            {sneaker.description && (
-              <p class="max-w-[980px] text-base leading-relaxed text-muted-foreground">
-                {sneaker.description}
-              </p>
-            )}
-          </div>
-        </section>
-      )}
-
-      <section
-        id="guia-de-tallas"
-        class="mx-auto grid max-w-[1440px] gap-10 px-4 py-14 sm:px-8 lg:grid-cols-[1fr_1.2fr] lg:px-16"
-      >
-        <div class="flex flex-col gap-3.5 border border-border p-7">
-          <span class="text-[11px] font-extrabold tracking-[0.16em] text-primary uppercase">
-            Cómo llevarlo
-          </span>
-          <h3 class="text-xl leading-snug font-bold text-foreground sm:text-[22px]">
-            Del entrenamiento a la calle sin cambiarte de zapatos
-          </h3>
-          {sneaker.usage && (
-            <p class="text-[15px] leading-relaxed text-muted-foreground">
-              {sneaker.usage}
-            </p>
-          )}
-          <p class="text-[15px] leading-relaxed text-muted-foreground">
-            Talla recomendada: la habitual. Si usas plantilla, sube media talla.
-          </p>
-        </div>
-
-        {sneaker.testimonial && (
-          <div class="flex flex-col justify-center gap-4 bg-primary p-8 sm:p-9">
-            <svg
-              width="30"
-              height="30"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="text-primary-foreground/40"
-              aria-hidden="true"
-            >
-              <path d="M7 6h4v6a5 5 0 0 1-5 5v-3a2 2 0 0 0 2-2H7Zm7 0h4v6a5 5 0 0 1-5 5v-3a2 2 0 0 0 2-2h-1Z" />
-            </svg>
-            <blockquote class="text-lg leading-snug font-semibold text-primary-foreground sm:text-[21px]">
-              «{sneaker.testimonial.quote}»
-            </blockquote>
-            <footer class="text-xs font-extrabold tracking-[0.1em] text-primary-foreground/70 uppercase">
-              {sneaker.testimonial.author}
-            </footer>
-          </div>
-        )}
-      </section>
-
-      {related.length > 0 && (
-        <section class="mx-auto flex max-w-[1440px] flex-col gap-7 px-4 pb-16 sm:px-8 lg:px-16">
-          <SectionHeading
-            title="También te puede gustar"
-            linkLabel="Ver el catálogo"
-            linkHref="/sneakers"
+<StorefrontLayout
+  title={sneaker?.name ?? "Modelo no encontrado"}
+  description={description}
+  active={StorefrontSection.CATALOG}
+>
+  {
+    sneaker ? (
+      <>
+        <div class="mx-auto max-w-[1440px] px-4 pt-6 sm:px-8 lg:px-16">
+          <Breadcrumb
+            wrap
+            items={[
+              { label: "Inicio", href: "/" },
+              { label: "Catálogo", href: "/sneakers" },
+              { label: sneaker.name },
+            ]}
           />
-          <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {related.map((item, index) => (
-              <SneakerCard
-                sneaker={item}
-                tone={alternatingTone(index)}
-                imageClass="h-[270px]"
-              />
-            ))}
-          </div>
+        </div>
+
+        <section class="mx-auto grid max-w-[1440px] items-start gap-14 px-4 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_470px] lg:px-16">
+          <SneakerGallery sneaker={sneaker} />
+          <SneakerPurchasePanel sneaker={sneaker} client:load />
         </section>
-      )}
-    </StorefrontLayout>
-  ) : (
-    <StorefrontLayout
-      title="Modelo no encontrado"
-      description={description}
-      active={StorefrontSection.CATALOG}
-    >
-      <section class="mx-auto flex max-w-[1440px] flex-col items-center gap-4 px-4 py-28 text-center sm:px-8 lg:px-16">
-        <span class="text-[11px] font-extrabold tracking-[0.18em] text-primary uppercase">
-          Error 404
-        </span>
-        <h1 class="font-display text-4xl font-extrabold tracking-tight text-foreground uppercase sm:text-5xl">
-          Modelo no encontrado
-        </h1>
-        <p class="max-w-[420px] text-sm text-muted-foreground">
-          Este modelo ya no está disponible o la dirección no es correcta. Echa
-          un vistazo al resto del catálogo.
-        </p>
-        <a
-          href="/sneakers"
-          class="mt-2 flex h-12 items-center bg-primary px-6 text-xs font-extrabold tracking-[0.08em] text-primary-foreground uppercase"
-        >
-          Ver el catálogo
-        </a>
-      </section>
-    </StorefrontLayout>
-  )
-}
+
+        <SneakerFeatures sneaker={sneaker} />
+        <SneakerUsage sneaker={sneaker} />
+        <RelatedSneakers sneakers={related} />
+      </>
+    ) : (
+      <SneakerNotFound />
+    )
+  }
+</StorefrontLayout>

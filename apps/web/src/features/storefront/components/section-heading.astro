@@ -1,4 +1,6 @@
 ---
+import { ChevronRightIcon } from "@workspace/ui/components/icons/chevron-right"
+
 interface Props {
   eyebrow?: string
   title: string
@@ -38,19 +40,7 @@ const {
         class="flex items-center gap-2 text-xs font-extrabold tracking-[0.1em] text-primary uppercase hover:underline"
       >
         {linkLabel}
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.1"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="m9.5 6 6 6-6 6" />
-        </svg>
+        <ChevronRightIcon size={15} strokeWidth={2.1} />
       </a>
     )
   }

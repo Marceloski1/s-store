@@ -1,5 +1,8 @@
 import { useState } from "react"
 
+import { ShareIcon } from "@workspace/ui/components/icons/share"
+import { WhatsappIcon } from "@workspace/ui/components/icons/whatsapp"
+
 import { ColorwayPicker } from "@/features/storefront/components/colorway-picker"
 import { SizePicker } from "@/features/storefront/components/size-picker"
 import { useSneakerSelection } from "@/features/storefront/hooks/use-sneaker-selection"
@@ -100,20 +103,7 @@ export function SneakerPurchasePanel({ sneaker }: SneakerPurchasePanelProps) {
           href={whatsappLink(message)}
           className="flex h-14 items-center justify-center gap-3 bg-primary text-sm font-extrabold tracking-[0.08em] text-primary-foreground uppercase hover:bg-primary/90"
         >
-          <svg
-            width="19"
-            height="19"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.9"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3.5 20.5l1.7-5A8.4 8.4 0 1 1 21 11.5Z" />
-            <path d="M8.9 9.3c0 3 2.4 5.4 5.4 5.4" />
-          </svg>
+          <WhatsappIcon size={19} />
           Consultar este modelo
         </a>
         <button
@@ -121,20 +111,7 @@ export function SneakerPurchasePanel({ sneaker }: SneakerPurchasePanelProps) {
           onClick={share}
           className="flex h-13 items-center justify-center gap-2.5 border-[1.5px] border-foreground bg-background text-[13px] font-extrabold tracking-[0.08em] text-foreground uppercase hover:bg-muted"
         >
-          <svg
-            width="17"
-            height="17"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.9"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M12 16V4m0 0L8 8m4-4 4 4" />
-            <path d="M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15" />
-          </svg>
+          <ShareIcon />
           {copied ? "Enlace copiado" : "Compartir el modelo"}
         </button>
       </div>

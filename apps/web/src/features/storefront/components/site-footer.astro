@@ -1,4 +1,6 @@
 ---
+import { ChatBubbleIcon } from "@workspace/ui/components/icons/chat-bubble"
+
 import {
   SOCIAL_LINKS,
   STORE_ADDRESSES,
@@ -55,19 +57,7 @@ const year = new Date().getFullYear()
               href={contact.href}
               class="flex items-center gap-2 text-sm hover:underline"
             >
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3.5 20.5l1.7-5A8.4 8.4 0 1 1 21 11.5Z" />
-              </svg>
+              <ChatBubbleIcon />
               WhatsApp {contact.label}
             </a>
           ))

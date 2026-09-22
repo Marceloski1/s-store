@@ -1,0 +1,31 @@
+---
+import { hasSpecs, type SneakerDetail } from "@/features/storefront/api/types"
+import SneakerSpecSheet from "@/features/storefront/components/sneaker-spec-sheet.astro"
+
+interface Props {
+  sneaker: SneakerDetail
+}
+
+const { sneaker } = Astro.props
+const showSpecs = hasSpecs(sneaker.specs)
+---
+
+{
+  (showSpecs || sneaker.description) && (
+    <section class="border-y border-border bg-muted">
+      <div class="mx-auto flex max-w-[1440px] flex-col gap-7 px-4 py-14 sm:px-8 lg:px-16">
+        <div class="flex flex-wrap items-center gap-4">
+          <h2 class="font-display text-3xl leading-none font-extrabold tracking-tight text-foreground uppercase sm:text-4xl">
+            Características principales
+          </h2>
+        </div>
+        {showSpecs && <SneakerSpecSheet specs={sneaker.specs} />}
+        {sneaker.description && (
+          <p class="max-w-[980px] text-base leading-relaxed text-muted-foreground">
+            {sneaker.description}
+          </p>
+        )}
+      </div>
+    </section>
+  )
+}

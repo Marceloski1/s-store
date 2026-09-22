@@ -1,0 +1,37 @@
+---
+import { CloseIcon } from "@workspace/ui/components/icons/close"
+
+import type { FilterChip } from "@/features/storefront/api/catalog-query"
+
+interface Props {
+  filters: FilterChip[]
+}
+
+const { filters } = Astro.props
+---
+
+{
+  filters.length > 0 && (
+    <div class="mx-auto flex max-w-[1440px] flex-wrap items-center gap-2.5 px-4 pt-5 sm:px-8 lg:px-16">
+      <span class="text-[11px] font-extrabold tracking-[0.14em] text-muted-foreground uppercase">
+        Filtros activos
+      </span>
+      {filters.map((filter) => (
+        <a
+          href={filter.href}
+          aria-label={`Quitar filtro ${filter.label}`}
+          class="flex h-9 items-center gap-2 border border-accent bg-accent px-3 text-[13px] font-bold text-primary hover:border-primary"
+        >
+          {filter.label}
+          <CloseIcon strokeWidth={2.6} />
+        </a>
+      ))}
+      <a
+        href="/sneakers"
+        class="text-xs font-extrabold tracking-[0.06em] text-muted-foreground uppercase underline"
+      >
+        Limpiar todo
+      </a>
+    </div>
+  )
+}

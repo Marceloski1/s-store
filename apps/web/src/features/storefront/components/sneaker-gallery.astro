@@ -1,0 +1,53 @@
+---
+import { SurfaceTone } from "@workspace/ui/lib/tones"
+
+import {
+  SNEAKER_BADGE_LABELS,
+  SneakerBadge,
+  type SneakerDetail,
+} from "@/features/storefront/api/types"
+import SneakerPhoto from "@/features/storefront/components/sneaker-photo.astro"
+
+interface Props {
+  sneaker: SneakerDetail
+}
+
+const { sneaker } = Astro.props
+const mainImage = sneaker.images[0] ?? null
+---
+
+<div class="flex flex-col gap-5">
+  <div class="relative">
+    <SneakerPhoto
+      image={mainImage}
+      width={1100}
+      eager
+      tone={SurfaceTone.TINT}
+      class="h-[380px] sm:h-[520px] lg:h-[560px]"
+      glyphClass="w-[72%]"
+      label={mainImage ? undefined : "[FOTO PRINCIPAL]"}
+    />
+    {
+      sneaker.badge === SneakerBadge.NEW && (
+        <span class="absolute top-4 left-4 bg-foreground px-3 py-1.5 text-[10px] font-extrabold tracking-[0.12em] text-background uppercase">
+          {SNEAKER_BADGE_LABELS[SneakerBadge.NEW]}
+        </span>
+      )
+    }
+  </div>
+  <div class="grid grid-cols-4 gap-4">
+    {
+      sneaker.images.map((image, index) => (
+        <SneakerPhoto
+          image={image}
+          width={280}
+          tone={index === 0 ? SurfaceTone.TINT : SurfaceTone.SOFT}
+          class={`h-[90px] sm:h-[140px] ${
+            index === 0 ? "border-2 border-primary" : "border border-border"
+          }`}
+          glyphClass="w-[70%]"
+        />
+      ))
+    }
+  </div>
+</div>

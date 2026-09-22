@@ -1,0 +1,51 @@
+---
+import { QuoteIcon } from "@workspace/ui/components/icons/quote"
+
+import type { SneakerDetail } from "@/features/storefront/api/types"
+
+interface Props {
+  sneaker: SneakerDetail
+}
+
+const { sneaker } = Astro.props
+---
+
+<section
+  id="guia-de-tallas"
+  class="mx-auto grid max-w-[1440px] gap-10 px-4 py-14 sm:px-8 lg:grid-cols-[1fr_1.2fr] lg:px-16"
+>
+  <div class="flex flex-col gap-3.5 border border-border p-7">
+    <span
+      class="text-[11px] font-extrabold tracking-[0.16em] text-primary uppercase"
+    >
+      Cómo llevarlo
+    </span>
+    <h3 class="text-xl leading-snug font-bold text-foreground sm:text-[22px]">
+      Del entrenamiento a la calle sin cambiarte de zapatos
+    </h3>
+    {
+      sneaker.usage && (
+        <p class="text-[15px] leading-relaxed text-muted-foreground">
+          {sneaker.usage}
+        </p>
+      )
+    }
+    <p class="text-[15px] leading-relaxed text-muted-foreground">
+      Talla recomendada: la habitual. Si usas plantilla, sube media talla.
+    </p>
+  </div>
+
+  {
+    sneaker.testimonial && (
+      <div class="flex flex-col justify-center gap-4 bg-primary p-8 sm:p-9">
+        <QuoteIcon className="text-primary-foreground/40" />
+        <blockquote class="text-lg leading-snug font-semibold text-primary-foreground sm:text-[21px]">
+          «{sneaker.testimonial.quote}»
+        </blockquote>
+        <footer class="text-xs font-extrabold tracking-[0.1em] text-primary-foreground/70 uppercase">
+          {sneaker.testimonial.author}
+        </footer>
+      </div>
+    )
+  }
+</section>

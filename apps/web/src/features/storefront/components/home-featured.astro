@@ -1,0 +1,35 @@
+---
+import { alternatingTone } from "@workspace/ui/lib/tones"
+
+import type { SneakerSummary } from "@/features/storefront/api/types"
+import SectionHeading from "@/features/storefront/components/section-heading.astro"
+import SneakerCard from "@/features/storefront/components/sneaker-card.astro"
+
+interface Props {
+  sneakers: SneakerSummary[]
+}
+
+const { sneakers } = Astro.props
+---
+
+<section
+  class="mx-auto flex max-w-[1440px] flex-col gap-7 px-4 pb-16 sm:px-8 lg:px-16"
+>
+  <SectionHeading
+    eyebrow="Lo más buscado"
+    title="Modelos destacados"
+    linkLabel="Todo el catálogo"
+    linkHref="/sneakers"
+  />
+  <div class="grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
+    {
+      sneakers.map((sneaker, index) => (
+        <SneakerCard
+          sneaker={sneaker}
+          tone={alternatingTone(index)}
+          imageClass="h-[300px]"
+        />
+      ))
+    }
+  </div>
+</section>

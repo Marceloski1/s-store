@@ -1,0 +1,37 @@
+---
+interface Props {
+  label: string
+  current: number
+  pages: { number: number; href: string }[]
+}
+
+const { label, current, pages } = Astro.props
+---
+
+<div class="mx-auto max-w-[1440px] px-4 pb-16 sm:px-8 lg:px-16">
+  <div
+    class="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6"
+  >
+    <span class="text-[13px] font-semibold text-muted-foreground">
+      {label}
+    </span>
+    <nav aria-label="Paginación" class="flex items-center gap-2">
+      {
+        pages.map((page) => (
+          <a
+            href={page.href}
+            aria-current={page.number === current ? "page" : undefined}
+            class:list={[
+              "flex h-11 min-w-11 items-center justify-center border text-sm font-bold",
+              page.number === current
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border bg-background text-foreground hover:border-primary",
+            ]}
+          >
+            {page.number}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</div>

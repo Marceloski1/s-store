@@ -1,0 +1,56 @@
+---
+import { SEARCH_CRITERIA } from "@/features/storefront/content/store"
+---
+
+<section class="border-y border-border bg-muted">
+  <div
+    class="mx-auto flex max-w-[1440px] flex-col gap-8 px-4 py-12 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-16"
+  >
+    <div class="flex max-w-[420px] flex-col gap-2">
+      <span
+        class="text-[11px] font-extrabold tracking-[0.18em] text-primary uppercase"
+      >
+        Busca como prefieras
+      </span>
+      <p class="text-xl leading-snug font-bold text-foreground">
+        Encuentra tu par por marca, referencia, precio o tipo de calzado.
+      </p>
+    </div>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        SEARCH_CRITERIA.map((criteria, index) => (
+          <a
+            href={`/sneakers${criteria.query}`}
+            class:list={[
+              "flex min-w-[152px] flex-col gap-1.5 border p-4",
+              index === SEARCH_CRITERIA.length - 1
+                ? "border-primary bg-primary"
+                : "border-border bg-background",
+            ]}
+          >
+            <span
+              class:list={[
+                "text-[10px] font-extrabold tracking-[0.14em] uppercase",
+                index === SEARCH_CRITERIA.length - 1
+                  ? "text-primary-foreground/70"
+                  : "text-muted-foreground",
+              ]}
+            >
+              {criteria.prefix}
+            </span>
+            <span
+              class:list={[
+                "text-base font-bold",
+                index === SEARCH_CRITERIA.length - 1
+                  ? "text-primary-foreground"
+                  : "text-foreground",
+              ]}
+            >
+              {criteria.label}
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>

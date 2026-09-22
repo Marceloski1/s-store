@@ -1,0 +1,43 @@
+---
+import { CheckIcon } from "@workspace/ui/components/icons/check"
+
+import { STORE_NAME, STORE_VALUES } from "@/features/storefront/content/store"
+---
+
+<section
+  class="mx-auto grid max-w-[1440px] gap-12 px-4 py-16 sm:px-8 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:px-16"
+>
+  <div class="flex flex-col gap-4">
+    <span
+      class="text-[11px] font-extrabold tracking-[0.18em] text-primary uppercase"
+    >
+      La experiencia {STORE_NAME}
+    </span>
+    <h2
+      class="font-display text-3xl leading-tight font-extrabold tracking-tight text-foreground uppercase sm:text-4xl"
+    >
+      Un espacio pensado para consentir cada uno de tus pasos
+    </h2>
+    <p class="text-base leading-relaxed text-muted-foreground">
+      Te invitamos a vivir la experiencia {STORE_NAME}, donde cada paso es un
+      gesto de cuidado y distinción.
+    </p>
+  </div>
+  <div class="flex flex-col gap-5">
+    {
+      STORE_VALUES.map((value) => (
+        <div class="flex items-start gap-4">
+          <span class="flex size-11 shrink-0 items-center justify-center bg-accent">
+            <CheckIcon size={21} strokeWidth={2.2} className="text-primary" />
+          </span>
+          <div class="flex flex-col gap-1">
+            <span class="text-base font-bold text-foreground">
+              {value.title}
+            </span>
+            <span class="text-sm text-muted-foreground">{value.detail}</span>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>

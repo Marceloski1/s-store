@@ -1,0 +1,44 @@
+---
+import { alternatingTone } from "@workspace/ui/lib/tones"
+
+import ImagePlaceholder from "@/features/storefront/components/image-placeholder.astro"
+import SectionHeading from "@/features/storefront/components/section-heading.astro"
+import { STORE_STYLES } from "@/features/storefront/content/store"
+---
+
+<section
+  class="mx-auto flex max-w-[1440px] flex-col gap-7 px-4 py-16 sm:px-8 lg:px-16"
+>
+  <SectionHeading
+    eyebrow="Compra por estilo"
+    title="Tres formas de caminar"
+    linkLabel="Ver todo"
+    linkHref="/sneakers"
+  />
+  <div class="grid gap-7 md:grid-cols-3">
+    {
+      STORE_STYLES.map((style, index) => (
+        <a
+          href={`/sneakers?category=${style.slug}`}
+          class="group relative flex h-[264px] items-end overflow-hidden border border-border p-6 transition-colors hover:border-primary"
+        >
+          <span class="absolute inset-0">
+            <ImagePlaceholder
+              tone={alternatingTone(index)}
+              class="h-full w-full"
+              glyphClass="w-[78%] translate-x-10 -translate-y-8"
+            />
+          </span>
+          <div class="relative flex flex-col gap-1.5">
+            <span class="font-display text-3xl leading-none font-extrabold text-foreground uppercase">
+              {style.name}
+            </span>
+            <span class="text-[13px] font-semibold text-primary">
+              {style.detail}
+            </span>
+          </div>
+        </a>
+      ))
+    }
+  </div>
+</section>

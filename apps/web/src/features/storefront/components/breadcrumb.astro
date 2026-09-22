@@ -1,0 +1,38 @@
+---
+import { ChevronRightIcon } from "@workspace/ui/components/icons/chevron-right"
+
+interface Crumb {
+  label: string
+  href?: string
+}
+
+interface Props {
+  items: Crumb[]
+  wrap?: boolean
+}
+
+const { items, wrap = false } = Astro.props
+---
+
+<nav
+  aria-label="Ruta de navegación"
+  class:list={[
+    "flex items-center gap-2 text-xs font-semibold",
+    wrap && "flex-wrap",
+  ]}
+>
+  {
+    items.map((item, index) => (
+      <>
+        {index > 0 && <ChevronRightIcon className="text-border" />}
+        {item.href ? (
+          <a href={item.href} class="text-muted-foreground hover:text-primary">
+            {item.label}
+          </a>
+        ) : (
+          <span class="text-foreground">{item.label}</span>
+        )}
+      </>
+    ))
+  }
+</nav>

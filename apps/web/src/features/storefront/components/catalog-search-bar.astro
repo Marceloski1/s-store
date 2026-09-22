@@ -1,0 +1,80 @@
+---
+import { SearchIcon } from "@workspace/ui/components/icons/search"
+
+import {
+  CATALOG_SORT_LABELS,
+  CatalogSort,
+} from "@/features/storefront/api/types"
+
+interface Props {
+  q: string | null
+  sort: CatalogSort
+  preservedFields: [string, string][]
+}
+
+const { q, sort, preservedFields } = Astro.props
+
+const sortOptions = Object.values(CatalogSort).map((value) => ({
+  value,
+  label: CATALOG_SORT_LABELS[value],
+}))
+---
+
+<div
+  class="mx-auto flex max-w-[1440px] flex-col gap-4 px-4 pt-6 sm:px-8 lg:flex-row lg:items-center lg:px-16"
+>
+  <form
+    action="/sneakers"
+    method="get"
+    class="flex grow flex-col gap-3 sm:flex-row sm:items-center"
+  >
+    {
+      preservedFields.map(([name, value]) => (
+        <input type="hidden" name={name} value={value} />
+      ))
+    }
+    <div
+      class="flex h-12 grow items-center gap-2.5 border border-border bg-muted px-4"
+    >
+      <SearchIcon size={18} className="text-muted-foreground" />
+      <label for="catalog-search" class="sr-only">
+        Buscar por marca, modelo o referencia
+      </label>
+      <input
+        id="catalog-search"
+        type="search"
+        name="q"
+        value={q ?? ""}
+        placeholder="Marca, modelo o #referencia"
+        class="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
+      />
+    </div>
+    <div class="flex w-full items-center gap-3 sm:w-auto">
+      <label
+        for="catalog-sort"
+        class="text-xs font-extrabold tracking-[0.08em] text-muted-foreground uppercase"
+      >
+        Ordenar
+      </label>
+      <select
+        id="catalog-sort"
+        name="sort"
+        class="h-12 w-full min-w-0 grow border border-border bg-background px-3 text-sm font-semibold outline-none focus-visible:border-ring sm:w-[240px] sm:grow-0"
+      >
+        {
+          sortOptions.map((option) => (
+            <option value={option.value} selected={option.value === sort}>
+              {option.label}
+            </option>
+          ))
+        }
+      </select>
+      <button
+        type="submit"
+        class="h-12 shrink-0 border-[1.5px] border-foreground px-4 text-xs font-extrabold tracking-[0.08em] text-foreground uppercase hover:bg-muted"
+      >
+        Buscar
+      </button>
+    </div>
+  </form>
+</div>

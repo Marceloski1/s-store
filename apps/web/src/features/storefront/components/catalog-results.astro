@@ -1,0 +1,56 @@
+---
+import { alternatingTone } from "@workspace/ui/lib/tones"
+
+import type { SneakerSummary } from "@/features/storefront/api/types"
+import SneakerCard from "@/features/storefront/components/sneaker-card.astro"
+
+interface Props {
+  items: SneakerSummary[]
+  loadFailed: boolean
+  retryHref: string
+}
+
+const { items, loadFailed, retryHref } = Astro.props
+
+const actionClass =
+  "mt-2 flex h-12 items-center bg-primary px-6 text-xs font-extrabold tracking-[0.08em] text-primary-foreground uppercase"
+---
+
+{
+  loadFailed ? (
+    <div
+      role="alert"
+      class="flex flex-col items-center gap-3 border border-dashed border-destructive/50 py-24 text-center"
+    >
+      <span class="font-display text-2xl font-extrabold uppercase">
+        No pudimos cargar el catálogo
+      </span>
+      <p class="max-w-[360px] text-sm text-muted-foreground">
+        Hubo un problema al consultar los modelos. Vuelve a intentarlo en unos
+        minutos.
+      </p>
+      <a href={retryHref} class={actionClass}>
+        Reintentar
+      </a>
+    </div>
+  ) : items.length === 0 ? (
+    <div class="flex flex-col items-center gap-3 border border-dashed border-border py-24 text-center">
+      <span class="font-display text-2xl font-extrabold uppercase">
+        Sin resultados
+      </span>
+      <p class="max-w-[360px] text-sm text-muted-foreground">
+        No encontramos modelos con esos filtros. Prueba con menos criterios o
+        escríbenos y te ayudamos a buscar.
+      </p>
+      <a href="/sneakers" class={actionClass}>
+        Ver todo el catálogo
+      </a>
+    </div>
+  ) : (
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {items.map((sneaker, index) => (
+        <SneakerCard sneaker={sneaker} tone={alternatingTone(index)} />
+      ))}
+    </div>
+  )
+}
