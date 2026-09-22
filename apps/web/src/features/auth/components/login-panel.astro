@@ -1,0 +1,59 @@
+---
+import { ChevronLeftIcon } from "@workspace/ui/components/icons/chevron-left"
+import { ShieldAlertIcon } from "@workspace/ui/components/icons/shield-alert"
+
+import { LoginForm } from "@/features/auth/components/login-form"
+import {
+  PRIMARY_WHATSAPP,
+  STORE_NAME,
+} from "@/features/storefront/content/store"
+
+interface Props {
+  nextPath: string | null
+}
+
+const { nextPath } = Astro.props
+---
+
+<div class="flex items-center justify-center p-6 sm:p-14">
+  <div class="flex w-full max-w-[400px] flex-col gap-6">
+    <div class="flex flex-col gap-2.5">
+      <span
+        class="text-[11px] font-extrabold tracking-[0.18em] text-primary uppercase"
+      >
+        Administración
+      </span>
+      <h1
+        class="font-display text-4xl leading-none font-extrabold tracking-tight text-foreground uppercase sm:text-5xl"
+      >
+        Entra al panel
+      </h1>
+      <p class="text-[15px] leading-relaxed text-muted-foreground">
+        Acceso exclusivo para el equipo de {STORE_NAME}. Los clientes no
+        necesitan cuenta para ver el catálogo.
+      </p>
+    </div>
+
+    <LoginForm client:load nextPath={nextPath} />
+
+    <div
+      class="flex items-start gap-3 border border-border bg-muted px-4 py-3.5"
+    >
+      <ShieldAlertIcon className="mt-0.5 shrink-0 text-primary" />
+      <span class="text-[13px] leading-relaxed text-muted-foreground">
+        Si no puedes entrar o olvidaste la contraseña, pide a un
+        superadministrador que la restablezca o escribe al <strong
+          class="text-foreground">{PRIMARY_WHATSAPP.label}</strong
+        >.
+      </span>
+    </div>
+
+    <a
+      href="/"
+      class="flex items-center gap-2 text-[13px] font-bold text-muted-foreground hover:text-primary"
+    >
+      <ChevronLeftIcon strokeWidth={2.1} />
+      Volver a la tienda
+    </a>
+  </div>
+</div>

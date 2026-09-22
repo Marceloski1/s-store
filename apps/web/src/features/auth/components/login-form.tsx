@@ -1,5 +1,6 @@
 import { useState } from "react"
 
+import { EyeIcon } from "@workspace/ui/components/icons/eye"
 import { Form, FormField } from "@workspace/ui/components/form"
 
 import { loginSchema, type LoginValues } from "@/features/auth/api/schemas"
@@ -67,20 +68,7 @@ export function LoginForm({ nextPath }: LoginFormProps) {
               onClick={() => setShowPassword((current) => !current)}
               className="absolute right-1.5 flex size-11 items-center justify-center text-muted-foreground hover:text-foreground"
             >
-              <svg
-                width="19"
-                height="19"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
-                <circle cx="12" cy="12" r="2.8" />
-              </svg>
+              <EyeIcon />
             </button>
           </div>
         )}
