@@ -13,7 +13,7 @@ export default defineConfig({
     schema: {
       API_URL: envField.string({
         context: "server",
-        access: "public",
+        access: "secret",
         url: true,
       }),
     },
