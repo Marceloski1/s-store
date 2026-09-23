@@ -14,7 +14,7 @@
     },
     "api": {
       "root": "apps/saury-backend/",
-      "entrypoint": "saury_backend.asgi:app"
+      "entrypoint": "src/saury_backend/asgi.py"
     }
   },
   "rewrites": [
