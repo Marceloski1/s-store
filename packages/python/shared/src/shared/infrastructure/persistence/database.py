@@ -1,4 +1,5 @@
 from sqlalchemy import MetaData
+from sqlalchemy.pool import NullPool
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
@@ -15,7 +16,14 @@ class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=NAMING_CONVENTION)
 
 
-def create_engine(url: str, *, echo: bool = False) -> AsyncEngine:
+def create_engine(url: str, *, echo: bool = False, pooled: bool = False) -> AsyncEngine:
+    if pooled:
+        return create_async_engine(
+            url,
+            echo=echo,
+            poolclass=NullPool,
+            connect_args={"statement_cache_size": 0, "prepared_statement_cache_size": 0},
+        )
     return create_async_engine(url, echo=echo, pool_pre_ping=True)
 
 

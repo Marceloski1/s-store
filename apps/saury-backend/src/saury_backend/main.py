@@ -19,7 +19,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-        engine = create_engine(resolved_settings.async_database_url, echo=resolved_settings.database_echo)
+        engine = create_engine(
+            resolved_settings.async_database_url,
+            echo=resolved_settings.database_echo,
+            pooled=resolved_settings.database_pooled,
+        )
         app.state.session_factory = create_session_factory(engine)
         yield
         await engine.dispose()

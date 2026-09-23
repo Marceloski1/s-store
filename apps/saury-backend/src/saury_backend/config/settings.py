@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     app_env: Environment = Environment.DEVELOPMENT
     database_url: str
     database_echo: bool = False
+    database_pooled: bool = False
     cors_origins: list[str] = []
     cloudinary_cloud_name: str | None = None
     cloudinary_api_key: str | None = None
