@@ -23,8 +23,8 @@ import { brandService } from "@/services/admin-services/brand"
 import { categoryService } from "@/services/admin-services/category"
 import { sneakerService } from "@/services/admin-services/sneaker"
 
-const MAX_PAGE_SIZE = 100
-const ADMIN_PAGE_SIZE = 20
+const MAX_PAGE_SIZE = 10
+const ADMIN_PAGE_SIZE = 10
 
 function warningFor(sneaker: ApiSneaker): string | null {
   if (!primaryImageUrl(sneaker)) {
@@ -68,13 +68,16 @@ export async function loadAdminReferences(): Promise<CatalogReferences> {
   return toCatalogReferences(brands.items, categories.items)
 }
 
-function listPage(page: number, size: number, status: SneakerStatus | null) {
+function listPage(page: number, size: number, status: SneakerStatus | null, filters: { q?: string; brandId?: string; categoryId?: string } = {}) {
   return sneakerService.list({
     page,
     size,
     status,
     sort: SneakerSort.CREATED_AT,
     descending: true,
+    q: filters.q,
+    brand_id: filters.brandId ? [filters.brandId] : undefined,
+    category_id: filters.categoryId ? [filters.categoryId] : undefined,
   })
 }
 
@@ -90,10 +93,12 @@ async function listAll(): Promise<ApiSneaker[]> {
 
 export async function listAdminSneakers(
   status: SneakerStatus | null,
-  page: number
+  page: number,
+  filters: { q?: string; brandId?: string; categoryId?: string } = {},
+  size = ADMIN_PAGE_SIZE
 ): Promise<AdminSneakerPage> {
   const [result, references] = await Promise.all([
-    listPage(page, ADMIN_PAGE_SIZE, status),
+    listPage(page, size, status, filters),
     loadAdminReferences(),
   ])
   return {

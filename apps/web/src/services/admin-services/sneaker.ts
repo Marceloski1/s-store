@@ -12,6 +12,9 @@ type SneakerListQuery = {
   status?: ApiSneakerStatus | null
   sort?: ApiSneakerSort
   descending?: boolean
+  q?: string
+  brand_id?: string[]
+  category_id?: string[]
 }
 
 function sneakerPath(sneakerId: string) {

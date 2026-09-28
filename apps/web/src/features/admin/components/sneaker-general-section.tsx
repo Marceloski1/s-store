@@ -16,7 +16,6 @@ type SneakerGeneralSectionProps = {
   categories: AdminOption[]
   genders: AdminOption[]
   currencies: readonly string[]
-  disabled: boolean
   onRegenerateSlug: () => void
 }
 
@@ -25,7 +24,6 @@ export function SneakerGeneralSection({
   categories,
   genders,
   currencies,
-  disabled,
   onRegenerateSlug,
 }: SneakerGeneralSectionProps) {
   return (
@@ -34,17 +32,18 @@ export function SneakerGeneralSection({
         <h2 className="text-[17px] font-extrabold">Datos generales</h2>
       </div>
       <div className="flex flex-col gap-5 px-6 py-5">
-        <div className="grid gap-4 sm:grid-cols-[1.4fr_1fr]">
+        <div className="grid min-w-0 gap-4 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
           <SneakerField
             name="name"
             id="name"
-            label="Nombre del modelo"
+            label="Nombre del modelo *"
             labelClassName={labelClass}
             render={({ field, fieldState, control }) => (
               <input
                 {...control}
                 {...field}
                 type="text"
+                maxLength={40}
                 className={invalidClass(fieldClass, fieldState.invalid)}
               />
             )}
@@ -52,7 +51,7 @@ export function SneakerGeneralSection({
           <SneakerField
             name="slug"
             id="slug"
-            label="Slug (URL)"
+            label="Slug (generado por el backend)"
             labelClassName={labelClass}
             render={({ field, fieldState, control }) => (
               <div className="flex gap-2">
@@ -60,6 +59,7 @@ export function SneakerGeneralSection({
                   {...control}
                   {...field}
                   type="text"
+                  readOnly
                   placeholder="Se genera a partir del nombre"
                   className={invalidClass(
                     `${fieldClass} min-w-0 grow bg-muted text-muted-foreground`,
@@ -68,7 +68,8 @@ export function SneakerGeneralSection({
                 />
                 <button
                   type="button"
-                  disabled={disabled}
+                  disabled
+                  hidden
                   onClick={onRegenerateSlug}
                   className="h-11 shrink-0 border border-input bg-card px-3 text-[11px] font-extrabold tracking-[0.04em] uppercase hover:bg-muted disabled:opacity-60"
                 >
@@ -90,6 +91,7 @@ export function SneakerGeneralSection({
                 {...control}
                 {...field}
                 rows={3}
+                maxLength={DESCRIPTION_MAX_LENGTH}
                 className={invalidClass(textareaClass, fieldState.invalid)}
               />
               <span className="text-[11px] text-muted-foreground">
@@ -99,11 +101,11 @@ export function SneakerGeneralSection({
           )}
         />
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid min-w-0 gap-4 sm:grid-cols-3">
           <SneakerField
             name="brandId"
             id="brand"
-            label="Marca"
+            label="Marca *"
             labelClassName={labelClass}
             render={({ field, fieldState, control }) => (
               <select
@@ -122,7 +124,7 @@ export function SneakerGeneralSection({
           <SneakerField
             name="categoryId"
             id="category"
-            label="Categoría"
+            label="Categoría *"
             labelClassName={labelClass}
             render={({ field, fieldState, control }) => (
               <select
@@ -141,7 +143,7 @@ export function SneakerGeneralSection({
           <SneakerField
             name="gender"
             id="gender"
-            label="Para quién"
+            label="Para quién *"
             labelClassName={labelClass}
             render={({ field, control }) => (
               <select {...control} {...field} className={fieldClass}>
@@ -155,18 +157,20 @@ export function SneakerGeneralSection({
           />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-[1fr_0.7fr_1fr_1fr]">
+        <div className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(92px,0.7fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <SneakerField
             name="price"
             id="price"
-            label="Precio base"
+            label="Precio base *"
             labelClassName={labelClass}
             render={({ field, fieldState, control }) => (
               <input
                 {...control}
                 {...field}
-                type="text"
+                type="number"
                 inputMode="decimal"
+                min="0"
+                step="0.01"
                 className={invalidClass(fieldClass, fieldState.invalid)}
               />
             )}
@@ -174,7 +178,7 @@ export function SneakerGeneralSection({
           <SneakerField
             name="currency"
             id="currency"
-            label="Moneda"
+            label="Moneda *"
             labelClassName={labelClass}
             render={({ field, control }) => (
               <select {...control} {...field} className={fieldClass}>
@@ -196,7 +200,7 @@ export function SneakerGeneralSection({
                 {...control}
                 {...field}
                 type="date"
-                className={fieldClass}
+                className={`${fieldClass} bg-muted/30 accent-primary dark:[color-scheme:dark]`}
               />
             )}
           />

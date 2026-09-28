@@ -1,102 +1,39 @@
 ---
+import { EyeIcon } from "@workspace/ui/components/icons/eye"
 import { PencilIcon } from "@workspace/ui/components/icons/pencil"
 import { SurfaceTone } from "@workspace/ui/lib/tones"
-
-import {
-  formatAdminDate,
-  formatAdminMoney,
-  SneakerStatus,
-  type AdminSneakerRow,
-} from "@/features/admin/api/types"
+import { formatAdminMoney, SneakerStatus, STATUS_LABELS, type AdminSneakerRow } from "@/features/admin/api/types"
 import StatusBadge from "@/features/admin/components/status-badge.astro"
 import ImagePlaceholder from "@/features/storefront/components/image-placeholder.astro"
-
-interface Props {
-  row: AdminSneakerRow
-}
-
+interface Props { row: AdminSneakerRow }
 const { row } = Astro.props
 const editHref = `/admin/sneakers/${row.slug}`
 ---
-
 <tr class="border-t border-border/60">
-  <td class="py-3 pr-0 pl-5">
-    <label for={`select-${row.id}`} class="sr-only">
-      Seleccionar {row.name}
-    </label>
-    <input
-      id={`select-${row.id}`}
-      type="checkbox"
-      class="size-4 accent-primary"
-    />
-  </td>
-  <td class="px-3 py-3">
-    <div class="flex items-center gap-3">
-      {
-        row.imageUrl ? (
-          <img
-            src={row.imageUrl}
-            alt=""
-            loading="lazy"
-            class="size-11 shrink-0 bg-muted object-cover"
-          />
-        ) : (
-          <ImagePlaceholder
-            tone={
-              row.status === SneakerStatus.ARCHIVED
-                ? SurfaceTone.SOFT
-                : SurfaceTone.TINT
-            }
-            class="size-11 shrink-0"
-            glyphClass="w-[68%]"
-          />
-        )
-      }
-      <div class="flex min-w-0 flex-col gap-0.5">
-        <a
-          href={editHref}
-          class="truncate text-sm font-bold text-foreground hover:text-primary"
-        >
-          {row.name}
-        </a>
-        <span class="truncate text-[11px] text-muted-foreground">
-          {row.slug} · {row.sku}
-          {row.warning ? ` · ${row.warning}` : ""}
-        </span>
-      </div>
-    </div>
-  </td>
-  <td class="px-3 py-3 text-[13px] font-semibold">{row.brand}</td>
-  <td class="px-3 py-3 text-[13px] whitespace-nowrap text-muted-foreground">
-    {row.category}
-  </td>
-  <td class="px-3 py-3 text-right text-[13px] font-bold whitespace-nowrap">
-    {formatAdminMoney(row.price)}
-  </td>
-  <td class="px-3 py-3 text-center text-[13px]">
-    {row.colorways}
-  </td>
-  <td
-    class:list={[
-      "px-3 py-3 text-center text-[13px] font-bold",
-      row.stock === 0 ? "text-muted-foreground" : "text-foreground",
-    ]}
-  >
-    {row.stock}
-  </td>
-  <td class="px-3 py-3">
-    <StatusBadge status={row.status} />
-  </td>
-  <td class="px-3 py-3 text-[13px] whitespace-nowrap text-muted-foreground">
-    {formatAdminDate(row.updatedAt)}
-  </td>
-  <td class="py-3 pr-5 pl-3 text-right">
-    <a
-      href={editHref}
-      aria-label={`Editar ${row.name}`}
-      class="inline-flex size-9 items-center justify-center border border-border hover:border-primary hover:text-primary"
-    >
-      <PencilIcon />
-    </a>
-  </td>
+  <td class="py-3 pr-0 pl-5"><label for={`select-${row.id}`} class="sr-only">Seleccionar {row.name}</label><input id={`select-${row.id}`} type="checkbox" class="size-4 accent-primary" /></td>
+  <td class="px-3 py-3"><div class="flex items-center gap-3">{row.imageUrl ? <img src={row.imageUrl} alt="" loading="lazy" class="size-11 shrink-0 bg-muted object-cover" /> : <ImagePlaceholder tone={row.status === SneakerStatus.ARCHIVED ? SurfaceTone.SOFT : SurfaceTone.TINT} class="size-11 shrink-0" glyphClass="w-[68%]" />}<div class="flex min-w-0 flex-col gap-0.5"><a href={editHref} class="truncate text-sm font-bold text-foreground hover:text-primary">{row.name}</a><span class="truncate text-[11px] text-muted-foreground">{row.slug} · {row.sku}{row.warning ? ` · ${row.warning}` : ""}</span></div></div></td>
+  <td class="px-3 py-3 text-[13px] font-semibold">{row.brand}</td><td class="px-3 py-3 text-[13px] whitespace-nowrap text-muted-foreground">{row.category}</td><td class="px-3 py-3 text-right text-[13px] font-bold whitespace-nowrap">{formatAdminMoney(row.price)}</td><td class="px-3 py-3 text-center text-[13px]">{row.colorways}</td><td class:list={["px-3 py-3 text-center text-[13px] font-bold", row.stock === 0 ? "text-muted-foreground" : "text-foreground"]}>{row.stock}</td><td class="px-3 py-3"><StatusBadge status={row.status} /></td>
+  <td class="py-3 pr-5 pl-3"><div class="flex justify-end gap-1.5"><button type="button" data-status-trigger data-status-dialog-target={row.id} data-sneaker-id={row.id} aria-label={`Cambiar estado de ${row.name}`} class="inline-flex size-9 items-center justify-center border border-border hover:border-primary hover:text-primary"><EyeIcon size={17} /></button><a href={editHref} aria-label={`Editar ${row.name}`} class="inline-flex size-9 items-center justify-center border border-border hover:border-primary hover:text-primary"><PencilIcon /></a></div></td>
 </tr>
+<dialog data-status-dialog={row.id} class="w-[min(92vw,420px)] border border-border bg-card p-0 text-foreground shadow-xl backdrop:bg-foreground/30"><form method="dialog" class="flex flex-col gap-5 p-6"><div><h2 class="text-lg font-extrabold">Cambiar estado</h2><p class="mt-1 text-sm text-muted-foreground">{row.name}</p></div><label class="flex flex-col gap-1.5 text-xs font-extrabold tracking-[0.08em] text-muted-foreground uppercase">Nuevo estado<select data-status-value class="h-11 border border-input bg-background px-3 text-sm font-semibold text-foreground outline-none focus-visible:border-ring">{Object.values(SneakerStatus).map((status) => <option value={status} selected={status === row.status}>{STATUS_LABELS[status]}</option>)}</select></label><p data-status-error class="hidden border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm font-semibold text-destructive"></p><div class="flex justify-end gap-2"><button type="button" data-status-cancel class="h-10 border border-border px-4 text-xs font-extrabold uppercase hover:border-primary">Cancelar</button><button type="submit" data-status-confirm class="h-10 bg-primary px-4 text-xs font-extrabold text-primary-foreground uppercase hover:bg-primary/90">Guardar</button></div></form></dialog>
+<script>
+  document.querySelectorAll<HTMLButtonElement>("[data-status-trigger]").forEach((trigger) => {
+    const dialog = document.querySelector<HTMLDialogElement>(`[data-status-dialog="${trigger.dataset.statusDialogTarget}"]`)
+    const value = dialog?.querySelector<HTMLSelectElement>("[data-status-value]")
+    const error = dialog?.querySelector<HTMLElement>("[data-status-error]")
+    const confirm = dialog?.querySelector<HTMLButtonElement>("[data-status-confirm]")
+    trigger.addEventListener("click", () => dialog?.showModal())
+    dialog?.querySelector("[data-status-cancel]")?.addEventListener("click", () => dialog.close())
+    dialog?.querySelector("form")?.addEventListener("submit", async (event) => {
+      event.preventDefault()
+      const actions: Record<string, string> = { ACTIVE: "publish", ARCHIVED: "archive", DRAFT: "unarchive" }
+      const action = value ? actions[value.value] : undefined
+      const id = trigger.dataset.sneakerId
+      if (!action || !id || !confirm) return
+      confirm.disabled = true
+      const response = await fetch(`/api/sneakers/${id}/${action}`, { method: "POST", credentials: "same-origin" })
+      if (response.ok) window.location.reload()
+      else { confirm.disabled = false; let message = "No se pudo cambiar el estado."; try { message = (await response.json()).detail ?? message } catch { /* no body */ }; if (error) { error.textContent = message; error.classList.remove("hidden") } }
+    })
+  })
+</script>

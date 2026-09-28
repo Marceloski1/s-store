@@ -3,14 +3,12 @@ import { Form } from "@workspace/ui/components/form"
 
 import { sneakerFormSchema } from "@/features/admin/api/schemas"
 import {
-  publishChecks,
   sneakerStock,
   type AdminOption,
   type SneakerForm,
 } from "@/features/admin/api/types"
 import { ColorwaysSection } from "@/features/admin/components/colorways-section"
 import { PhotosPanel } from "@/features/admin/components/photos-panel"
-import { PublicationPanel } from "@/features/admin/components/publication-panel"
 import { SneakerContentSection } from "@/features/admin/components/sneaker-content-section"
 import { SneakerEditorHeader } from "@/features/admin/components/sneaker-editor-header"
 import { SneakerGeneralSection } from "@/features/admin/components/sneaker-general-section"
@@ -63,6 +61,8 @@ export function SneakerEditor({
         </p>
       )}
 
+      <p className="text-xs text-muted-foreground">Los campos marcados con * son obligatorios.</p>
+
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
         <div className="flex min-w-0 flex-col gap-5">
           <Form
@@ -80,7 +80,6 @@ export function SneakerEditor({
                   categories={categories}
                   genders={genders}
                   currencies={currencies}
-                  disabled={isSaving}
                   onRegenerateSlug={() => editor.regenerateSlug(form)}
                 />
                 <SneakerContentSection />
@@ -109,13 +108,6 @@ export function SneakerEditor({
         <div className="flex flex-col gap-5">
           {sneaker ? (
             <>
-              <PublicationPanel
-                checks={publishChecks(sneaker)}
-                status={sneaker.status}
-                disabled={isSaving}
-                canChangeStatus={editor.canChangeStatus}
-                onChangeStatus={(target) => void editor.changeStatus(target)}
-              />
               <PhotosPanel
                 images={sneaker.images}
                 disabled={isSaving}

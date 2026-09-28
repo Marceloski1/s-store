@@ -83,9 +83,10 @@ export const STATUS_TRANSITIONS: Record<SneakerStatus, SneakerStatus[]> = {
   [SneakerStatus.ARCHIVED]: [SneakerStatus.DRAFT],
 }
 
-export const MAX_IMAGES = 8
+export const MAX_IMAGES = 4
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024
-export const DESCRIPTION_MAX_LENGTH = 2000
+export const NAME_MAX_LENGTH = 40
+export const DESCRIPTION_MAX_LENGTH = 200
 
 export function formatAdminMoney(price: AdminMoney): string {
   return `${price.amount.replace(".", ",")} ${price.currency}`

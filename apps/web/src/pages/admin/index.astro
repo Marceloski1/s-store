@@ -1,24 +1,33 @@
 ---
-import { getAdminStats, listAdminSneakers } from "@/features/admin/api/sneakers"
+import {
+  getAdminStats,
+  loadAdminReferences,
+  listAdminSneakers,
+} from "@/features/admin/api/sneakers"
 import {
   SneakerStatus,
   type AdminSneakerPage,
   type AdminStats,
   type StatusTab,
 } from "@/features/admin/api/types"
+import type { CatalogReferences } from "@/features/catalog/api/references"
 import AdminAlert from "@/features/admin/components/admin-alert.astro"
 import AdminPageHeading from "@/features/admin/components/admin-page-heading.astro"
 import AdminPagination from "@/features/admin/components/admin-pagination.astro"
 import SneakerListActions from "@/features/admin/components/sneaker-list-actions.astro"
 import SneakerStats from "@/features/admin/components/sneaker-stats.astro"
 import SneakersTable from "@/features/admin/components/sneakers-table.astro"
-import StatusTabs from "@/features/admin/components/status-tabs.astro"
 import { AdminSection } from "@/features/admin/content/nav"
 import AdminLayout from "@/layouts/admin.astro"
 import { toErrorMessage } from "@/lib/api/errors"
 import { toEnum } from "@/lib/enums"
 
 const statusFilter = toEnum(SneakerStatus, Astro.url.searchParams.get("estado"))
+const search = Astro.url.searchParams.get("q")?.trim() ?? ""
+const brandFilter = Astro.url.searchParams.get("brand_id") ?? ""
+const categoryFilter = Astro.url.searchParams.get("category_id") ?? ""
+const requestedSize = Number(Astro.url.searchParams.get("size") ?? "10")
+const pageSize = [10, 20, 50].includes(requestedSize) ? requestedSize : 10
 const requestedPage = Number(Astro.url.searchParams.get("page") ?? "1")
 const currentPage =
   Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1
@@ -32,12 +41,26 @@ let stats: AdminStats = {
   outOfStock: 0,
 }
 let loadError: string | null = null
+let references: CatalogReferences = {
+  brands: [],
+  categories: [],
+  brandName: () => "",
+  categoryName: () => "",
+}
 
 try {
-  ;[listing, stats] = await Promise.all([
-    listAdminSneakers(statusFilter, currentPage),
+  const [nextListing, nextStats, nextReferences] = await Promise.all([
+    listAdminSneakers(statusFilter, currentPage, {
+      q: search || undefined,
+      brandId: brandFilter || undefined,
+      categoryId: categoryFilter || undefined,
+    }, pageSize),
     getAdminStats(),
+    loadAdminReferences(),
   ])
+  listing = nextListing
+  stats = nextStats
+  references = nextReferences
 } catch (error) {
   loadError = toErrorMessage(error)
 }
@@ -52,6 +75,10 @@ const tabs: StatusTab[] = [
 function pageHref(page: number): string {
   const params = new URLSearchParams()
   if (statusFilter) params.set("estado", statusFilter)
+  if (search) params.set("q", search)
+  if (brandFilter) params.set("brand_id", brandFilter)
+  if (categoryFilter) params.set("category_id", categoryFilter)
+  if (pageSize !== 10) params.set("size", String(pageSize))
   if (page > 1) params.set("page", String(page))
   const query = params.toString()
   return query ? `/admin?${query}` : "/admin"
@@ -81,7 +108,26 @@ function pageHref(page: number): string {
   <SneakerStats stats={stats} />
 
   <div class="flex flex-col border border-border bg-card">
-    <StatusTabs tabs={tabs} active={statusFilter} />
+    <form action="/admin" method="get" class="grid gap-3 border-b border-border p-4 md:grid-cols-[180px_180px_minmax(0,1fr)_180px_180px_auto]">
+      <label class="sr-only" for="admin-status-filter">Filtrar por estado</label>
+      <select id="admin-status-filter" name="estado" class="h-11 border border-input bg-background px-3 text-sm font-semibold outline-none focus-visible:border-ring">
+        <option value="">Todos los estados</option>
+        {tabs.slice(1).map((tab) => <option value={tab.value ?? ""} selected={tab.value === statusFilter}>{tab.label}</option>)}
+      </select>
+      <label class="sr-only" for="admin-catalog-search">Buscar modelo, slug o SKU</label>
+      <input id="admin-catalog-search" name="q" value={search} placeholder="Modelo, slug o SKU" class="h-11 min-w-0 border border-input bg-background px-3 text-sm font-semibold outline-none focus-visible:border-ring" />
+      <label class="sr-only" for="admin-brand-filter">Filtrar por marca</label>
+      <select id="admin-brand-filter" name="brand_id" class="h-11 border border-input bg-background px-3 text-sm font-semibold outline-none focus-visible:border-ring">
+        <option value="">Todas las marcas</option>
+        {references.brands.map((brand) => <option value={brand.id} selected={brand.id === brandFilter}>{brand.name}</option>)}
+      </select>
+      <label class="sr-only" for="admin-category-filter">Filtrar por categoría</label>
+      <select id="admin-category-filter" name="category_id" class="h-11 border border-input bg-background px-3 text-sm font-semibold outline-none focus-visible:border-ring">
+        <option value="">Todas las categorías</option>
+        {references.categories.map((category) => <option value={category.id} selected={category.id === categoryFilter}>{category.name}</option>)}
+      </select>
+      <button type="submit" class="h-11 bg-primary px-5 text-xs font-extrabold tracking-[0.06em] text-primary-foreground uppercase">Filtrar</button>
+    </form>
     <SneakersTable
       rows={listing.rows}
       showEmpty={listing.rows.length === 0 && !loadError}
@@ -95,6 +141,7 @@ function pageHref(page: number): string {
       nextHref={listing.page < listing.pages
         ? pageHref(listing.page + 1)
         : null}
+      pageSize={pageSize}
     />
   </div>
 </AdminLayout>

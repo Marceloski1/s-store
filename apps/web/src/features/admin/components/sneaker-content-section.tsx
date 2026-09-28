@@ -39,7 +39,9 @@ export function SneakerContentSection() {
                 <input
                   {...control}
                   {...field}
-                  type="text"
+                  type={spec.key === "weight" ? "number" : "text"}
+                  min={spec.key === "weight" ? "0" : undefined}
+                  step={spec.key === "weight" ? "0.01" : undefined}
                   className={invalidClass(fieldClass, fieldState.invalid)}
                 />
               )}

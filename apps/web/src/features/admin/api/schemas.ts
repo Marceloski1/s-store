@@ -30,7 +30,7 @@ export const sneakerFormSchema = z
       .string()
       .trim()
       .min(1, "El nombre del modelo es obligatorio")
-      .max(150, "Máximo 150 caracteres"),
+      .max(40, "Máximo 40 caracteres"),
     slug: optionalMatch(
       SLUG_PATTERN,
       "Solo minúsculas, números y guiones",
@@ -41,7 +41,7 @@ export const sneakerFormSchema = z
       "Solo letras, números y guiones",
       64
     ),
-    description: maxText(2000),
+    description: maxText(200),
     brandId: z.string().min(1, "Elige una marca"),
     categoryId: z.string().min(1, "Elige una categoría"),
     gender: z.enum(Gender),
