@@ -28,6 +28,8 @@ class SneakerSort(StrEnum):
 class SneakerFilters:
     brands: tuple[Slug, ...] = ()
     categories: tuple[Slug, ...] = ()
+    brand_ids: tuple[UUID, ...] = ()
+    category_ids: tuple[UUID, ...] = ()
     genders: tuple[Gender, ...] = ()
     status: SneakerStatus | None = None
     sizes: tuple[ShoeSize, ...] = ()

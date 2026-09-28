@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Response, status
 
+from shared.presentation.http.dependencies import UnitOfWorkDep
 from saury_backend.identity.application.dtos.user import LoginCommand
 from saury_backend.identity.application.use_cases.auth import Login
 from saury_backend.identity.presentation.http.dependencies import (
@@ -11,6 +12,9 @@ from saury_backend.identity.presentation.http.dependencies import (
     UserRepositoryDep,
 )
 from saury_backend.identity.presentation.http.schemas import LoginRequest, UserResponse
+from saury_backend.identity.presentation.http.schemas import ChangePasswordRequest
+from saury_backend.identity.domain.errors import InvalidCredentials
+from saury_backend.identity.domain.value_objects.password import validate_password
 from saury_backend.presentation.http.errors import UNAUTHORIZED_RESPONSE
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -46,3 +50,19 @@ async def logout(response: Response, settings: AppSettingsDep) -> None:
 @router.get("/me", responses=UNAUTHORIZED_RESPONSE)
 async def me(user: CurrentUserDep) -> UserResponse:
     return UserResponse.model_validate(user)
+
+
+@router.post("/password", status_code=status.HTTP_204_NO_CONTENT)
+async def change_password(
+    body: ChangePasswordRequest,
+    user: CurrentUserDep,
+    repository: UserRepositoryDep,
+    hasher: PasswordHasherDep,
+    unit_of_work: UnitOfWorkDep,
+) -> None:
+    account = await repository.get(user.id)
+    if account is None or not hasher.verify(account.password_hash, body.current_password):
+        raise InvalidCredentials()
+    account.change_password_hash(hasher.hash(validate_password(body.new_password)))
+    await repository.save(account)
+    await unit_of_work.commit()

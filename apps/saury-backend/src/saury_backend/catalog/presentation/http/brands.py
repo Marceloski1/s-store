@@ -33,7 +33,7 @@ async def create_brand(
     repository: BrandRepositoryDep,
     unit_of_work: UnitOfWorkDep,
 ) -> BrandResponse:
-    brand = await CreateBrand(repository, unit_of_work).execute(CreateBrandCommand(name=body.name, slug=body.slug))
+    brand = await CreateBrand(repository, unit_of_work).execute(CreateBrandCommand(name=body.name))
     return BrandResponse.model_validate(brand)
 
 
@@ -59,7 +59,7 @@ async def update_brand(
     repository: BrandRepositoryDep,
     unit_of_work: UnitOfWorkDep,
 ) -> BrandResponse:
-    command = UpdateBrandCommand(brand_id=brand_id, name=body.name, slug=body.slug)
+    command = UpdateBrandCommand(brand_id=brand_id, name=body.name)
     return BrandResponse.model_validate(await UpdateBrand(repository, unit_of_work).execute(command))
 
 

@@ -19,6 +19,11 @@ class LoginRequest(BaseModel):
     password: Annotated[str, StringConstraints(min_length=1, max_length=PASSWORD_MAX_LENGTH)]
 
 
+class ChangePasswordRequest(BaseModel):
+    current_password: PasswordStr
+    new_password: PasswordStr
+
+
 class CreateUserRequest(BaseModel):
     email: EmailStr
     name: NameStr

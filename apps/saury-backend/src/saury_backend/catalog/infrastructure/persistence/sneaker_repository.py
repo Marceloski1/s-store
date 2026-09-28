@@ -134,11 +134,15 @@ def _conditions(filters: SneakerFilters) -> list[ColumnElement[bool]]:
     if filters.brands:
         brand_slugs = [brand.value for brand in filters.brands]
         conditions.append(SneakerModel.brand_id.in_(select(BrandModel.id).where(BrandModel.slug.in_(brand_slugs))))
+    if filters.brand_ids:
+        conditions.append(SneakerModel.brand_id.in_(filters.brand_ids))
     if filters.categories:
         category_slugs = [category.value for category in filters.categories]
         conditions.append(
             SneakerModel.category_id.in_(select(CategoryModel.id).where(CategoryModel.slug.in_(category_slugs)))
         )
+    if filters.category_ids:
+        conditions.append(SneakerModel.category_id.in_(filters.category_ids))
     if filters.genders:
         conditions.append(SneakerModel.gender.in_(filters.genders))
     if filters.status is not None:

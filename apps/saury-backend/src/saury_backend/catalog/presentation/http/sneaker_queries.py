@@ -1,5 +1,6 @@
 from decimal import Decimal
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import Query
 
@@ -12,6 +13,8 @@ from saury_backend.catalog.domain.value_objects.gender import Gender
 def list_sneakers_query(
     brand: Annotated[list[str], Query()] = [],
     category: Annotated[list[str], Query()] = [],
+    brand_id: Annotated[list[UUID], Query()] = [],
+    category_id: Annotated[list[UUID], Query()] = [],
     gender: Annotated[list[Gender], Query()] = [],
     shoe_size: Annotated[list[Decimal], Query()] = [],
     color: Annotated[list[str], Query()] = [],
@@ -26,6 +29,8 @@ def list_sneakers_query(
     return ListSneakersQuery(
         brands=tuple(brand),
         categories=tuple(category),
+        brand_ids=tuple(brand_id),
+        category_ids=tuple(category_id),
         genders=tuple(value.value for value in gender),
         sizes=tuple(shoe_size),
         colors=tuple(color),

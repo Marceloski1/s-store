@@ -52,7 +52,6 @@ SpecStr = Annotated[str, StringConstraints(strip_whitespace=True, max_length=SPE
 
 class BrandRequest(BaseModel):
     name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=BRAND_NAME_MAX_LENGTH)]
-    slug: SlugStr | None = None
 
 
 class BrandResponse(BaseModel):
@@ -65,7 +64,6 @@ class BrandResponse(BaseModel):
 
 class CategoryRequest(BaseModel):
     name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=CATEGORY_NAME_MAX_LENGTH)]
-    slug: SlugStr | None = None
 
 
 class CategoryResponse(BaseModel):

@@ -33,7 +33,7 @@ async def create_category(
     repository: CategoryRepositoryDep,
     unit_of_work: UnitOfWorkDep,
 ) -> CategoryResponse:
-    command = CreateCategoryCommand(name=body.name, slug=body.slug)
+    command = CreateCategoryCommand(name=body.name)
     return CategoryResponse.model_validate(await CreateCategory(repository, unit_of_work).execute(command))
 
 
@@ -62,7 +62,7 @@ async def update_category(
     repository: CategoryRepositoryDep,
     unit_of_work: UnitOfWorkDep,
 ) -> CategoryResponse:
-    command = UpdateCategoryCommand(category_id=category_id, name=body.name, slug=body.slug)
+    command = UpdateCategoryCommand(category_id=category_id, name=body.name)
     return CategoryResponse.model_validate(await UpdateCategory(repository, unit_of_work).execute(command))
 
 

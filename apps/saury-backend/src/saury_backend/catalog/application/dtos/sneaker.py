@@ -201,6 +201,8 @@ class UpdateSneakerCommand:
 class ListSneakersQuery:
     brands: tuple[str, ...] = ()
     categories: tuple[str, ...] = ()
+    brand_ids: tuple[UUID, ...] = ()
+    category_ids: tuple[UUID, ...] = ()
     genders: tuple[str, ...] = ()
     status: str | None = None
     sizes: tuple[Decimal, ...] = ()
