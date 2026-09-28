@@ -16,7 +16,8 @@ const { facets, selected } = Astro.props
 <form
   action="/sneakers"
   method="get"
-  class="flex flex-col gap-6 border border-border p-5"
+  id="catalog-filter-form"
+  class="flex flex-col gap-6 border border-border bg-background p-5"
   aria-label="Filtros del catálogo"
 >
   <span
@@ -31,28 +32,29 @@ const { facets, selected } = Astro.props
     )
   }
 
-  <fieldset class="flex flex-col gap-3">
-    <legend
-      class="pb-1 text-[11px] font-extrabold tracking-[0.14em] text-foreground uppercase"
-    >
+  <details open class="group">
+    <summary class="flex cursor-pointer list-none items-center justify-between pb-1 text-[11px] font-extrabold tracking-[0.14em] text-foreground uppercase [&::-webkit-details-marker]:hidden">
       Marca
-    </legend>
-    {
-      facets.brands.map((brand) => (
-        <label class="flex cursor-pointer items-center gap-2.5 text-sm font-semibold">
-          <input
-            type="checkbox"
-            name="brand"
-            value={brand.value}
-            checked={selected.brands.includes(brand.value)}
-            class="size-4 accent-primary"
-          />
-          <span class="grow">{brand.label}</span>
-          <span class="font-medium text-muted-foreground">{brand.count}</span>
-        </label>
-      ))
-    }
-  </fieldset>
+      <span class="text-lg leading-none transition-transform duration-200 group-open:rotate-180" aria-hidden="true">⌄</span>
+    </summary>
+    <div class="flex flex-col gap-3 pt-3">
+      {
+        facets.brands.map((brand) => (
+          <label class="flex cursor-pointer items-center gap-2.5 text-sm font-semibold">
+            <input
+              type="checkbox"
+              name="brand"
+              value={brand.value}
+              checked={selected.brands.includes(brand.value)}
+              class="size-4 accent-primary"
+            />
+            <span class="grow">{brand.label}</span>
+            <span class="font-medium text-muted-foreground">{brand.count}</span>
+          </label>
+        ))
+      }
+    </div>
+  </details>
 
   <fieldset class="flex flex-col gap-3 border-t border-border pt-5">
     <legend
@@ -165,7 +167,7 @@ const { facets, selected } = Astro.props
     <select
       id="currency"
       name="currency"
-      class="h-11 border border-input bg-background px-2.5 text-sm font-semibold outline-none focus-visible:border-ring"
+      class="h-11 w-full min-w-0 appearance-none border border-input bg-background px-2.5 text-sm font-semibold outline-none transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/20"
     >
       {
         facets.currencies.map((currency) => (
@@ -195,7 +197,7 @@ const { facets, selected } = Astro.props
               class="peer sr-only"
             />
             <span
-              class="block size-11 border border-input peer-checked:ring-2 peer-checked:ring-primary peer-checked:ring-offset-1 peer-focus-visible:ring-1 peer-focus-visible:ring-ring"
+              class="block size-11 border-2 border-background shadow-[0_0_0_1px_var(--border)] transition-all duration-200 hover:scale-105 hover:shadow-[0_0_0_1px_var(--primary)] peer-checked:border-primary peer-checked:ring-2 peer-checked:ring-primary peer-checked:ring-offset-2 peer-focus-visible:ring-2 peer-focus-visible:ring-ring"
               style={`background-color: ${color.value}`}
               title={color.label}
             />
@@ -212,6 +214,9 @@ const { facets, selected } = Astro.props
     >
       Código de referencia
     </legend>
+    <p class="text-xs leading-relaxed text-muted-foreground">
+      Identificador único del modelo, por ejemplo: ALS-RP2-001.
+    </p>
     <label for="reference" class="sr-only">Código de referencia</label>
     <input
       id="reference"

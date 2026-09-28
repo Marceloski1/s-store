@@ -33,5 +33,14 @@ const { title, active, breadcrumb } = Astro.props
         </main>
       </div>
     </div>
+    <script is:inline>
+      if (localStorage.getItem("alesa-theme") === "dark") document.documentElement.classList.add("dark")
+      document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const dark = document.documentElement.classList.toggle("dark")
+          localStorage.setItem("alesa-theme", dark ? "dark" : "light")
+        })
+      })
+    </script>
   </body>
 </html>

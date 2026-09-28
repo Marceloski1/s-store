@@ -58,16 +58,19 @@ export const STORE_STYLES = [
   {
     slug: "deportivo",
     name: "Deportivo",
+    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85",
     detail: "Running, básquet y entrenamiento",
   },
   {
     slug: "elegante",
     name: "Elegante",
+    image: "https://images.unsplash.com/photo-1614252369475-531eba835eb1?auto=format&fit=crop&w=900&q=85",
     detail: "Para la oficina y las ocasiones",
   },
   {
     slug: "diario",
     name: "Diario",
+    image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=900&q=85",
     detail: "Comodidad de la mañana a la noche",
   },
 ] as const

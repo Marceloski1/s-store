@@ -28,14 +28,12 @@ export function NamedResourceForm({
       schema={namedResourceSchema}
       defaultValues={{
         name: initialValue?.name ?? "",
-        slug: initialValue?.slug ?? "",
       }}
       onSubmit={async (values, form) => {
         const saved = await onSubmit({
           name: values.name,
-          slug: values.slug || null,
         })
-        if (saved && !initialValue) form.reset({ name: "", slug: "" })
+        if (saved && !initialValue) form.reset({ name: "" })
       }}
       className="flex flex-wrap items-start gap-2"
     >
@@ -44,14 +42,6 @@ export function NamedResourceForm({
         label="Nombre"
         className="grid min-w-40 flex-1 gap-1"
         render={({ field, control }) => <Input {...control} {...field} />}
-      />
-      <FormField<NamedResourceFormValues, "slug">
-        name="slug"
-        label="Slug"
-        className="grid min-w-40 flex-1 gap-1"
-        render={({ field, control }) => (
-          <Input {...control} {...field} placeholder="Automático" />
-        )}
       />
       <div className="flex gap-2 pt-5">
         <Button type="submit" disabled={isSaving}>

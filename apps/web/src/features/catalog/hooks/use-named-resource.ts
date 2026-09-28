@@ -7,10 +7,11 @@ import type {
 } from "@/features/catalog/api/types"
 import { toErrorMessage } from "@/lib/api/errors"
 
-const PAGE_SIZE = 10
+const DEFAULT_PAGE_SIZE = 10
 
 export function useNamedResource(gateway: NamedResourceGateway) {
   const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const [reloadKey, setReloadKey] = useState(0)
   const [data, setData] = useState<ResourcePage | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -18,7 +19,7 @@ export function useNamedResource(gateway: NamedResourceGateway) {
 
   useEffect(() => {
     let ignore = false
-    gateway.list(page, PAGE_SIZE).then(
+    gateway.list(page, pageSize).then(
       (result) => {
         if (ignore) return
         setData(result)
@@ -32,7 +33,7 @@ export function useNamedResource(gateway: NamedResourceGateway) {
     return () => {
       ignore = true
     }
-  }, [gateway, page, reloadKey])
+  }, [gateway, page, pageSize, reloadKey])
 
   async function mutate(action: () => Promise<unknown>): Promise<boolean> {
     setIsSaving(true)
@@ -65,6 +66,11 @@ export function useNamedResource(gateway: NamedResourceGateway) {
     isSaving,
     page,
     setPage,
+    pageSize,
+    setPageSize: (size: number) => {
+      setPage(1)
+      setPageSize(size)
+    },
     create: (input: NamedResourceInput) => mutate(() => gateway.create(input)),
     update: (id: string, input: NamedResourceInput) =>
       mutate(() => gateway.update(id, input)),

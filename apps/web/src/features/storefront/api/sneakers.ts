@@ -21,7 +21,7 @@ import { categoryService } from "@/services/catalogs-services/category"
 import { facetService } from "@/services/catalogs-services/facet"
 import { sneakerService } from "@/services/catalogs-services/sneaker"
 
-const CATALOG_PAGE_SIZE = 9
+const CATALOG_PAGE_SIZE = 10
 const NEW_RELEASE_DAYS = 30
 const LAST_SIZES_THRESHOLD = 5
 const DAY_IN_MS = 24 * 60 * 60 * 1000

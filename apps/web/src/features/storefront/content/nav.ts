@@ -41,3 +41,8 @@ export const STOREFRONT_NAV = Object.values(StorefrontSection).map(
     href: hrefFor(section),
   })
 )
+
+export const STOREFRONT_VISIBLE_NAV = STOREFRONT_NAV.filter(
+  ({ section }) =>
+    section === StorefrontSection.CATALOG || section === StorefrontSection.CONTACT
+)

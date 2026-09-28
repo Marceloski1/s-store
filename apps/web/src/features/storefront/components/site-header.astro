@@ -11,7 +11,7 @@ import {
   STORE_NAME,
 } from "@/features/storefront/content/store"
 import {
-  STOREFRONT_NAV,
+  STOREFRONT_VISIBLE_NAV,
   type StorefrontSection,
 } from "@/features/storefront/content/nav"
 
@@ -67,7 +67,7 @@ const instagram = SOCIAL_LINKS[0]
       aria-label="Secciones de la tienda"
     >
       {
-        STOREFRONT_NAV.map((item) => (
+        STOREFRONT_VISIBLE_NAV.map((item) => (
           <a
             href={item.href}
             class:list={[
@@ -84,6 +84,14 @@ const instagram = SOCIAL_LINKS[0]
     </nav>
 
     <div class="flex items-center gap-3">
+      <button
+        type="button"
+        data-theme-toggle
+        class="flex size-11 items-center justify-center border border-border text-lg text-foreground transition hover:border-primary hover:text-primary"
+        aria-label="Cambiar modo oscuro"
+      >
+        ◐
+      </button>
       <form action="/sneakers" method="get" class="hidden md:block">
         <label for="site-search" class="sr-only"
           >Buscar por marca, modelo o referencia</label
@@ -117,7 +125,7 @@ const instagram = SOCIAL_LINKS[0]
     aria-label="Secciones de la tienda"
   >
     {
-      STOREFRONT_NAV.map((item) => (
+      STOREFRONT_VISIBLE_NAV.map((item) => (
         <a
           href={item.href}
           class:list={[

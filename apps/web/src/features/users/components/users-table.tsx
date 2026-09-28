@@ -99,7 +99,11 @@ export function UsersTable({
                           <button
                             type="button"
                             disabled={disabled}
-                            onClick={() => onToggleActive(user)}
+                            onClick={() => {
+                              if (window.confirm(`¿${user.is_active ? "Desactivar" : "Activar"} a ${user.name}?`)) {
+                                onToggleActive(user)
+                              }
+                            }}
                             className={actionClass}
                           >
                             {user.is_active ? "Desactivar" : "Activar"}

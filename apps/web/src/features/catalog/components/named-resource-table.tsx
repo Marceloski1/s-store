@@ -42,7 +42,6 @@ export function NamedResourceTable({
       <TableHeader>
         <TableRow>
           <TableHead>Nombre</TableHead>
-          <TableHead>Slug</TableHead>
           <TableHead className="text-end">Acciones</TableHead>
         </TableRow>
       </TableHeader>
@@ -50,7 +49,7 @@ export function NamedResourceTable({
         {items.map((item) =>
           item.id === editingId ? (
             <TableRow key={item.id}>
-              <TableCell colSpan={3}>
+              <TableCell colSpan={2}>
                 <NamedResourceForm
                   initialValue={item}
                   submitLabel="Guardar"
@@ -63,9 +62,6 @@ export function NamedResourceTable({
           ) : (
             <TableRow key={item.id}>
               <TableCell>{item.name}</TableCell>
-              <TableCell className="font-mono text-muted-foreground">
-                {item.slug}
-              </TableCell>
               <TableCell className="flex justify-end gap-1">
                 <Button
                   size="sm"
@@ -78,7 +74,11 @@ export function NamedResourceTable({
                   size="sm"
                   variant="destructive"
                   disabled={isSaving}
-                  onClick={() => onDelete(item.id)}
+                  onClick={() => {
+                    if (window.confirm(`¿Eliminar «${item.name}»? Esta acción no se puede deshacer.`)) {
+                      onDelete(item.id)
+                    }
+                  }}
                 >
                   Eliminar
                 </Button>

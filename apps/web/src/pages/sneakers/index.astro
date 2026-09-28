@@ -85,10 +85,18 @@ const pages = Array.from({ length: catalog.pages }, (_, index) => ({
 
   <ActiveFilters filters={activeFilterChips(query, facets)} />
 
-  <div
-    class="mx-auto grid max-w-[1440px] items-start gap-10 px-4 py-8 sm:px-8 lg:grid-cols-[264px_minmax(0,1fr)] lg:px-16"
-  >
-    <aside>
+  <div id="catalog-layout" class="relative mx-auto grid max-w-[1440px] items-start gap-10 px-4 py-8 sm:px-8 lg:grid-cols-[264px_minmax(0,1fr)] lg:px-16">
+    <button
+      type="button"
+      id="filters-toggle"
+      class="mb-4 flex h-11 items-center justify-center border border-border bg-background px-4 text-xs font-extrabold tracking-[0.08em] text-foreground uppercase transition hover:border-primary hover:text-primary lg:col-span-2 lg:justify-self-start"
+      aria-expanded="true"
+      aria-controls="catalog-filters-panel"
+    >
+      Ocultar filtros
+    </button>
+    <div id="catalog-filters-backdrop" class="pointer-events-none fixed inset-0 z-20 bg-foreground/20 opacity-0 transition-opacity duration-300 lg:hidden" aria-hidden="true"></div>
+    <aside id="catalog-filters-panel" class="relative z-30 transition-all duration-300 lg:sticky lg:top-6">
       <CatalogFilters facets={facets} selected={query} />
     </aside>
     <CatalogResults
@@ -97,6 +105,28 @@ const pages = Array.from({ length: catalog.pages }, (_, index) => ({
       retryHref={catalogHref(query)}
     />
   </div>
+
+  <script>
+    const toggle = document.querySelector<HTMLButtonElement>("#filters-toggle")
+    const panel = document.querySelector<HTMLElement>("#catalog-filters-panel")
+    const backdrop = document.querySelector<HTMLElement>("#catalog-filters-backdrop")
+
+    function setFiltersOpen(open: boolean) {
+      const layout = document.querySelector<HTMLElement>("#catalog-layout")
+      if (!toggle || !panel || !backdrop || !layout) return
+      toggle.setAttribute("aria-expanded", String(open))
+      toggle.textContent = open ? "Ocultar filtros" : "Mostrar filtros"
+      panel.classList.toggle("hidden", !open)
+      layout.classList.toggle("lg:grid-cols-[264px_minmax(0,1fr)]", open)
+      layout.classList.toggle("lg:grid-cols-[minmax(0,1fr)]", !open)
+      backdrop.classList.toggle("pointer-events-none", !open)
+      backdrop.classList.toggle("opacity-0", !open)
+      document.body.classList.toggle("overflow-hidden", open && window.innerWidth < 1024)
+    }
+
+    toggle?.addEventListener("click", () => setFiltersOpen(panel?.classList.contains("hidden") ?? false))
+    backdrop?.addEventListener("click", () => setFiltersOpen(false))
+  </script>
 
   <CatalogPagination
     label={`Mostrando ${firstShown} – ${lastShown} de ${catalog.total} modelos`}

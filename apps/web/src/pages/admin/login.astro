@@ -22,5 +22,14 @@ const nextPath = safeNextPath(Astro.url.searchParams.get("next"))
       <LoginBrandPanel />
       <LoginPanel nextPath={nextPath} />
     </div>
+    <script is:inline>
+      if (localStorage.getItem("alesa-theme") === "dark") document.documentElement.classList.add("dark")
+      document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const dark = document.documentElement.classList.toggle("dark")
+          localStorage.setItem("alesa-theme", dark ? "dark" : "light")
+        })
+      })
+    </script>
   </body>
 </html>

@@ -1,6 +1,4 @@
 ---
-import { AlertTriangleIcon } from "@workspace/ui/components/icons/alert-triangle"
-
 import { AdminSection } from "@/features/admin/content/nav"
 import { CatalogAdmin } from "@/features/catalog/components/catalog-admin"
 import AdminLayout from "@/layouts/admin.astro"
@@ -24,9 +22,9 @@ import AdminLayout from "@/layouts/admin.astro"
   </div>
 
   <div
-    class="flex items-start gap-3 border border-warning/40 bg-warning/10 px-4 py-3.5"
+    class="hidden"
   >
-    <AlertTriangleIcon className="mt-0.5 shrink-0 text-warning" />
+   
     <span class="text-[13px] leading-relaxed text-warning">
       Una marca o categoría con modelos asociados no se puede borrar: la API
       responde 409. Reasigna esos modelos primero o archívalos.

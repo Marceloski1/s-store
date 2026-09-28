@@ -70,6 +70,18 @@ export function NamedResourceManager({
               total={resource.data.total}
               onPageChange={resource.setPage}
             />
+            <label className="flex items-center justify-end gap-2 text-xs text-muted-foreground">
+              Ver por página
+              <select
+                value={resource.pageSize}
+                onChange={(event) => resource.setPageSize(Number(event.target.value))}
+                className="h-9 border border-input bg-background px-2 font-semibold text-foreground"
+              >
+                {[10, 20, 50].map((size) => (
+                  <option key={size} value={size}>{size}</option>
+                ))}
+              </select>
+            </label>
           </>
         )}
       </CardContent>

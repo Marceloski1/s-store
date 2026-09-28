@@ -7,7 +7,7 @@ export type CatalogReferences = {
   categoryName: (id: string) => string
 }
 
-export const REFERENCE_PAGE_SIZE = 100
+export const REFERENCE_PAGE_SIZE = 10
 
 function nameLookup(items: NamedResource[]): (id: string) => string {
   const names = new Map(items.map((item) => [item.id, item.name]))

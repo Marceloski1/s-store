@@ -6,7 +6,6 @@ export type NamedResource = {
 
 export type NamedResourceInput = {
   name: string
-  slug?: string | null
 }
 
 export type ResourcePage = {

@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 import { EyeIcon } from "@workspace/ui/components/icons/eye"
+import { StrokeIcon } from "@workspace/ui/components/icons/stroke-icon"
 import { Form, FormField } from "@workspace/ui/components/form"
 
 import { loginSchema, type LoginValues } from "@/features/auth/api/schemas"
@@ -68,7 +69,15 @@ export function LoginForm({ nextPath }: LoginFormProps) {
               onClick={() => setShowPassword((current) => !current)}
               className="absolute right-1.5 flex size-11 items-center justify-center text-muted-foreground hover:text-foreground"
             >
-              <EyeIcon />
+              {showPassword ? (
+                <StrokeIcon size={19} strokeWidth={1.8}>
+                  <path d="m3 3 18 18" />
+                  <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+                  <path d="M9.9 5.2A11.6 11.6 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-3.1 3.8M6.2 6.3C3.8 8 2.5 12 2.5 12s3.5 7 9.5 7c1.1 0 2.1-.2 3-.6" />
+                </StrokeIcon>
+              ) : (
+                <EyeIcon />
+              )}
             </button>
           </div>
         )}

@@ -35,5 +35,15 @@ const fullTitle = `${title} · ${STORE_NAME}`
       <slot />
     </main>
     <SiteFooter />
+    <script is:inline>
+      const savedTheme = localStorage.getItem("alesa-theme")
+      if (savedTheme === "dark") document.documentElement.classList.add("dark")
+      document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const dark = document.documentElement.classList.toggle("dark")
+          localStorage.setItem("alesa-theme", dark ? "dark" : "light")
+        })
+      })
+    </script>
   </body>
 </html>

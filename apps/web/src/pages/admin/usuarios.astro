@@ -5,7 +5,7 @@ import AdminLayout from "@/layouts/admin.astro"
 import { toErrorMessage } from "@/lib/api/errors"
 import { userService } from "@/services/admin-services/user"
 
-const USERS_PAGE_SIZE = 100
+const USERS_PAGE_SIZE = 10
 
 const currentUser = Astro.locals.user
 const result = await userService.list(1, USERS_PAGE_SIZE).then(
